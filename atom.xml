@@ -1,0 +1,939 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://blog.honia.tk</id>
+    <title>Honia&apos;s Blog</title>
+    <updated>2022-07-20T04:49:17.260Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://blog.honia.tk"/>
+    <link rel="self" href="https://blog.honia.tk/atom.xml"/>
+    <subtitle>人如果没有梦想，和咸鱼有什么区别</subtitle>
+    <logo>https://blog.honia.tk/images/avatar.png</logo>
+    <icon>https://blog.honia.tk/favicon.ico</icon>
+    <rights>All rights reserved 2022, Honia&apos;s Blog</rights>
+    <entry>
+        <title type="html"><![CDATA[MYSQL8 JSON 类型学习笔记]]></title>
+        <id>https://blog.honia.tk/post/mysql8-json-lei-xing-xue-xi-bi-ji/</id>
+        <link href="https://blog.honia.tk/post/mysql8-json-lei-xing-xue-xi-bi-ji/">
+        </link>
+        <updated>2022-07-17T13:55:49.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#%E5%87%BD%E6%95%B0%E9%80%9F%E6%9F%A5%E8%A1%A8">函数速查表</a></li>
+<li><a href="#sql%E4%BC%98%E5%8C%96">sql优化</a></li>
+<li><a href="#%E5%88%9B%E5%BB%BAjson%E5%80%BC">创建JSON值</a></li>
+<li><a href="#%E6%9F%A5%E8%AF%A2">查询</a></li>
+<li><a href="#%E8%A7%84%E8%8C%83%E5%8C%96">规范化</a></li>
+<li><a href="#%E5%90%88%E5%B9%B6">合并</a></li>
+<li><a href="#%E8%B7%AF%E5%BE%84%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%92%8C%E6%90%9C%E7%B4%A2">路径表达式和搜索</a></li>
+<li><a href="#%E4%BF%AE%E6%94%B9">修改</a></li>
+<li><a href="#%E6%AF%94%E8%BE%83%E5%92%8C%E6%8E%92%E5%BA%8F">比较和排序</a></li>
+<li><a href="#%E8%BD%AC%E6%8D%A2">转换</a></li>
+<li><a href="#%E8%81%9A%E5%90%88">聚合</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h2 id="函数速查表">函数速查表</h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+<th>Introduced</th>
+<th>Deprecated</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-&gt;</td>
+<td>Return value from JSON column after evaluating path; equivalent to JSON_EXTRACT().</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>-&gt;&gt;</td>
+<td>Return value from JSON column after evaluating path and unquoting the result; equivalent to JSON_UNQUOTE(JSON_EXTRACT()).</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_ARRAY()</td>
+<td>Create JSON array</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_ARRAY_APPEND()</td>
+<td>Append data to JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_ARRAY_INSERT()</td>
+<td>Insert into JSON array</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_CONTAINS()</td>
+<td>Whether JSON document contains specific object at path</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_CONTAINS_PATH()</td>
+<td>Whether JSON document contains any data at path</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_DEPTH()</td>
+<td>Maximum depth of JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_EXTRACT()</td>
+<td>Return data from JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_INSERT()</td>
+<td>Insert data into JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_KEYS()</td>
+<td>Array of keys from JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_LENGTH()</td>
+<td>Number of elements in JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_MERGE()</td>
+<td>Merge JSON documents, preserving duplicate keys. Deprecated synonym for JSON_MERGE_PRESERVE()</td>
+<td></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>JSON_MERGE_PATCH()</td>
+<td>Merge JSON documents, replacing values of duplicate keys</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_MERGE_PRESERVE()</td>
+<td>Merge JSON documents, preserving duplicate keys</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_OBJECT()</td>
+<td>Create JSON object</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_OVERLAPS()</td>
+<td>Compares two JSON documents, returns TRUE (1) if these have any key-value pairs or array elements in common, otherwise FALSE (0)</td>
+<td>8.0.17</td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_PRETTY()</td>
+<td>Print a JSON document in human-readable format</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_QUOTE()</td>
+<td>Quote JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_REMOVE()</td>
+<td>Remove data from JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_REPLACE()</td>
+<td>Replace values in JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_SCHEMA_VALID()</td>
+<td>Validate JSON document against JSON schema; returns TRUE/1 if document validates against schema, or FALSE/0 if it does not</td>
+<td>8.0.17</td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_SCHEMA_VALIDATION_REPORT()</td>
+<td>Validate JSON document against JSON schema; returns report in JSON format on outcome on validation including success or failure and reasons for failure</td>
+<td>8.0.17</td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_SEARCH()</td>
+<td>Path to value within JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_SET()</td>
+<td>Insert data into JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_STORAGE_FREE()</td>
+<td>Freed space within binary representation of JSON column value following partial update</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_STORAGE_SIZE()</td>
+<td>Space used for storage of binary representation of a JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_TABLE()</td>
+<td>Return data from a JSON expression as a relational table</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_TYPE()</td>
+<td>Type of JSON value</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_UNQUOTE()</td>
+<td>Unquote JSON value</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_VALID()</td>
+<td>Whether JSON value is valid</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_VALUE()</td>
+<td>Extract value from JSON document at location pointed to by path provided; return this value as VARCHAR(512) or specified type</td>
+<td>8.0.21</td>
+<td></td>
+</tr>
+<tr>
+<td>MEMBER OF()</td>
+<td>Returns true (1) if first operand matches any element of JSON array passed as second operand, otherwise returns false (0)</td>
+<td>8.0.17</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="sql优化">sql优化</h2>
+<blockquote>
+<p>写出高性能sql说白了就是对优化器的口味</p>
+</blockquote>
+<ol>
+<li>在 MySQL 8.0中，优化器可以对 JSON 列执行部分原位更新，而不是删除旧文档并将新文档完整地写入该列。<br>
+需要满足的条件:</li>
+</ol>
+<ul>
+<li>UPDATE 语句使用 JSON _ SET ()、 JSON _ REPLACE ()或 JSON _ REMOVE ()三个函数中的任何一个来更新列。</li>
+<li>输入列和目标列必须是同一列。</li>
+<li>所有更改都用新的数组或对象值替换现有的数组或对象值，并且不向父对象或数组添加任何新元素。</li>
+<li>被替换的值必须至少与替换值一样大。换句话说，新值不能大于旧值。</li>
+</ul>
+<h2 id="创建json值">创建JSON值</h2>
+<ul>
+<li>有效的JSON值，否则报错<br>
+<code>INSERT INTO t1 VALUES('{&quot;key1&quot;: &quot;value1&quot;, &quot;key2&quot;: &quot;value2&quot;}');</code></li>
+<li>JSON _ TYPE ()函数期望一个 JSON 参数，并尝试将其解析为一个 JSON 值。如果值有效，则返回值的 JSON 类型，否则将产生错误。<br>
+MySQL 使用 utf8mb4字符集和 utf8mb4 _ bin 排序规则处理 JSON 上下文中使用的字符串。其他字符集中的字符串根据需要转换为 utf8mb4。(对于 ascii 或 utf8字符集中的字符串，不需要转换，因为 ascii 和 utf8是 utf8mb4的子集。)</li>
+<li>JSON _ ARRAY ()接受一个(可能是空的)值列表，并返回一个包含这些值的 JSON 数组</li>
+<li>JSON _ OBJECT ()接受一个(可能是空的)键值对列表，并返回一个包含这些键值对的 JSON 对象</li>
+<li>JSON _ MERGE _ PRESERVE ()接受两个或多个 JSON 文档并返回<strong>组合结果</strong></li>
+</ul>
+<h2 id="查询">查询</h2>
+<p>column-path 操作符-&gt; 和 内联路径操作符-&gt;&gt;（不包括周围的引号或任何转义符）</p>
+<pre><code>mysql&gt; SELECT col-&gt;&quot;$.mascot&quot; FROM qtest;
++---------------------------------------------+
+| col-&gt;&quot;$.mascot&quot;                             |
++---------------------------------------------+
+| &quot;Our mascot is a dolphin named \&quot;Sakila\&quot;.&quot; |
++---------------------------------------------+
+
+mysql&gt; SELECT sentence-&gt;&gt;&quot;$.mascot&quot; FROM facts;
++-----------------------------------------+
+| sentence-&gt;&gt;&quot;$.mascot&quot;                   |
++-----------------------------------------+
+| Our mascot is a dolphin named &quot;Sakila&quot;. |
++-----------------------------------------+
+</code></pre>
+<h2 id="规范化">规范化</h2>
+<p>文本插入和JSON_OBJECT函数都会依据“最后的重复键获胜”规则，例如{&quot;a&quot;: 1, &quot;a&quot;: 2}会得到{&quot;a&quot;: 2}</p>
+<h2 id="合并">合并</h2>
+<p><strong>JSON_MERGE_PRESERVE与JSON_MERGE_PATCH区别</strong><br>
+简单的说：json_merge_patch是覆盖，json_merge_preserve是组合（转化为数组或连接数组）</p>
+<ul>
+<li>对于json对象<br>
+如果参数列表中的json文档之间属性没有交集，则两个函数表现一致；否则，json_merge_preserve将相同键的值组成数组值，如果已经有数组值，则组合进这个数组或者将数组连接起来；<strong>重要的是</strong>如果第二个文档中某个属性为null并且第一个文档中有此属性，则结果中无此属性。</li>
+</ul>
+<blockquote>
+<p>JSON _ MERGE _ PATCH ()移除第一个对象中的任何成员，并在第二个对象中使用匹配的键，前提是与第二个对象中的键关联的值不为 JSON null。</p>
+</blockquote>
+<ul>
+<li>对于json数组<br>
+json_merge_patch用第二个文档覆盖了第一个文档；json_merge_preserve仍旧是组合起来</li>
+</ul>
+<h2 id="路径表达式和搜索">路径表达式和搜索</h2>
+<p>路径表达式对于提取部分 JSON 文档或修改 JSON 文档的函数非常有用，路径语法使用一个前导 $字符来表示正在考虑的 JSON 文档。</p>
+<pre><code>SELECT JSON_EXTRACT('{&quot;id&quot;: 14, &quot;name&quot;: &quot;Aztalan&quot;}', '$.name');
+SELECT JSON_SET('&quot;x&quot;', '$[0]', 'a');
+</code></pre>
+<p>[ N ] 附加到选择数组的路径<br>
+[M to N] 指定数组值的子集或范围</p>
+<p><strong>路径可以包含*或</strong>通配符**</p>
+<ul>
+<li>. [ * ]计算 JSON 对象中所有成员的值。</li>
+<li>[ * ]计算 JSON 数组中所有元素的值。</li>
+<li>prefix**suffix 后缀计算以命名前缀开始并以命名后缀结束的所有路径。</li>
+</ul>
+<p><strong>路径包含空格</strong><br>
+需要用引号，例如<code>$.&quot;a fish&quot; </code></p>
+<p><strong>last关键字</strong><br>
+last表示最后一个元素的索引<code>$[last-3 to last-1]</code><br>
+如果对非数组求值，则为元素本身</p>
+<pre><code>mysql&gt; SELECT JSON_REPLACE('&quot;Sakila&quot;', '$[last]', 10);
++-----------------------------------------+
+| JSON_REPLACE('&quot;Sakila&quot;', '$[last]', 10) |
++-----------------------------------------+
+| 10                                      |
++-----------------------------------------+
+</code></pre>
+<h2 id="修改">修改</h2>
+<p>JSON _ SET ()替换现有路径的值，并为不存在的路径添加值<br>
+JSON _ INSERT ()添加新值，但不替换现有值，如果该位置已有值，则不操作原值，忽略新值<br>
+JSON _ REPLACE ()替换现有值并忽略新值<br>
+JSON _ REMOVE ()返回原始文档中删除减去一个 JSON 文档和一个或多个路径选择的值</p>
+<h2 id="比较和排序">比较和排序</h2>
+<p>可以使用 = 、 &lt; 、 &lt; = 、 &gt; 、 &gt; = 、 &lt; &gt; 、 ! = 和 &lt; = &gt; 运算符比较 JSON 值<br>
+&lt;=&gt;是null-safe相等比较，对于有null值的比较不会返回null<br>
+不支持between、in、greatest（最大）、least（最小）</p>
+<p>如果类型不同，则比较结果仅由具有较高优先级的类型确定</p>
+<blockquote>
+<p>类型名称是由 JSON _ TYPE ()函数返回的名称。在一行中一起显示的类型具有相同的优先级<br>
+BLOB<br>
+BIT<br>
+OPAQUE<br>
+DATETIME<br>
+TIME<br>
+DATE<br>
+BOOLEAN<br>
+ARRAY<br>
+OBJECT<br>
+STRING<br>
+INTEGER, DOUBLE（整数都被转换为 DOUBLE）<br>
+NULL</p>
+</blockquote>
+<h2 id="转换">转换</h2>
+<p><strong>转换规则</strong></p>
+<ul>
+<li>隐式转换为utf8mb4然后解析为json值；反过来json转为字符串</li>
+<li>NULL转为null</li>
+<li>几何类型通过调用ST_AsGeoJSON()函数</li>
+<li>其他类型，生成一个由单个标量值组成的 JSON 文档；反过来如果 JSON 文档由目标类型的单个标量值组成，该标量值可以强制转换为目标类型。否则，返回NULL并发出警告</li>
+</ul>
+<p>应用举例</p>
+<pre><code>ORDER BY CAST(JSON_EXTRACT(jdoc, '$.id') AS UNSIGNED)
+</code></pre>
+<h2 id="聚合">聚合</h2>
+<p>对于 JSON 值的聚合，SQLNULL 值与其他数据类型一样被忽略。除了 MIN ()、 MAX ()和 GROUP _ CONCAT ()之外，非 NULL 值被转换为数值类型并进行聚合。对于数值标量的 JSON 值，转换为 number 应该会产生有意义的结果，尽管(取决于值)可能会发生截断和精度损失。转换为其他 JSON 值的数量可能不会产生有意义的结果。</p>
+<p><strong>注意点</strong></p>
+<ul>
+<li>JSON对象中的 null、true、false必须小写</li>
+<li>特殊字符需要\转义，文本形式插入需要\转义<pre><code>mysql&gt; INSERT INTO facts VALUES
+   &gt;   (JSON_OBJECT(&quot;mascot&quot;, &quot;Our mascot is a dolphin named \&quot;Sakila\&quot;.&quot;));
+ mysql&gt; INSERT INTO facts VALUES
+   &gt;   ('{&quot;mascot&quot;: &quot;Our mascot is a dolphin named \\&quot;Sakila\\&quot;.&quot;}');
+</code></pre>
+</li>
+</ul>
+<p>【完结】</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[BUGS]]></title>
+        <id>https://blog.honia.tk/post/bugs/</id>
+        <link href="https://blog.honia.tk/post/bugs/">
+        </link>
+        <updated>2022-07-08T13:53:26.000Z</updated>
+        <content type="html"><![CDATA[<ol>
+<li>Cannot run program &quot;javac&quot;: CreateProcess error=206<br>
+windows系统下 Cannot run program &quot;javac&quot;: CreateProcess error=206, 文件名或扩展名太长。可以将源文件分成多份编译</li>
+<li>jar包中程序执行 <code>javac  -cp  xxx;xxx;  HelloWorld.java</code>  命令卡住不动了，也不报错  因为windows系统下的cmd命令有长度限制，可以将命令输出到临时文件，然后<code>javac @&lt;文件名&gt;</code>来执行。值得注意的是，linux系统不会出现这种问题。</li>
+<li>javassist.NotFoundException</li>
+</ol>
+<pre><code>//运行时会报错的原代码：
+ClassPool pool = ClassPool.getDefault();
+CtClass cc = pool.get(Emp.class.getName()); 
+//更改后可以运行不报错的代码：
+ClassPool pool = ClassPool.getDefault();
+pool.insertClassPath(new ClassClassPath(Emp.class));
+CtClass cc = pool.get(Emp.class.getName()); 
+</code></pre>
+<ol start="4">
+<li>ClassLoader不同导致的not  found<br>
+不同的ClassLoader是不同的命名空间；将A、B双方统一到A或B的ClassLoader，根据实际情况选择改动小的。<code>java -Xbootclasspath/a:/home/dp_xxx_aux/tmp/DocPlus_SaaS/workspace/db_classes/ -jar dp_xxx_aux-1.0-SNAPSHOT.jar</code>将/home/dp_xxx_aux/tmp/DocPlus_SaaS/workspace/db_classes/加入到了springboot启动的classpath，则classloader会变为bootstrap classloader（AppClassLoader能访问到）</li>
+<li>jgit push gitlab失败但未报错<br>
+权限问题，robot没有受保护分支的push权限。修改robot的角色或者修改protected branch的权限。<br>
+<img src="https://blog.honia.tk/post-images/1657893834105.jpg" alt="" loading="lazy"></li>
+<li>待补充<br>
+desc</li>
+<li>待补充</li>
+</ol>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[DDD]]></title>
+        <id>https://blog.honia.tk/post/ddd/</id>
+        <link href="https://blog.honia.tk/post/ddd/">
+        </link>
+        <updated>2022-07-06T06:58:18.000Z</updated>
+        <content type="html"><![CDATA[<p>https://baijiahao.baidu.com/s?id=1713465953137947433<br>
+https://zhuanlan.zhihu.com/p/361427612</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[国内镜像备份]]></title>
+        <id>https://blog.honia.tk/post/guo-nei-jing-xiang-bei-fen/</id>
+        <link href="https://blog.honia.tk/post/guo-nei-jing-xiang-bei-fen/">
+        </link>
+        <updated>2022-06-23T07:23:48.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="国内镜像备份">国内镜像备份</h1>
+<h2 id="npm">npm</h2>
+<p>http://npm.taobao.org/</p>
+<table>
+<thead>
+<tr>
+<th>支持的镜像</th>
+<th style="text-align:center">地址</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>npm</td>
+<td style="text-align:center">https://npm.taobao.org/mirrors/npm/</td>
+</tr>
+<tr>
+<td>nodejs</td>
+<td style="text-align:center">http://npm.taobao.org/mirrors/node</td>
+</tr>
+<tr>
+<td>alinode</td>
+<td style="text-align:center">http://npm.taobao.org/mirrors/alinode</td>
+</tr>
+<tr>
+<td>phantomjs</td>
+<td style="text-align:center">http://npm.taobao.org/mirrors/phantomjs</td>
+</tr>
+<tr>
+<td>ChromeDriver</td>
+<td style="text-align:center">http://npm.taobao.org/mirrors/chromedriver</td>
+</tr>
+<tr>
+<td>OperaDriver</td>
+<td style="text-align:center">http://npm.taobao.org/mirrors/operadriver</td>
+</tr>
+<tr>
+<td>Selenium</td>
+<td style="text-align:center">http://npm.taobao.org/mirrors/selenium</td>
+</tr>
+<tr>
+<td>electron</td>
+<td style="text-align:center">https://npm.taobao.org/mirrors/electron/</td>
+</tr>
+<tr>
+<td>node-inspecto</td>
+<td style="text-align:center">https://npm.taobao.org/mirrors/node-inspector/</td>
+</tr>
+<tr>
+<td>node-sass</td>
+<td style="text-align:center">https://npm.taobao.org/mirrors/node-sass/</td>
+</tr>
+<tr>
+<td>yarn</td>
+<td style="text-align:center">https://npm.taobao.org/mirrors/yarn/</td>
+</tr>
+</tbody>
+</table>
+<h2 id="ruby">ruby</h2>
+<p>https://gems.ruby-china.com/</p>
+<h2 id="alpine-linux-apk">alpine linux apk</h2>
+<p>中科大：<br>
+http://mirrors.ustc.edu.cn/alpine/v3.8/main<br>
+http://mirrors.ustc.edu.cn/alpine/v3.8/community<br>
+http://mirrors.ustc.edu.cn</p>
+<h2 id="docker">docker</h2>
+<p>http://get.daocloud.io/</p>
+<h2 id="maven">maven</h2>
+<p>http://maven.aliyun.com/mvn/view</p>
+<h2 id="阿里云镜像">阿里云镜像</h2>
+<p>https://opsx.alibaba.com/mirror</p>
+<h2 id="网易各种镜像">网易各种镜像</h2>
+<p>http://mirrors.163.com/</p>
+<h2 id="华中科技大学">华中科技大学</h2>
+<p>http://mirror.hust.edu.cn/</p>
+<h2 id="清华大学">清华大学</h2>
+<p>https://mirrors.tuna.tsinghua.edu.cn/</p>
+<h2 id="搜狐镜像">搜狐镜像</h2>
+<p>http://mirrors.sohu.com/</p>
+<h2 id="浙江大学">浙江大学</h2>
+<p>http://mirrors.zju.edu.cn/</p>
+<h2 id="北京理工">北京理工</h2>
+<p>http://mirror.bit.edu.cn/web/</p>
+<h2 id="重庆大学">重庆大学</h2>
+<p>http://mirrors.cqu.edu.cn/</p>
+<h2 id="东软学院">东软学院</h2>
+<p>http://mirrors.neusoft.edu.cn/</p>
+<h2 id="大连理工">大连理工</h2>
+<p>http://mirror.dlut.edu.cn/</p>
+<h2 id="北京交通">北京交通</h2>
+<p>https://mirror.bjtu.edu.cn/</p>
+<h2 id="兰州大学">兰州大学</h2>
+<p>http://mirror.lzu.edu.cn/</p>
+<h2 id="上海交大">上海交大</h2>
+<p>http://ftp.sjtu.edu.cn/</p>
+<h2 id="东北大学">东北大学</h2>
+<p>http://mirror.neu.edu.cn/</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[抬头看路 · 分析当下]]></title>
+        <id>https://blog.honia.tk/post/tai-tou-kan-lu-fen-xi-dang-xia/</id>
+        <link href="https://blog.honia.tk/post/tai-tou-kan-lu-fen-xi-dang-xia/">
+        </link>
+        <updated>2022-06-14T14:58:11.000Z</updated>
+        <content type="html"><![CDATA[<blockquote>
+<p>PS: 第一份工作很重要，平台要大，钱不是最重要的，重要的是除了钱以外的，如：业务的级别、眼界、人脉</p>
+</blockquote>
+<h2 id="核心任务">核心任务</h2>
+<p>有一份工作 （不能是外包！）</p>
+<h2 id="后续任务">后续任务</h2>
+<p>技术提升<br>
+加入javaGuide<br>
+看【书】<br>
+学习新语言<br>
+培养一门副业</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[建议]]></title>
+        <id>https://blog.honia.tk/post/jian-yi/</id>
+        <link href="https://blog.honia.tk/post/jian-yi/">
+        </link>
+        <updated>2022-06-14T14:13:38.000Z</updated>
+        <content type="html"><![CDATA[<p>不要只顾埋头走路，随时抬头看路<br>
+有些HR介意外包经历，外包极少有转正名额<br>
+做技术储备，用到时可上手，而不是用到再去学</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[域名价格监控及可用性查询网站大汇总]]></title>
+        <id>https://blog.honia.tk/post/yu-ming-jie-ge-jian-kong-ji-ke-yong-xing-cha-xun-wang-zhan-da-hui-zong/</id>
+        <link href="https://blog.honia.tk/post/yu-ming-jie-ge-jian-kong-ji-ke-yong-xing-cha-xun-wang-zhan-da-hui-zong/">
+        </link>
+        <updated>2022-06-06T15:30:18.000Z</updated>
+        <content type="html"><![CDATA[<p>最后更新于：2020-12-31 00:40:22</p>
+<p>本文致力于解决：域名哪里注册便宜？域名哪里续费便宜？这个域名的其他后缀有哪些？这个域名的其他后缀还有哪些未注册？等疑难杂症。</p>
+<p><strong>一、域名搜索</strong></p>
+<p>除了各大免费域名。基本上要便宜的域名可以去以下网站找。<br>
+1、域名信息聚合。是工具型网站，而非注册商内置的单一查询。<br>
+2、可用性查询和价格监控。同时满足域名可用性查询，对应注册商以及相对实时的价格监控。<br>
+3、可用性查询是多后缀。后缀数量至少10个或10个以上。</p>
+<p><strong>国内的</strong><br>
+<a href="https://namebeta.com/">https://namebeta.com/</a> 支持即时搜索</p>
+<p><a href="https://www.nazhumi.com/">https://www.nazhumi.com/</a> V2一老哥的新作</p>
+<p><a href="https://www.domain265.com/">https://www.domain265.com/</a> domcomp.com的山寨版</p>
+<p><a href="https://www.hostucan.cn/search-domain">https://www.hostucan.cn/search-domain</a> 侧重国内</p>
+<p><strong>国际的</strong><br>
+<a href="https://zh-hans.tld-list.com/">https://zh-hans.tld-list.com/</a> 大而全，支持中文</p>
+<p><a href="https://www.domcomp.com/">https://www.domcomp.com/</a> 大而全</p>
+<p><a href="https://instantdomainsearch.com">https://instantdomainsearch.com</a> 支持即时搜索</p>
+<p>两位域名可用性监控：<br>
+<a href="https://ahreflink.com/domains/two-letter">https://ahreflink.com/domains/two-letter</a> 连后缀也是两位。价格较高，喜欢有不差钱的上。</p>
+<p><strong>免费的域名未注册查询工具web版：</strong></p>
+<p><strong>纳网：</strong><br>
+<a href="https://na.wang/nbatchcheck">https://na.wang/nbatchcheck</a> 多后缀扫描，无多家价格监控，暂不上列。送字典！</p>
+<p>Godaddy：<br>
+<a href="https://sg.godaddy.com/zh/domains/bulk-domain-search.aspx">https://sg.godaddy.com/zh/domains/bulk-domain-search.aspx</a> 多后缀扫描，无多家价格监控，暂不上列。</p>
+<p><strong>22：</strong><br>
+<a href="https://tool.22.cn/">https://tool.22.cn/</a> 多后缀扫描，无价格监控，暂不上列。</p>
+<p><strong>now.cn</strong><br>
+<a href="https://www.now.cn/domain/mcheck_bat.php">https://www.now.cn/domain/mcheck_bat.php</a> 多后缀扫描，无价格监控，暂不上列。（这家谨慎放域名，转出可能会设置各种障碍）</p>
+<p><strong>西部数码：</strong><br>
+<a href="http://www.west.cn/web/mi">http://www.west.cn/web/mi</a> 多后缀扫描，无价格监控，暂不上列。</p>
+<p><strong>域名特工：</strong><br>
+<a href="http://name.tg/">http://name.tg/</a> 只针对若干非主流后缀监控的网站。</p>
+<p><strong>秋玉米：</strong><br>
+<a href="http://www.qiuyumi.com/">http://www.qiuyumi.com/</a> 多后缀扫描，无价格监控，暂不上列。</p>
+<p><strong>米农帮：</strong><br>
+<a href="https://minongbang.com/">https://minongbang.com/</a> 多后缀扫描，无价格监控，暂不上列。</p>
+<p><strong>Domainr：</strong><br>
+<a href="https://domainr.com/">https://domainr.com/</a> 多后缀扫描，无价格监控，暂不上列。</p>
+<p><strong>域名未注册查询工具客户端版：</strong></p>
+<p><strong>1、Linux命令行版</strong></p>
+<p><strong>免费扫米工具1：</strong><br>
+<a href="https://github.com/Har-Kuun/DomainMegaBot">https://github.com/Har-Kuun/DomainMegaBot</a></p>
+<p><strong>免费扫米工具2：</strong><br>
+<a href="https://github.com/luodaoyi/DomainScan">https://github.com/luodaoyi/DomainScan</a></p>
+<p><strong>免费扫米工具3：</strong><br>
+<a href="https://github.com/jekyllcao/BAT_Check_DomainName/blob/master/Readme.md">https://github.com/jekyllcao/BAT_Check_DomainName/blob/master/Readme.md</a></p>
+<p><strong>2、win版</strong></p>
+<p><strong>免费扫米工具PC版：</strong><br>
+西数扫米：<a href="http://domainserch.west263.com/soft/West263Domain.exe">http://domainserch.west263.com/soft/West263Domain.exe</a></p>
+<p>附域名字典：<a href="http://www.west.cn/Customercenter/%E8%A5%BF%E9%83%A8%E6%95%B0%E7%A0%81%E5%A4%A7%E5%AD%97%E5%85%B8.rar">http://www.west.cn/Customercenter/%E8%A5%BF%E9%83%A8%E6%95%B0%E7%A0%81%E5%A4%A7%E5%AD%97%E5%85%B8.rar</a></p>
+<p><strong>付费扫米工具PC版：</strong><br>
+BestDN——支持400多个后缀的最强扫米工具：</p>
+<p><strong>域名注册商家的选择</strong><br>
+<em>提示：本章节可能含有主观成分</em>。</p>
+<p><strong>主流后缀</strong><br>
+Namesilo。支持支付鸨。但是他们家的dns生效很慢。<br>
+Namecheap。优惠活动很多，和大家都是老熟人了。<br>
+Dynadot。支持支付鸨。同样优惠活动很多的一个注册商，支持中文，国内有公司。<br>
+Porkbun。新人。design的注册局，优惠活动很多，后缀多。<br>
+Uniregistry。国外一个靠域名发家致富的大佬搞的。后缀很多，支持域名在线交易。<br>
+至于国内的.cn还是放国内吧，要么套路云要么企鹅云。</p>
+<p><strong>非主流后缀</strong><br>
+非主流后缀推荐gandi.net。支持支付鸨。gandi某些后缀非常昂贵，但是大部分非主流后缀通常很便宜。经常搞活动，而且活动经常不是几个月就是半年一年的也是其特点。 在宝岛有办公室，以及中文客服。<br>
+gandi老版网站仍然可以搜索七百多个后缀的可用性以及在gandi的价格。<br>
+传送门：<a href="https://v4.gandi.net/domain/suggest">https://v4.gandi.net/domain/suggest</a>。</p>
+<p>另外internetbs.net也可以。有几个在他们家。感觉直接显示是否为溢价域名，以及溢价价格。这点要比很多注册了要下单才显示溢价价格要厚道很多。</p>
+<p>文中的”推荐“词语为主观判断，仅供参考。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[网上兼职副业赚钱网站合集]]></title>
+        <id>https://blog.honia.tk/post/wang-shang-jian-zhi-fu-ye-zhuan-qian-wang-zhan-he-ji/</id>
+        <link href="https://blog.honia.tk/post/wang-shang-jian-zhi-fu-ye-zhuan-qian-wang-zhan-he-ji/">
+        </link>
+        <updated>2022-06-06T15:29:09.000Z</updated>
+        <content type="html"><![CDATA[<p>最后更新于：2020-12-31 01:15:14</p>
+<p>最近看到网友整理发布副业和网赚平台，合并了一下，现在想在网上兼职赚钱也是要有一技之长的，什么都不会的话还是考虑摆地摊吧。那些无要求在家就能随便日赚几百的广告还是别看了，浪费时间和精力。这里整理了部分的网络兼职副业赚钱平台，希望能给大家带来一定的帮助</p>
+<p><strong>体力型</strong></p>
+<p>如果你想靠自己的体力来获取酬金，你就是属于体力型，比如跑腿、送外卖、送快递、搬砖等等。劳动最光荣，无谓体力还是智力，凭本事挣钱，没什么不好意思的。只要愿意干，就会有收入。</p>
+<ul>
+<li>人人跑腿：<a href="http://www.renrenrun.com/">http://www.renrenrun.com/</a></li>
+<li>爱跑腿：<a href="http://www.ipaotui.com/index.php?m=Home&amp;c=IndexFourth&amp;a=runner">http://www.ipaotui.com/index.php?m=Home&amp;c=IndexFourth&amp;a=runner</a></li>
+<li>美团跑腿：<a href="http://i.meituan.com/peisong/">http://i.meituan.com/peisong/</a></li>
+<li>达达骑士：<a href="https://www.imdada.cn/transporter/">https://www.imdada.cn/transporter/</a></li>
+<li>UU跑腿：<a href="https://www.uupt.com/Driver.htm">https://www.uupt.com/Driver.htm</a></li>
+<li>蜂鸟众包：<a href="https://fengniao.ele.me/delivery.html">https://fengniao.ele.me/delivery.html</a> 《<a href="https://jingyan.baidu.com/article/b2c186c8b88ccc846ff6ff1c.html">手把手教你使用蜂鸟众包</a>》</li>
+<li>点我达骑手：<a href="https://www.dianwoda.com/rider.html">https://www.dianwoda.com/rider.html</a></li>
+<li>微差事：<a href="http://www.weichaishi.com/customer.php">http://www.weichaishi.com/customer.php</a></li>
+<li>众人帮：<a href="http://m.zrb.net/next/index#index_section">http://m.zrb.net/next/index#index_section</a></li>
+</ul>
+<p><strong>问卷调查型</strong></p>
+<p>通过回答问卷问题，获取一定的积分或金币，积分或金币可兑换现金或礼品。无技术含量，适合新人小白，有时间，有手机就可以做，但性价比不高，而且可能你答了半天得到的结果是“非常抱歉，你不符合本次调查的要求！”，之前全是在浪费时间了。</p>
+<ul>
+<li>第一调查网：<a href="https://www.1diaocha.com/">https://www.1diaocha.com/</a></li>
+<li>集思网：<a href="https://www.opinionworld.cn/zh-cn">https://www.opinionworld.cn/zh-cn</a></li>
+<li>投吧：<a href="https://www.votebar.com/">https://www.votebar.com/</a></li>
+<li>YouGov：<a href="https://china.yougov.com/zh/">https://china.yougov.com/zh/</a></li>
+<li>爱调查：<a href="http://www.52survey.com/">http://www.52survey.com/</a></li>
+<li>易调网：<a href="http://www.yidiao.net/">http://www.yidiao.net/</a></li>
+<li>调研吧：<a href="http://www.diaoyanba.com/">http://www.diaoyanba.com/</a></li>
+<li>K任务：<a href="https://www.krenwu.com/">https://www.krenwu.com/</a></li>
+</ul>
+<p><strong>电脑技术型</strong></p>
+<p>电脑技术型比较适合会程序设计方面的新手，有些小伙伴可能之前只是自己埋头苦练功法，从未思考过利用自己的电脑技术进行副业赚钱。可以去学院当老师，或者接单赚外快。</p>
+<ul>
+<li>51CTO学院：<a href="https://edu.51cto.com/lecturer/lectopics?edunav">https://edu.51cto.com/lecturer/lectopics?edunav</a></li>
+<li>CSDN学院：<a href="https://edu.csdn.net/apply">https://edu.csdn.net/apply</a></li>
+<li>微擎：<a href="https://dev.w7.cc/">https://dev.w7.cc</a></li>
+<li>云沃客：<a href="https://www.clouderwork.com/guide/freelancer">https://www.clouderwork.com/guide/freelancer</a></li>
+<li>开源中国众包：<a href="https://zb.oschina.net/services/excellent-dev.html">https://zb.oschina.net/services/excellent-dev.html</a></li>
+<li>猿急送：<a href="https://www.yuanjisong.com/job">https://www.yuanjisong.com/job</a></li>
+<li>互站网：<a href="https://task.huzhan.com/">https://task.huzhan.com</a></li>
+<li>程序员客栈：<a href="https://www.proginn.com/job/?from=top_nav">https://www.proginn.com/job/?from=top_nav</a></li>
+<li>码易众包：<a href="https://www.mayigeek.com/tab/taskList?type=&amp;price=&amp;bidEnd=">https://www.mayigeek.com/tab/taskList?type=&amp;price=&amp;bidEnd=</a></li>
+<li>码市众包：<a href="https://codemart.com/projects">https://codemart.com/projects</a></li>
+<li>解放号：<a href="https://www.jfh.com/jfportal/market/index">https://www.jfh.com/jfportal/market/index</a></li>
+<li><sub>麦子学院：已倒闭</sub></li>
+</ul>
+<p><strong>任务型</strong></p>
+<p>任务型，顾名思义，任务比较简单，难度系数低，适合新手小白，但和问卷调查一样，收益有限，略高于问卷类，奶茶自由可实现。<br>
+做任务类的副业比较简单，没什么难度，也适合所有人，不过收益也有限，每天能赚个几十块钱。</p>
+<ul>
+<li>阿里众包：<a href="https://newjob.taobao.com/">https://newjob.taobao.com/</a> <a href="https://jingyan.baidu.com/article/e5c39bf5713c5979d760338b.html">如何利用阿里众包赚钱</a></li>
+<li>百度众测：<a href="http://test.baidu.com/mark/task/index">http://test.baidu.com/mark/task/index</a> <a href="https://jingyan.baidu.com/article/456c463bb65fe24a583144ce.html">教你玩转百度众测</a></li>
+<li>腾讯搜活帮：<a href="https://soho.qq.com/tasks">https://soho.qq.com/tasks</a></li>
+<li>有道众包：<a href="http://zb.youdao.com/list.html">http://zb.youdao.com/list.html</a> <a href="https://jingyan.baidu.com/article/7082dc1cd9989fe40a89bd3a.html">如何利用有道众包赚钱</a></li>
+<li>京东微工：<a href="http://weigong.jd.com/">http://weigong.jd.com</a> <a href="https://jingyan.baidu.com/article/ab69b2701705966ca6189f57.html">怎么在京东微工兼职</a></li>
+<li>爱数众包</li>
+<li>龙猫众包：<a href="http://renwu.longmaosoft.com/task/team">http://renwu.longmaosoft.com/task/team</a></li>
+<li>百川任务：<a href="http://www.baichuanweb.com/">http://www.baichuanweb.com/</a> <a href="https://jingyan.baidu.com/article/fec4bce28499c2f2618d8b9a.html">百川任务平台的任务怎么做</a></li>
+</ul>
+<p><strong>设计型</strong></p>
+<p>设计型，就是你恰好会PS、CAD、3dmax、AI、AE等设计类软件上有一定的基础和造诣，利用自己的设计作品或签约设计平台来进行副业赚钱。其中包括设计logo、表情包</p>
+<ul>
+<li>FOTOR：<a href="https://www.fotor.com.cn/event/contribution.html">https://www.fotor.com.cn/event/contribution.html</a></li>
+<li>天琥云课堂：<a href="https://www.tianhuyun.com/privatebill">https://www.tianhuyun.com/privatebill</a></li>
+<li>千图网：<a href="https://www.58pic.com/index.php?m=ogcintro">https://www.58pic.com/index.php?m=ogcintro</a></li>
+<li>昵图网：<a href="http://www.nipic.com/original">http://www.nipic.com/original</a></li>
+<li>花瓣网：<a href="https://muse.huaban.com/?hmsr=hbnavi">https://muse.huaban.com/?hmsr=hbnavi</a></li>
+<li>阿里巴巴矢量图标库：<a href="https://www.iconfont.cn/">https://www.iconfont.cn</a> 没找到哪能赚钱（/捂脸）</li>
+<li>开三云匠网：<a href="https://www.93jiang.com/">https://www.93jiang.com</a></li>
+<li>扁平图标：不知道是哪个网站，有知道的欢迎留言告诉我</li>
+<li>视觉中国：<a href="https://500px.com.cn/">https://500px.com.cn</a></li>
+<li>picpas：好像已经关站了</li>
+<li>海洛创意：<a href="https://contributor.hellorf.com/">https://contributor.hellorf.com</a></li>
+<li>东方IC：<a href="https://contributor.tuchong.com/#/pr">https://contributor.tuchong.com/#/pr</a> 似乎是和图虫是一家供稿平台</li>
+<li>中国图库：<a href="https://www.tukuchina.cn/index.php?r=site/help&amp;id=23">https://www.tukuchina.cn/index.php?r=site/help&amp;id=23</a></li>
+<li>图虫：<a href="https://contributor.tuchong.com/#/pr">https://contributor.tuchong.com/#/pr</a></li>
+<li>微信表情开放平台：<a href="https://sticker.weixin.qq.com/cgi-bin/mmemoticon-bin/loginpage?t=login/index">https://sticker.weixin.qq.com/cgi-bin/mmemoticon-bin/loginpage?t=login/index</a></li>
+<li>汇图网：<a href="http://task.huitu.com/">http://task.huitu.com</a></li>
+<li>小米主题商店：<a href="http://designer.xiaomi.com/">http://designer.xiaomi.com</a></li>
+<li>猪八戒：<a href="https://www.zbj.com/">https://www.zbj.com/</a></li>
+</ul>
+<p><strong>PPT设计型</strong></p>
+<p>换言之，利用自己设计的PPT进行副业赚钱，或者签约PPT设计平台进行副业赚钱。可以出售PPT模板、个人简历模板等。</p>
+<ul>
+<li>咸鱼</li>
+<li>稻壳儿网</li>
+<li>演界网</li>
+<li>pptstore</li>
+<li>变色龙</li>
+<li>脚步网</li>
+</ul>
+<p><strong>翻译型</strong></p>
+<p>翻译就是通过自己的英语水平，利用自己的翻译能力去换取一定的翻译酬金。一般网站右上角都有加入的途径，看一下对方的需要，一般会有入驻前有测试，也是为了保证译者的质量。</p>
+<ul>
+<li>人人译</li>
+<li>有道云翻译</li>
+<li>Gengo</li>
+<li>译喵网</li>
+<li>译客</li>
+<li>快译网</li>
+<li>Fiberead</li>
+<li>做到网</li>
+<li>我译网</li>
+</ul>
+<p><strong>知识付费</strong></p>
+<p>如果你在某个细分领域有一定的专业性，可以尝试做自己的个人IP，通过分享自己的课程来赚取一定的副业收入。开课收徒吧老师们</p>
+<ul>
+<li>知乎live</li>
+<li>唯库</li>
+<li>荔枝微课</li>
+<li>腾讯课堂</li>
+<li>网易云课堂</li>
+<li>知识星球</li>
+<li>千聊</li>
+<li>小鹅通</li>
+</ul>
+<p><strong>自媒体</strong></p>
+<p>所谓自媒体，就是利用平台来打造个人IP，或者利用平台来赚取平台的流量费用。2020年了，是时候打造一个个人IP了，同时也是复利很强的一种副业模式，但需要你坚持输出，坚持做下去。写作，其实对很多人都没有那么难，尤其对于新手小白，也可以利用自媒体平台打磨自己的技能。</p>
+<ul>
+<li>知乎</li>
+<li>微信公众号</li>
+<li>百家号</li>
+<li>企鹅号</li>
+<li>大鱼号</li>
+<li>今日头条</li>
+<li>小红书</li>
+<li>趣头条</li>
+<li>豆瓣</li>
+<li>搜狐号</li>
+<li>简书</li>
+</ul>
+<p><strong>直播型</strong></p>
+<p>直播是通过一定的才艺表演或一定的直播内容产生副业收入，但并不是每个人都需要有一定的才艺的，比如前一段时间比较火的无人直播、睡觉直播。</p>
+<ul>
+<li>bilibili，即B站</li>
+<li>抖音</li>
+<li>快手</li>
+<li>全民小视频</li>
+<li>腾讯微视</li>
+<li>腾讯NOW直播</li>
+<li>微信视频号</li>
+<li>斗鱼</li>
+<li>虎牙</li>
+</ul>
+<p><strong>音频型</strong></p>
+<p>利用自己的声音开始副业，声音比较好的小伙伴比较适合，很多平台都有入住入口。比如配音、电台主播、有声小说。</p>
+<ul>
+<li>喜马拉雅FM</li>
+<li>荔枝FM</li>
+<li>今日头条音频</li>
+<li>配音秀</li>
+<li>配音圈</li>
+</ul>
+<p><strong>投稿写作类</strong></p>
+<p>这个不需要多说，最主要是的是能否坚持，能不能不断去打磨自己的技能，需要有一定的文笔功力。</p>
+<p><strong>网络小说写作</strong></p>
+<ul>
+<li><a href="https://www.qidian.com/">起点中文网</a>：<a href="https://write.qq.com/?siteid=1">作家专区</a></li>
+<li><a href="http://www.zongheng.com/">纵横中文网</a>：<a href="http://author.zongheng.com/">作家专区</a></li>
+<li><a href="https://www.17k.com/">17K小说网</a>：<a href="https://author.17k.com/">作家专区</a></li>
+<li><a href="http://www.jjwxc.net/">晋江文学城</a>：<a href="http://www.jjwxc.net/authorlist.php">作家专区</a></li>
+<li><a href="http://chuangshi.qq.com/">创世中文网</a>：<a href="https://write.qq.com/?siteid=3">作家专区</a></li>
+<li><a href="https://www.xxsy.net/">潇湘书院</a>：<a href="http://author.xxsy.net/">作家专区</a></li>
+</ul>
+<p><strong>写手类网站</strong></p>
+<ul>
+<li>稿稿</li>
+<li>中国赏金写手网</li>
+<li>豆瓣稿费银行</li>
+<li>天使领域浮云殿</li>
+<li>中国写手之家</li>
+</ul>
+<p><strong>手机APP平台</strong></p>
+<ul>
+<li>网易蜗牛读书</li>
+<li>汤圆创作</li>
+<li>每天读点故事</li>
+<li>壹写作</li>
+<li>简书</li>
+</ul>
+<p><strong>拆书稿、听书稿</strong></p>
+<ul>
+<li>壹心理</li>
+<li>慈怀读书会</li>
+<li>樊登读书会</li>
+<li>有书</li>
+<li>365读书</li>
+<li>蜗牛读书领读人</li>
+<li>十点读书会</li>
+</ul>
+<p><strong>各接稿的公众号</strong></p>
+<ul>
+<li>懒觉大妈</li>
+</ul>
+<p><strong>问答类</strong></p>
+<p>通过回答问题来换取平台收入或打造个人IP。</p>
+<ul>
+<li>百度知道合伙人</li>
+<li>悟空问答</li>
+<li>知乎</li>
+<li>在行</li>
+</ul>
+<p><strong>文档类</strong></p>
+<p>上传资料到文档，别人下载就能赚取收益。</p>
+<ul>
+<li>百度文库</li>
+<li>豆丁文库</li>
+<li>道客巴巴</li>
+</ul>
+<p><strong>拍照类</strong></p>
+<p>这个副业主要是拍一些门店或街道，完成任务后获得平台的奖励。</p>
+<ul>
+<li>美团拍店</li>
+<li>企鹅汇图</li>
+<li>高德地图淘金</li>
+<li>百度地图淘金</li>
+</ul>
+<p><strong>家教类</strong></p>
+<p>这个适合有专业技能的大学生或教师的副业，对学历有要求，一般需要本科以上，目前的家教时薪大致在50-200元/时左右。</p>
+<ul>
+<li>学而思网校app</li>
+<li>海风智学中心app</li>
+<li>掌门1对1</li>
+<li>作业帮答主</li>
+<li>轻轻教育</li>
+<li>课桌</li>
+</ul>
+<p><strong>二手交易类</strong></p>
+<p>买卖二手商品赚钱，或者倒卖商品赚差价钱。</p>
+<ul>
+<li>转转</li>
+<li>闲鱼</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[网站网页快照相关合集]]></title>
+        <id>https://blog.honia.tk/post/wang-zhan-wang-ye-kuai-zhao-xiang-guan-he-ji/</id>
+        <link href="https://blog.honia.tk/post/wang-zhan-wang-ye-kuai-zhao-xiang-guan-he-ji/">
+        </link>
+        <updated>2022-06-06T15:28:28.000Z</updated>
+        <content type="html"><![CDATA[<p>最后更新于：2020-12-31 01:24:07</p>
+<p>有时候会想看网页修改前的内容，或者想保存当前内容防止之后帖子修改。</p>
+<ul>
+<li><a href="https://2tool.top/">网页快照网</a>：感觉用处不大，搜索那边没快照它也没，搜索有还用它干嘛
+<ul>
+<li>快捷查询方式：在某个网址的域名前面加上his.sh/</li>
+</ul>
+</li>
+<li><a href="http://www.webpagescreenshot.info/">Webpage Screenshot</a>：一键抓取网页中能见范围的图片，或抓取整个网页快照
+<ul>
+<li><a href="https://chrome.google.com/webstore/detail/webpage-screenshot-entire/akgpcdalpfphjmfifkmfbpdmgdmeeaeo">chrome扩展</a></li>
+</ul>
+</li>
+<li><a href="https://fullpagescreencapture.com/">Full Page Screen Capture</a>：将整个网页截图（不过我试了几个网页都没成功）</li>
+<li><a href="https://web-capture.net/zh_CN/">Web-Capture</a>：网页整页截图，提供多语言选择
+<ul>
+<li>支持的截图格式包括：JPEG、PDF、TIFF、BMP、PNG、Postscript（PS）和 SVG</li>
+</ul>
+</li>
+<li><a href="https://www.screenlapse.io/">Screenlapse</a>：被Q，收费，免费试用14天，可设定每小时、每日、每周或每月到时间自动抓取截图</li>
+<li><a href="https://web.archive.org/">Wayback Machine</a>：被Q，备份网页，非截图，将网页里所有图片、CSS 和JavaScript 复制到服务器保存</li>
+<li><a href="https://screenshot.guru/">Screenshot Guru</a>：官网使用谷歌验证，需tz。整页截图
+<ul>
+<li><a href="https://chrome.google.com/webstore/detail/twitter-screenshots/imfhndkgmnbnogfjcecdpopaooachgco">chrome扩展</a></li>
+</ul>
+</li>
+<li><a href="https://www.screenshotmachine.com/">Screenshot Machine</a>：输入网址后将网页画面转为图片，也能另存为PDF格式。可以设定是要使用桌面浏览器、平板电脑或手机的页面。</li>
+<li><a href="http://archive.ph/">Archive.today</a>：需翻Q，将网页永久保存。例如：<a href="http://archive.ph/mp.weixin.qq.com">微信公众号文章网页快照</a></li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[在线查毒病毒分析网站合集]]></title>
+        <id>https://blog.honia.tk/post/zai-xian-cha-du-bing-du-fen-xi-wang-zhan-he-ji/</id>
+        <link href="https://blog.honia.tk/post/zai-xian-cha-du-bing-du-fen-xi-wang-zhan-he-ji/">
+        </link>
+        <updated>2022-06-06T15:27:50.000Z</updated>
+        <content type="html"><![CDATA[<p>最后更新于：2020-12-22 16:56:36</p>
+<p>安全使用电脑的方式是软件尽量都从官网下载，但是如果想使用网友分享的软件，除了用本地杀毒软件查毒外，还可以使用各大杀毒厂商提供的在线服务，有的网站还同时多种杀毒软件同时查毒。</p>
+<h2 id="pc电脑软件在线查毒">PC电脑软件在线查毒<a href="#PC%E7%94%B5%E8%84%91%E8%BD%AF%E4%BB%B6%E5%9C%A8%E7%BA%BF%E6%9F%A5%E6%AF%92"></a></h2>
+<ul>
+<li>VirSCAN.org：<a href="http://www.virscan.org/">http://www.virscan.org/</a> 国外老牌在线扫描文件查毒网站，提供多个杀毒软件扫描功能，但限制上传单文件最大20MB。支持RAR或ZIP格式的自动解压缩，但压缩文件中不能包含超过20个文件。</li>
+<li>腾讯哈勃分析系统：<a href="https://habo.qq.com/">https://habo.qq.com/</a> 普通用户上传单文件不能超过30MB，使用上传必须登录</li>
+<li>VirusTotal：<a href="https://www.virustotal.com/">https://www.virustotal.com/</a> 也是国外老牌在线查毒网站，可惜以前有提供中文页面，但是现在没有了，只有英文页面。</li>
+<li>Metadefender Cloud：<a href="https://metadefender.opswat.com/">https://metadefender.opswat.com/</a> 国外英文在线查毒网站，单文件最大140MB，除了上传文件，还可以对网站域名，哈希值，网页链接，IP等查毒。</li>
+<li>Jotti的恶意软件扫描系统：<a href="https://virusscan.jotti.org/">https://virusscan.jotti.org/</a> 单文件最大250MB，一项免费服务，让您可以同时使用几个反病毒程序进行在线扫描可疑文件。</li>
+<li>魔盾安全分析：<a href="https://maldun.com/dashboard/">https://maldun.com/dashboard/</a> 魔盾安全分析 (MALDUN.COM) 提供了一个免费的基于虚拟执行的恶意软件及网页链接分析平台。您可以在线上传需要分析的文件，或提交可疑的网页链接，魔盾安全分析会在虚拟环境中执行这个文件或打开链接，并对各种恶意软件行为特征进行监控和评分，从而帮助您了解该文件或链接是否隐藏了恶意代码，以及是否会对您的电脑造成危害。(支持大部分Windows文件分析，安卓APK文件分析)</li>
+<li>ANY.RUN：<a href="https://any.run/">https://any.run/</a> 国外英文站，Any.Run与其他沙盒分析工具的主要区别在于，Any.Run是完全交互式的。这意味着使用Any.Run你可以上传文件，并在分析文件的同时与沙箱实时交互，而不是传统的上传文件然后等待报告。除此之外的另一大好处就是，Any.Run允许你上传需要点击按钮，启用内容或宏的恶意文档程序。</li>
+<li>ScanVir云鉴定网：<a href="http://www.scanvir.com/">http://www.scanvir.com/</a> 一个免费网站，针对计算机病毒、手机病毒、可疑文件等进行检测和分析。单文件最大3MB</li>
+</ul>
+<h2 id="手机app在线查毒">手机APP在线查毒<a href="#%E6%89%8B%E6%9C%BAAPP%E5%9C%A8%E7%BA%BF%E6%9F%A5%E6%AF%92"></a></h2>
+<ul>
+<li>百度移动安全检测：<a href="http://scan.safe.baidu.com/">http://scan.safe.baidu.com</a> Android应用软件包在线查毒（APK文件格式，小于100MB）</li>
+<li>腾讯移动安全实验室：<a href="https://m.qq.com/security_lab/scans_online.jsp">https://m.qq.com/security_lab/scans_online.jsp</a> 支持格式：sisx\sis\apk\jar</li>
+<li>西安交通大学sanddroid：<a href="http://sanddroid.xjtu.edu.cn/#upload">http://sanddroid.xjtu.edu.cn/#upload</a> 一个自动的Android应用程序分析系统。</li>
+<li>腾讯金刚审计系统：<a href="https://service.security.tencent.com/kingkong">https://service.security.tencent.com/kingkong</a></li>
+</ul>
+<h2 id="webshell在线查毒">Webshell在线查毒<a href="#Webshell%E5%9C%A8%E7%BA%BF%E6%9F%A5%E6%AF%92"></a></h2>
+<ul>
+<li>百度WEBDIR+：<a href="https://scanner.baidu.com/">https://scanner.baidu.com/</a> 在线查杀木马，免费开放API支持批量检测。</li>
+<li>河马：<a href="https://n.shellpub.com/">https://n.shellpub.com</a> 支持Windows、linux，支持在线查杀。拥有海量webshell样本和自主查杀技术，采用传统特征+云端大数据双引擎的查杀技术。单文件最大支持20MB</li>
+<li>在线webshell查杀：<a href="http://tools.bugscaner.com/killwebshell/">http://tools.bugscaner.com/killwebshell/</a> 允许上传文件最大2MB</li>
+</ul>
+]]></content>
+    </entry>
+</feed>
