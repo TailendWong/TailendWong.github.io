@@ -1,0 +1,175 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>微服务开发调试技巧 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://honia.eu.org/favicon.ico?v=1705648742969">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://honia.eu.org/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1705648742969" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    微服务开发调试技巧
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2023-09-22 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>服务之间相互调用，单独调试某一个服务会有一些不便，如果通过发布到测试环境来调试需要频繁部署且效率底下，那么如何高效调试微服务呢？</p>
+<h1 id="技巧一修改应用名称">技巧一：修改应用名称</h1>
+<p>调用关系例如 serviceA -&gt; serviceB<br>
+那么 serviceA-dev -&gt; serviceB 也是可以调用到的，因为serviceA中FeignClient注解中的name属性依旧指向serviceB。这里将<code>application.name = serviceA</code>改为<code>application.name = serviceA-dev</code> 是因为 这两个应用名都可以从nacos中拿到dev分组下的serviceA-dev.yaml远程配置。另外，无需担心线上的服务调用到本地启动的服务，因为本地的服务名是serviceA-dev, 线上Feign调用时找的服务名是serviceA。</p>
+<p>这样，调试serviceA时就不需要启动调用的其他服务了。</p>
+<h2 id="补充">补充</h2>
+<p>即使应用名不是serviceA-dev也可读到配置的方法如下，指定配置文件的前缀prefix。</p>
+<pre><code>spring:
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.1.1.4:8848
+        namespace: 3808c751-0e87-4819-a308-8c2efa7f3a2d
+        file-extension: yaml
+        prefix: xn-delivery  // 指定
+</code></pre>
+<h1 id="技巧二修改网关">技巧二：修改网关</h1>
+<p>有时候我们想本地与前端联调，需要本地启动网关，但是我们本地不可能把所有的服务都启动起来，这就需要当访问 gatewayhostname/serviceA时，转发到 serviceA-dev服务。所以我们需要自定义负载均衡策略。</p>
+<p>参考：<br>
+https://blog.csdn.net/m0_37954663/article/details/107102980</p>
+<p>https://zhuanlan.zhihu.com/p/574044768</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://honia.eu.org/post/nei-wang-chuan-tou-fu-wu-qi-shou-cang/" class="post-title gt-a-link">
+                    内网穿透服务器收藏
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://honia.eu.org/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>
