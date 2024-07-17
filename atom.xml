@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://honia.eu.org</id>
+    <title>Honia&apos;s Blog</title>
+    <updated>2024-07-17T12:42:17.884Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://honia.eu.org"/>
+    <link rel="self" href="https://honia.eu.org/atom.xml"/>
+    <subtitle>人如果没有梦想，和咸鱼有什么区别</subtitle>
+    <logo>https://honia.eu.org/images/avatar.png</logo>
+    <icon>https://honia.eu.org/favicon.ico</icon>
+    <rights>All rights reserved 2024, Honia&apos;s Blog</rights>
+    <entry>
+        <title type="html"><![CDATA[Docker镜像]]></title>
+        <id>https://honia.eu.org/post/docker-jing-xiang/</id>
+        <link href="https://honia.eu.org/post/docker-jing-xiang/">
+        </link>
+        <updated>2024-07-02T02:27:46.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="搜索镜像">搜索镜像</h2>
+<p>https://hub.dockermirror.com/<br>
+https://gallery.ecr.aws/</p>
+<h2 id="配置镜像仓库">配置镜像仓库</h2>
+<ol>
+<li>方式一：Dockerfile使用镜像仓库</li>
+</ol>
+<pre><code>编辑 /etc/docker/daemon.json
+{
+  &quot;registry-mirrors&quot;: [&quot;https://registry.dockermirror.com&quot;]
+}
+重启docker
+sudo systemctl daemon-reload &amp;&amp; sudo systemctl restart docker
+</code></pre>
+<ol start="2">
+<li>方式二：命令行</li>
+</ol>
+<p><code>docker pull ubuntu --registry-mirror=https://registry.dockermirror.com</code></p>
+<ol start="3">
+<li>方式三：直接使用 Registry</li>
+</ol>
+<p><code>docker pull registry.dockermirror.com/ubuntu</code></p>
+<h2 id="测试可用的其他镜像仓库地址">测试可用的其他镜像仓库地址</h2>
+<p>https://huecker.io<br>
+https://registry.dockermirror.com<br>
+https://docker.m.daocloud.io<br>
+https://public.ecr.aws<br>
+https://noohub.ru</p>
+<h2 id="自用的daemonjson">自用的daemon.json</h2>
+<pre><code>{
+  &quot;registry-mirrors&quot;: [
+    &quot;https://huecker.io&quot;,
+    &quot;https://registry.dockermirror.com&quot;,
+    &quot;https://docker.m.daocloud.io&quot;,
+    &quot;https://public.ecr.aws&quot;,
+    &quot;https://noohub.ru&quot;
+  ],
+  &quot;max-concurrent-downloads&quot;: 10
+}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[记一次奇怪的问题]]></title>
+        <id>https://honia.eu.org/post/ji-yi-ci-qi-guai-de-wen-ti/</id>
+        <link href="https://honia.eu.org/post/ji-yi-ci-qi-guai-de-wen-ti/">
+        </link>
+        <updated>2024-06-19T09:16:14.000Z</updated>
+        <content type="html"><![CDATA[<p>使用mybatis-plus 中IService的saveBatch方法遇到的问题：<br>
+当Mapper文件类上无@Mapper(org.apache.ibatis.annotations.Mapper)注解时，会自动填充注主键uuid。如果添加了@Mapper注解，则不会自动填充uuid。</p>
+<p>后文：<br>
+参考：https://blog.csdn.net/u012060033/article/details/128040322</p>
+<p>@Repository ：@Repository的作用与@Controller，@Service的作用都是把对象交给Spring管理，将接口的一个实现类交给Spring管理。</p>
+<p>@Mapper: 这个注解一般使用在Dao层接口上，相当于一个mapper.xml文件，它的作用就是将接口生成一个动态代理类。加入了@Mapper注解，目的就是为了不再写mapper映射文件。这个注解就是用来映射mapper.xml文件的。使用@mapper后，不需要在spring配置中设置扫描地址，通过mapper.xml里面的namespace属性对应相关的mapper类，spring将动态的生成Bean后注入到ServiceImpl中</p>
+<p>@Mapper注解相当于是@Reponsitory注解和@MapperScan注解的和，会自动的进行配置加载。<br>
+@MapperScan注解多个包，@Mapper只能把当前接口类进行动态代理。</p>
+<p>在SpringBoot的启动类上给定@MapperSacn注解。此时Dao层可以省略@Mapper注解，当然@Repository注解可写可不写</p>
+<p>当使用@Mapper注解的时候，可以省略@MapperSacn以及@Repository。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[bootstrap.yml和application.yml]]></title>
+        <id>https://honia.eu.org/post/bootstrapyml-he-applicationyml/</id>
+        <link href="https://honia.eu.org/post/bootstrapyml-he-applicationyml/">
+        </link>
+        <updated>2024-06-13T13:42:29.000Z</updated>
+        <content type="html"><![CDATA[<p><strong>省流</strong>：均本地文件时，application.yml会覆盖bootstrap.yml中的同名属性；外部配置中心时，不会覆盖。</p>
+<p>--- 正文 ---</p>
+<p>在Spring Boot和Spring Cloud应用中，如果同时在<code>bootstrap.yml</code>和<code>application.yml</code>中配置了数据库连接，那么最终运行时使用的配置会依赖于属性源的加载顺序和优先级。</p>
+<h3 id="加载顺序和优先级">加载顺序和优先级</h3>
+<ol>
+<li>
+<p><strong><code>bootstrap.yml</code> 优先</strong>：<br>
+<code>bootstrap.yml</code> 文件中的配置属性会先于 <code>application.yml</code> 文件加载。这是因为 <code>bootstrap.yml</code> 在应用程序上下文的初始化过程中最早被处理，用于配置一些需要在应用程序启动前就初始化的属性。这主要包括从外部配置中心加载的配置等。</p>
+</li>
+<li>
+<p><strong><code>application.yml</code> 次优先</strong>：<br>
+<code>application.yml</code> 文件中的配置属性在 <code>bootstrap.yml</code> 之后加载。如果 <code>application.yml</code> 中声明了与 <code>bootstrap.yml</code> 中相同的配置属性，<code>application.yml</code> 中的值将会覆盖 <code>bootstrap.yml</code> 中的值。</p>
+</li>
+</ol>
+<h3 id="覆盖规则">覆盖规则</h3>
+<p>简单来说，<code>application.yml</code> 中的配置会覆盖 <code>bootstrap.yml</code> 中的同名配置属性，因此如果你在这两个文件中都配置了数据库连接，最终的生效配置将会是 <code>application.yml</code> 中的配置。</p>
+<h3 id="例子">例子</h3>
+<p>假设 <code>bootstrap.yml</code> 中配置了如下内容：</p>
+<pre><code class="language-yaml">spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/bootstrapdb
+    username: bootstrapUser
+    password: bootstrapPass
+</code></pre>
+<p>而 <code>application.yml</code> 中配置了如下内容：</p>
+<pre><code class="language-yaml">spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/applicationdb
+    username: applicationUser
+    password: applicationPass
+</code></pre>
+<p>最终在应用程序运行时，会使用 <code>application.yml</code> 中的数据库连接配置：</p>
+<pre><code class="language-yaml">spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/applicationdb
+    username: applicationUser
+    password: applicationPass
+</code></pre>
+<h3 id="特殊情况外部配置中心">特殊情况：外部配置中心</h3>
+<p>需要特别注意的是，当使用外部配置中心（例如 Spring Cloud Config Server）时，通常会将某些配置（例如数据库连接）从配置中心加载。在这种情况下：</p>
+<ol>
+<li><code>bootstrap.yml</code> 中配置的是外部配置中心的地址和参数，而非具体的数据库连接参数。</li>
+<li>真正的数据库连接参数从配置中心加载，并且其优先级高于 <code>application.yml</code>。</li>
+</ol>
+<h3 id="注意事项">注意事项</h3>
+<ol>
+<li><strong>避免混淆</strong>：尽量避免在 <code>bootstrap.yml</code> 和 <code>application.yml</code> 中同时配置相同的属性，以避免混淆和难以调试的问题。</li>
+<li><strong>文档化</strong>：对团队成员进行关于配置文件加载顺序和优先级的培训，并且将其记录在项目的文档中，以确保在多人合作时具有一致的理解。</li>
+</ol>
+<p>通过理解和合理设置这两种配置文件，可使你的Spring Boot应用程序配置更清晰、可维护。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Linux常用命令]]></title>
+        <id>https://honia.eu.org/post/linux/</id>
+        <link href="https://honia.eu.org/post/linux/">
+        </link>
+        <updated>2024-05-23T10:24:07.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="按时间段提取日志文件内容">按时间段提取日志文件内容</h1>
+<p>如果您想要将xn-app.log文件中2024-05-22 15:00:00到2024-05-22 16:00:00之间的内容保存到另一个文件，您可以使用awk命令结合两个条件。<br>
+以下是一个示例命令：</p>
+<p>awk -v start=&quot;2024-05-22 15:00:00&quot; -v end=&quot;2024-05-22 16:00:00&quot; '$0 &gt;= start &amp;&amp;$0 &lt; end {print &gt; &quot;xn-app-log_1500_to_1600.log&quot;}' xn-app.log</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Stream多字段去重]]></title>
+        <id>https://honia.eu.org/post/stream-duo-zi-duan-qu-chong/</id>
+        <link href="https://honia.eu.org/post/stream-duo-zi-duan-qu-chong/">
+        </link>
+        <updated>2024-05-15T09:27:47.000Z</updated>
+        <content type="html"><![CDATA[<pre><code>List&lt;Person&gt; uniquePeople = people.stream()
+                .collect(Collectors.toMap(
+                        person -&gt; StrUtil.join(&quot;#&quot;, person.getName(), person.getAge(), person.getSex()),
+                        Function.identity(), // 使用Person对象本身作为值
+                        (existing, replacement) -&gt; existing, // 如果有冲突，保留现有的Person对象
+                        LinkedHashMap::new // 使用LinkedHashMap来保留插入顺序（如果需要,否则不要此参数）
+                ))
+                .values().stream().collect(Collectors.toList());
+</code></pre>
+<p>使用Hutool的StrUtil.join()可避免字符串拼接时出现NPE</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[发送邮件错误Connection unexpectedly closed解决办法]]></title>
+        <id>https://honia.eu.org/post/fa-song-you-jian-cuo-wu-connection-unexpectedly-closed-jie-jue-ban-fa/</id>
+        <link href="https://honia.eu.org/post/fa-song-you-jian-cuo-wu-connection-unexpectedly-closed-jie-jue-ban-fa/">
+        </link>
+        <updated>2024-05-07T07:24:22.000Z</updated>
+        <content type="html"><![CDATA[<p>发邮件功能，本地调试正常，云服务报Connection unexpectedly closed。</p>
+<p>由于smtp的25端口容易收到攻击，所以对于某些云服务器，25端口是被禁止的。所以，此时应采用其他可用的端口和协议来发送邮件。</p>
+<p>对于SSL协议，默认的端口465，某些云服务器也是禁止的。</p>
+<p>所以 对于QQ邮箱，发送邮件服务器地址smtp.qq.com，使用SSL，可以换成<strong>587端口</strong>， 问题解决。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[什么是零拷贝]]></title>
+        <id>https://honia.eu.org/post/shi-me-shi-ling-kao-bei/</id>
+        <link href="https://honia.eu.org/post/shi-me-shi-ling-kao-bei/">
+        </link>
+        <updated>2024-03-28T02:20:35.000Z</updated>
+        <content type="html"><![CDATA[<p>参考链接：https://blog.csdn.net/meser88/article/details/108355541</p>
+<h1 id="是什么">是什么？</h1>
+<p>零拷贝是指计算机执行IO操作时，减少上下文切换和CPU的拷贝时间。</p>
+<p>传统IO的执行流程，包括read和write两个过程，需要进行4次上下文切换和4次拷贝（两次CPU拷贝+两次DMA拷贝），DMA拷贝指的是硬件到内核空间的内核缓冲区数据拷贝。</p>
+<h1 id="如何实现">如何实现？</h1>
+<p>主要有三种方式： mmap、sendfile、splice</p>
+<h2 id="mmap">mmap</h2>
+<p>将内核中的读缓冲区与用户空间的虚拟地址映射到同一个物理地址，所有的IO都在内核完成。</p>
+<h2 id="sendfile">sendfile</h2>
+<p>在两个文件描述符之间传输数据，在内核中操作。</p>
+<h2 id="splice">splice</h2>
+<p>类似sendfile，允许任意两个文件互相连接且不需要硬件支持</p>
+<h1 id="java提供的零拷贝">java提供的零拷贝</h1>
+<p>1、java的NIO</p>
+<p>DirectByteBuffer extends MappedByteBuffer</p>
+<p>FileChannel  transferFrom() 和 transferTo()</p>
+<p>2、Netty</p>
+<p>网络传输时，将整条消息分了多个数据包，需要将数据包组成完整的消息才能正确处理。CompositeChannelBuffer主要作用是将多个ChannelBuffer组成一个虚拟的ChannelBuffer，并没有真正组合起来只是保存了引用，避免了数据拷贝。</p>
+<p>3、Kafka</p>
+<p>索引文件使用了mmap+write方式，数据文件使用sendfile方式。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[安卓应用下载GooglePlay]]></title>
+        <id>https://honia.eu.org/post/an-zhuo-ying-yong-xia-zai-googleplay/</id>
+        <link href="https://honia.eu.org/post/an-zhuo-ying-yong-xia-zai-googleplay/">
+        </link>
+        <updated>2023-11-07T03:21:29.000Z</updated>
+        <content type="html"><![CDATA[<p>https://apkpure.com/cn/search<br>
+https://www.apkmirror.com/<br>
+https://apps.evozi.com/apk-downloader/<br>
+https://cn.uptodown.com/android/search<br>
+https://f-droid.org/</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[桌面自动化方案]]></title>
+        <id>https://honia.eu.org/post/zhuo-mian-zi-dong-hua-fang-an/</id>
+        <link href="https://honia.eu.org/post/zhuo-mian-zi-dong-hua-fang-an/">
+        </link>
+        <updated>2023-11-02T05:26:07.000Z</updated>
+        <content type="html"><![CDATA[<ul>
+<li>
+<p>浏览器自动化<br>
+简单的网页自动化推荐使用浏览器插件 UI.Vision RPA，非常容易上手。免费版限制25条键盘操作。</p>
+</li>
+<li>
+<p>RPA<br>
+https://mp.weixin.qq.com/s/RMp7sRrLg81TlkX-w9rOyA<br>
+八爪鱼 RPA [40MB]<br>
+个人使用免费，可分享动作https://rpa.bazhuayu.com/<br>
+影刀RPA  [372MB]<br>
+个人使用免费https://www.yingdao.com/</p>
+</li>
+<li>
+<p>WinAppDriver<br>
+仅windows平台https://mp.weixin.qq.com/s/aVFR3SFjab829FM3bCAdeg</p>
+</li>
+<li>
+<p>SikuliX<br>
+依靠图像识别，新颖的方式，但有局限性，适合简单的任务，如果屏幕上有两个或更多类似的图像，Sikuli将可能选择错误的图像。</p>
+</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[收藏的文章]]></title>
+        <id>https://honia.eu.org/post/shou-cang-wen-zhang/</id>
+        <link href="https://honia.eu.org/post/shou-cang-wen-zhang/">
+        </link>
+        <updated>2023-10-26T10:30:32.000Z</updated>
+        <content type="html"><![CDATA[<p>Spring Boot 实现接口幂等性的 4 种方案#https://mp.weixin.qq.com/s/lTXi8iq9-OPlaKytyTkD1Q<br>
+JVM调优——JVM监控工具jvisualvm的使用及GC插件安装#https://mp.weixin.qq.com/s/y_vI1zf-EuUVJ67wj5tk6A<br>
+SpringBoot整合Netty实现消息推送服务器#https://mp.weixin.qq.com/s/o0ZD8PR0UdjfZtd0FMAxHw<br>
+Springboot生产环境下你知道如何动态修改日志级别吗？#https://mp.weixin.qq.com/s/4bNZyOfD9wjD8WolO2vQ_Q<br>
+springboot整合xxl-job分布式定时任务【图文完整版】#https://mp.weixin.qq.com/s/gweoo6PzSz6T-dB5ddnviQ<br>
+SpringBoot分片上传、断点续传、大文件极速秒传功能，这篇都帮你搞定！（典藏版）#https://mp.weixin.qq.com/s/zJ5pMcq96fzzl8JdQmr5VQ<br>
+面试必问：什么是双亲委派模型？#https://mp.weixin.qq.com/s/hVb9jTDtfjcwtdajItCPoQ<br>
+Jenkins实现自动化构建与部署（超详细）#https://mp.weixin.qq.com/s/M4-WNDiTZfkDntmMF2cYEA<br>
+8 个线程池最佳实践和坑！使用不当直接生产事故！！#https://mp.weixin.qq.com/s/GAHsGwaddjw8to46rSP_TA<br>
+腾讯一面：如何停止一个正在运行的线程？#https://mp.weixin.qq.com/s/li_C17m5o3uld0onRsDZQg<br>
+Arthas 之安装部署#https://mp.weixin.qq.com/s/Qu0BCfcOKeb-Wb6_uyom3w<br>
+谈谈我工作中的23个设计模式#https://mp.weixin.qq.com/s/ic8LbbTs4P6YKpugVEbcKw<br>
+31部“黄暴污”美剧按段位划分#https://mp.weixin.qq.com/s/oY25tCeW2ASGrYTBWE0hFQ<br>
+有了它不写Controller、Service、Dao、Mapper、XML、VO，全自动生成！#https://mp.weixin.qq.com/s/OzoRGkyBVFZd2sDh90R-jQ<br>
+公司新入职一位大佬，把SpringBoot项目启动时间从7分钟降到了40秒！#https://mp.weixin.qq.com/s/302hwwhuCK4-L5i8-OEjHA<br>
+Arthas -- 一款释放潜力的神器#https://mp.weixin.qq.com/s/gxUVSY6LVlM2dvM0CB64Qg<br>
+运维神器！一个可以通过 Web 访问 Linux 终端的工具#https://mp.weixin.qq.com/s/p_dBEiWRALN01cHbyu1PMA<br>
+支付宝：服务端如何防止订单重复支付？#https://mp.weixin.qq.com/s/QQlwBSIeUGZDG3W-khByEg<br>
+如何通过三级缓存解决 Spring 循环依赖#https://mp.weixin.qq.com/s/ig22T20Ie3jmTLhuPVPmdA<br>
+SpringBoot 通用限流方案（VIP珍藏版）#https://mp.weixin.qq.com/s/impjUEGJ7C4Ho2P2u04Qmg<br>
+Docker搭建的优秀项目汇总#https://mp.weixin.qq.com/s/YXLMyvpzG3lTWDoD9USGbw<br>
+RuoYi-Vue-Plus 5.1.0 发布 客户端授权、三方授权、传输加密、sms4j、powerjob密集来袭#https://mp.weixin.qq.com/s/a1Fhx1PK5jv9wqP6Ilx0IQ<br>
+一套干净的企业数据管理系统#https://mp.weixin.qq.com/s/f7qttsd--FgQqGUs2pWa4g<br>
+下载、安装、激活，一条龙！#https://mp.weixin.qq.com/s/2CbOaX_LsTKiWTs_TCxQEA<br>
+FlowLong 中国特色流程支持完成#https://mp.weixin.qq.com/s/WzNBmfcFgijLXUDDQIeL0w<br>
+Flowable工作流引擎的科普与实践#https://mp.weixin.qq.com/s/Hb1alx32n59929RQXdsh-Q<br>
+SpringBoot+RabbitMQ+Redis 开发一个秒杀系统，细节打满（附源码）#https://mp.weixin.qq.com/s/9iqjFTh3snBHTEryhjz1Mg<br>
+Spring Boot 项目鉴权的 4 种方式#https://mp.weixin.qq.com/s/sDaALSS8-isnZ8imWaJsMA<br>
+电脑开挂，直接飞起！！！#https://mp.weixin.qq.com/s/oqhmvjW9leVjuqHL8-3rWg<br>
+面试官：群聊消息的已读未读功能，你来设计一个?#https://mp.weixin.qq.com/s/-r1mbaf_MxHXqMnkwDPy3w<br>
+23 种设计模式很污的解释#https://mp.weixin.qq.com/s/0ncoB2uvhHE8sL1fJLhAyA<br>
+SpringBoot自动装配原理，这一篇就够了！#https://mp.weixin.qq.com/s/d22SgqZGf07LD4ClaC2bpQ<br>
+聊聊 Nacos#https://mp.weixin.qq.com/s/LcT5F8_os4ui7wgROmLOXg<br>
+从实现原理来讲，Nacos 为什么这么强#https://mp.weixin.qq.com/s/OaWitAat6oXb4kgJopK5FQ<br>
+推荐一个 yyds 的低代码平台#https://mp.weixin.qq.com/s/g1Qe9WL2Hcx1nezuG5Py_g<br>
+面试官：说说Spring中的事务传播行为#https://mp.weixin.qq.com/s/HhdY7jaDNN_-Ho2uoN9z_A<br>
+Nginx 面试 40 问#https://mp.weixin.qq.com/s/7tgdURMddY_-QyLx7ATX7g<br>
+XXL-JOB分布式任务调度平台(真·保姆级教程)#https://mp.weixin.qq.com/s/LURHICHDTngS2AwdPVsTDA<br>
+面试官：Spring Aop 与 AspectJ 有什么区别和联系？#https://mp.weixin.qq.com/s/hb4oOLaPOwJIOpzn6YeBOQ<br>
+SpringBoot 定时任务动态管理通用解决方案#https://mp.weixin.qq.com/s/RrMdhYIMCACvncnxCtZHxw<br>
+大厂面试官竟然这么爱问Kafka，一连八个Kafka问题把我问蒙了？#https://mp.weixin.qq.com/s/dt8tBhhD0lk0buGXJyr1BA<br>
+虾皮二面：什么是 JWT? 如何基于 JWT 进行身份验证？#https://mp.weixin.qq.com/s/NCbNKZcM7EiLM7tuF3ADxw<br>
+面试官：淘宝七天自动确认收货，可以怎么实现？#https://mp.weixin.qq.com/s/6X5DHDxyBU5pmC8TsYiVOA<br>
+token 过期后，如何自动续期？#https://mp.weixin.qq.com/s/Wfv0DBsrr76EYursXyi6iQ<br>
+《八股文》12道 Zookeeper 面试题#https://mp.weixin.qq.com/s/lVI80POECHks-jp2xYmcMw<br>
+推荐一个开源的任务管理工具#https://mp.weixin.qq.com/s/UZMatgOznsBD9R5NwTs8Jw<br>
+8 种最坑SQL语法，工作中踩过吗？#https://mp.weixin.qq.com/s/i5W1aI3seNGRB1Y-XL2lKA<br>
+面试题 - Spring常见面试题总结(超详细回答)#https://mp.weixin.qq.com/s/60g89YdQOEqtBcza5Mn5HQ<br>
+几行代码，复杂Excel 导入导出，真心强大！#https://mp.weixin.qq.com/s/6O6gF3H9CWBau9Uexmdi5w<br>
+2 万字详解，吃透 ES！#https://mp.weixin.qq.com/s/4E8ydxcLpZ0aY7YkZfqqnQ<br>
+太强了，一个注解搞定接口返回数据脱敏#https://mp.weixin.qq.com/s/cgete6bEE0JyoFyhU-BeGQ<br>
+深入浅出监控神器Prometheus#https://mp.weixin.qq.com/s/5qRDxB4mevrPZ-RSU7h_3A<br>
+一文深入浅出 ETCD#https://mp.weixin.qq.com/s/Ze00TSyQF_4WIzWguvlX4Q<br>
+RabbitMQ、RocketMQ、Kafka 三元归一#https://mp.weixin.qq.com/s/UdLjb1MgNQkksK9pU0A3Rg<br>
+从单体迁移到微服务的十二种方法#https://mp.weixin.qq.com/s/PHUtGouvO6GcWqzb_8UBew<br>
+推荐好用 Spring Boot 内置工具类#https://mp.weixin.qq.com/s/XB-gQpSlSHjfcnCY1gDaFA<br>
+SpringBoot 官方推荐，连接池，太快了！#https://mp.weixin.qq.com/s/u53TYsKtEJNv7ZslTx2DoQ<br>
+Spring Boot 服务监控机制#https://mp.weixin.qq.com/s/fT4j_lVdGaPqHux28fpW6g<br>
+我找到了一个快速定位SpringBoot接口超时问题的神器！#https://mp.weixin.qq.com/s/pO6tQ64o6Oic3Qw6cuVzRA<br>
+面试官：MQ 消息丢失、重复、积压问题，如何解决？#https://mp.weixin.qq.com/s/JBI0oGdMQf3lz8aA6j4vFQ<br>
+如何用 DDD 给 DDD 建模，破解 DDD 的魔法？#https://mp.weixin.qq.com/s/KlGa0BWhGpPflUNZqu8LTg<br>
+快速搭建一个网关服务，动态路由、鉴权的流程，看完秒会（含流程图）#https://mp.weixin.qq.com/s/8ovmYpN_4n9xAtUIz3aM_Q<br>
+如何在 Linux 中创建 systemd 服务#https://mp.weixin.qq.com/s/7Y2hBeEauiS2efNvzMLGiw<br>
+JWT 实现登录认证 + Token 自动续期方案，这才是正确的使用姿势！#https://mp.weixin.qq.com/s/WH_RSsJE4bFoLxiCA_NhlQ<br>
+【深入】聊聊权限#https://mp.weixin.qq.com/s/F-Ld6JqaYiexV6QnhCtJAQ<br>
+老司机教你，如何画出优秀的技术架构图？#https://mp.weixin.qq.com/s/qGSSVbVDNr5hYaF_L5symw<br>
+Nacos 中的配置文件如何实现加密传输#https://mp.weixin.qq.com/s/STYw3ny2cHWungTRbIvLcg<br>
+如何不重新编译让 Spring Boot 配置文件生效？#https://mp.weixin.qq.com/s/tl_cJV4URC41gMnC3TYIFg<br>
+面试官：单核 CPU 支持 Java 多线程吗？为什么？被问懵了！#https://mp.weixin.qq.com/s/DjK_jWHDBOzo2kH_mmbB5A<br>
+【项目部署】使用Jenkins一键打包部署前端Vue应用#https://mp.weixin.qq.com/s/FjdWRuihI6ymesNTp4elbQ<br>
+自动免费SSL脚本acme.sh#https://mp.weixin.qq.com/s/UZ8DCZf_a3_i54YGrt8IGg</p>
+]]></content>
+    </entry>
+</feed>
