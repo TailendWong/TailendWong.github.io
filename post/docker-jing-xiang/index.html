@@ -1,0 +1,194 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Docker镜像 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://honia.eu.org/favicon.ico?v=1726711732082">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://honia.eu.org/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1726711732082" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Docker镜像
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-07-02 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h2 id="搜索镜像">搜索镜像</h2>
+<p>https://hub.dockermirror.com/<br>
+https://gallery.ecr.aws/</p>
+<h2 id="配置镜像仓库">配置镜像仓库</h2>
+<ol>
+<li>方式一：Dockerfile使用镜像仓库</li>
+</ol>
+<pre><code>编辑 /etc/docker/daemon.json
+{
+  &quot;registry-mirrors&quot;: [&quot;https://registry.dockermirror.com&quot;]
+}
+重启docker
+sudo systemctl daemon-reload &amp;&amp; sudo systemctl restart docker
+</code></pre>
+<ol start="2">
+<li>方式二：命令行</li>
+</ol>
+<p><code>docker pull ubuntu --registry-mirror=https://registry.dockermirror.com</code></p>
+<ol start="3">
+<li>方式三：直接使用 Registry</li>
+</ol>
+<p><code>docker pull registry.dockermirror.com/ubuntu</code></p>
+<h2 id="测试可用的其他镜像仓库地址">测试可用的其他镜像仓库地址</h2>
+<p>https://huecker.io<br>
+https://registry.dockermirror.com<br>
+https://docker.m.daocloud.io<br>
+https://public.ecr.aws<br>
+https://noohub.ru</p>
+<h2 id="自用的daemonjson">自用的daemon.json</h2>
+<pre><code>{
+  &quot;registry-mirrors&quot;: [
+    &quot;https://huecker.io&quot;,
+    &quot;https://registry.dockermirror.com&quot;,
+    &quot;https://docker.m.daocloud.io&quot;,
+    &quot;https://public.ecr.aws&quot;,
+    &quot;https://noohub.ru&quot;
+  ],
+  &quot;max-concurrent-downloads&quot;: 10
+}
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://honia.eu.org/post/ji-yi-ci-qi-guai-de-wen-ti/" class="post-title gt-a-link">
+                    mybatis-plus使用，记一次奇怪的问题
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://honia.eu.org/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

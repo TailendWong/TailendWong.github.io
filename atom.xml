@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://honia.eu.org</id>
+    <title>Honia&apos;s Blog</title>
+    <updated>2024-09-19T02:08:57.966Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://honia.eu.org"/>
+    <link rel="self" href="https://honia.eu.org/atom.xml"/>
+    <subtitle>人如果没有梦想，和咸鱼有什么区别</subtitle>
+    <logo>https://honia.eu.org/images/avatar.png</logo>
+    <icon>https://honia.eu.org/favicon.ico</icon>
+    <rights>All rights reserved 2024, Honia&apos;s Blog</rights>
+    <entry>
+        <title type="html"><![CDATA[Linux手动配置BBR ( 网络加速 )]]></title>
+        <id>https://honia.eu.org/post/linux-shou-dong-pei-zhi-bbr-wang-luo-jia-su/</id>
+        <link href="https://honia.eu.org/post/linux-shou-dong-pei-zhi-bbr-wang-luo-jia-su/">
+        </link>
+        <updated>2024-09-19T01:53:10.000Z</updated>
+        <content type="html"><![CDATA[<p>BBR是google开发的TCP阻塞控制算法，可以最大程度的利用带宽，提升网络传输速率。<br>
+Linux kernel 4.9 及以上已支持 tcp_bbr</p>
+<h1 id="1查看系统内核版本">1.查看系统内核版本</h1>
+<pre><code>uname -r
+</code></pre>
+<p>看内核版本是否大于等于4.9，否则要升级内核，或者安装bbr。</p>
+<h1 id="2开启bbr">2.开启BBR</h1>
+<p>在/etc/sysctl.conf末尾添加以下内容</p>
+<pre><code>net.core.default_qdisc=fq
+net.ipv4.tcp_congestion_control=bbr
+</code></pre>
+<h1 id="3保存生效">3.保存生效</h1>
+<pre><code>sysctl -p
+</code></pre>
+<h1 id="4检查bbr是否启用">4.检查BBR是否启用</h1>
+<p><code>sysctl net.ipv4.tcp_available_congestion_control</code>返回值一般为：net.ipv4.tcp_available_congestion_control = reno cubic bbr</p>
+<p><code>sysctl net.ipv4.tcp_congestion_control</code>返回值一般为：net.ipv4.tcp_congestion_control = bbr</p>
+<p><code>sysctl net.core.default_qdisc</code>返回值一般为：net.core.default_qdisc = fq</p>
+<p><code>lsmod | grep bbr</code>返回值有类似：tcp_bbr 20480 10</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[ES数据迁移]]></title>
+        <id>https://honia.eu.org/post/es-shu-ju-qian-yi/</id>
+        <link href="https://honia.eu.org/post/es-shu-ju-qian-yi/">
+        </link>
+        <updated>2024-09-03T02:27:19.000Z</updated>
+        <content type="html"><![CDATA[<p>下载 nodejs 并进行压缩配置 本文档以 v16.12.0 为例<br>
+1、下载nodejs<br>
+ http://zencor-shoping.oss-cn-beijing.aliyuncs.com/package/service/node-v16.12.0-linux-x64.tar.gz <br>
+2 、解压nodejs<br>
+cd /usr/local/<br>
+tar -xzvf  node-v16.12.0-linux-x64.tar.gz <br>
+3、配置环境变量<br>
+vim /etc/profile<br>
+export NODE_HOME=/usr/local/node-v16.12.0<br>
+export PATH=<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>P</mi><mi>A</mi><mi>T</mi><mi>H</mi><mo>:</mo></mrow><annotation encoding="application/x-tex">PATH:</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mord mathdefault">A</span><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="mord mathdefault" style="margin-right:0.08125em;">H</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">:</span></span></span></span>NODE_HOME/bin<br>
+export NODE_PATH=$NODE_HOME/lib/node_modules<br>
+4、安装<br>
+npm install elasticdump</p>
+<h1 id="导出">导出</h1>
+<p>multielasticdump <br>
+--direction=dump <br>
+--match='^.*$' <br>
+--input=http://127.0.0.1:9200 <br>
+--output=/tmp/es_backup <br>
+--includeType='data,mapping' <br>
+--limit=5000</p>
+<h1 id="导入">导入</h1>
+<p>multielasticdump <br>
+--direction=load <br>
+--match='^.*$' <br>
+--input=/tmp/es_backup <br>
+--output=http://xianniu:xianniu@124.222.87.102:9200 <br>
+--includeType='data,mapping' <br>
+--limit=5000 \</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[SpringBoot数据脱敏]]></title>
+        <id>https://honia.eu.org/post/springboot-shu-ju-tuo-min/</id>
+        <link href="https://honia.eu.org/post/springboot-shu-ju-tuo-min/">
+        </link>
+        <updated>2024-08-08T02:36:59.000Z</updated>
+        <content type="html"><![CDATA[<p>转载： https://mp.weixin.qq.com/s/pa1wUie6PzYXtH-wo_Plmg</p>
+<h1 id="引子">引子</h1>
+<p>@JsonSerialize 注解，能够在字段、方法或类级别上应用，为用户提供了高度自定义的序列化机制。</p>
+<p>@JsonSerialize允许我们指定一个自定义的序列化器类，通过using属性来实现。这个自定义序列化器需要继承自JsonSerializer<T>，其中T是待序列化对象的类型。</p>
+<p>除了using属性外，@JsonSerialize还包含其他有用的属性，如include，它用于定义序列化的包含策略。通过设置include属性，开发者可以指示Jackson在何种条件下将字段或属性包含进JSON输出。</p>
+<p>示例</p>
+<pre><code>@Data
+public class CustomDateClass {
+  
+    @JsonSerialize(using = CustomDateSerializer.class)
+    private Date myDate;
+  
+    //自定义的日期序列化器
+    public static class CustomDateSerializer extends ToStringSerializer&lt;Date&gt; {
+        private static final long serialVersionUID = 1L;
+  
+        public CustomDateSerializer() {
+          //传递null以使用默认日期格式
+            super(null);
+        }
+ 
+        //重写 serialize 方法来定制日期的序列化过程，将其格式化为 &quot;yyyy-MM-dd&quot; 的字符串。
+        @Override  
+        public void serialize(Date value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+            String formattedDate = new SimpleDateFormat(&quot;yyyy-MM-dd&quot;).format(value);
+            jgen.writeString(formattedDate);
+        }
+    }
+}
+</code></pre>
+<h1 id="脱敏">脱敏</h1>
+<h2 id="定义注解">定义注解</h2>
+<pre><code>@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+@JacksonAnnotationsInside
+@JsonSerialize(using = SensitiveJsonSerializer.class)
+public @interface Sensitive {
+    //脱敏策略
+    SensitiveStrategy strategy();
+}
+</code></pre>
+<h2 id="脱敏策略">脱敏策略</h2>
+<pre><code>/**
+ * 脱敏策略，枚举类，针对不同的数据定制特定的策略
+ */
+public enum SensitiveStrategy
+{
+    /**
+     * 姓名，第2位星号替换
+     */
+    USERNAME(s -&gt; s.replaceAll(&quot;(\\S)\\S(\\S*)&quot;, &quot;$1*$2&quot;)),
+
+    /**
+     * 密码，全部字符都用*代替
+     */
+    PASSWORD(DesensitizedUtil::password),
+
+    /**
+     * 身份证，中间10位星号替换
+     */
+    ID_CARD(s -&gt; s.replaceAll(&quot;(\\d{4})\\d{10}(\\d{4})&quot;, &quot;$1** **** ****$2&quot;)),
+
+    /**
+     * 手机号，中间4位星号替换
+     */
+    PHONE(s -&gt; s.replaceAll(&quot;(\\d{3})\\d{4}(\\d{4})&quot;, &quot;$1****$2&quot;)),
+
+    /**
+     * 电子邮箱，仅显示第一个字母和@后面的地址显示，其他星号替换
+     */
+    EMAIL(s -&gt; s.replaceAll(&quot;(^.)[^@]*(@.*$)&quot;, &quot;$1****$2&quot;)),
+
+    /**
+     * 银行卡号，保留最后4位，其他星号替换
+     */
+    BANK_CARD(s -&gt; s.replaceAll(&quot;\\d{15}(\\d{3})&quot;, &quot;**** **** **** **** $1&quot;)),
+
+    /**
+     * 车牌号码，包含普通车辆、新能源车辆
+     */
+    CAR_LICENSE(DesensitizedUtil::carLicense);
+
+    private final Function&lt;String, String&gt; desensitizer;
+
+    SensitiveStrategy(Function&lt;String, String&gt; desensitizer)
+    {
+        this.desensitizer = desensitizer;
+    }
+
+    public Function&lt;String, String&gt; desensitizer()
+    {
+        return desensitizer;
+    }
+}
+</code></pre>
+<h2 id="json序列化实现">JSON序列化实现</h2>
+<p>对标注注解@Sensitive的字段进行脱敏</p>
+<pre><code>/**
+ * 序列化注解自定义实现
+ * JsonSerializer&lt;String&gt;：指定String 类型，serialize()方法用于将修改后的数据载入
+ */
+public class SensitiveJsonSerializer extends JsonSerializer&lt;String&gt; implements ContextualSerializer {
+
+    private SensitiveStrategy strategy;
+ 
+    @Override
+    public void serialize(String value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        gen.writeString(strategy.desensitizer().apply(value));
+    }
+ 
+    /**
+     * 获取属性上的注解属性
+     */
+    @Override
+    public JsonSerializer&lt;?&gt; createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
+ 
+        Sensitive annotation = property.getAnnotation(Sensitive.class);
+        if (Objects.nonNull(annotation)&amp;&amp;Objects.equals(String.class, property.getType().getRawClass())) {
+            this.strategy = annotation.strategy();
+            return this;
+        }
+        return prov.findValueSerializer(property.getType(), property);
+    }
+}
+</code></pre>
+<p>创建一个脱敏工具类：</p>
+<pre><code>/**
+ * 脱敏工具类
+ */
+public class DesensitizedUtil
+{
+    /**
+     * 密码的全部字符都用*代替，比如：******
+     *
+     * @param password 密码
+     * @return 脱敏后的密码
+     */
+    public static String password(String password)
+    {
+        if (StringUtils.isBlank(password))
+        {
+            return StringUtils.EMPTY;
+        }
+        return StringUtils.repeat('*', password.length());
+    }
+
+    /**
+     * 车牌中间用*代替，如果是错误的车牌，不处理
+     *
+     * @param carLicense 完整的车牌号
+     * @return 脱敏后的车牌
+     */
+    public static String carLicense(String carLicense)
+    {
+        if (StringUtils.isBlank(carLicense))
+        {
+            return StringUtils.EMPTY;
+        }
+        // 普通车牌
+        if (carLicense.length() == 7)
+        {
+            carLicense = StringUtils.hide(carLicense, 3, 6);
+        }
+        else if (carLicense.length() == 8)
+        {
+            // 新能源车牌
+            carLicense = StringUtils.hide(carLicense, 3, 7);
+        }
+        return carLicense;
+    }
+}
+</code></pre>
+<p>使用</p>
+<pre><code>@Data
+public class Person {
+    /**
+     * 真实姓名
+     */
+    @Sensitive(strategy = SensitiveStrategy.USERNAME)
+    private String realName;
+    /**
+     * 电话号码
+     */
+    @Sensitive(strategy = SensitiveStrategy.PHONE)
+    private String phoneNumber;
+    /**
+     * 身份证号码
+     */
+    @Sensitive(strategy = SensitiveStrategy.ID_CARD)
+    private String idCard;
+}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Docker镜像]]></title>
+        <id>https://honia.eu.org/post/docker-jing-xiang/</id>
+        <link href="https://honia.eu.org/post/docker-jing-xiang/">
+        </link>
+        <updated>2024-07-02T02:27:46.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="搜索镜像">搜索镜像</h2>
+<p>https://hub.dockermirror.com/<br>
+https://gallery.ecr.aws/</p>
+<h2 id="配置镜像仓库">配置镜像仓库</h2>
+<ol>
+<li>方式一：Dockerfile使用镜像仓库</li>
+</ol>
+<pre><code>编辑 /etc/docker/daemon.json
+{
+  &quot;registry-mirrors&quot;: [&quot;https://registry.dockermirror.com&quot;]
+}
+重启docker
+sudo systemctl daemon-reload &amp;&amp; sudo systemctl restart docker
+</code></pre>
+<ol start="2">
+<li>方式二：命令行</li>
+</ol>
+<p><code>docker pull ubuntu --registry-mirror=https://registry.dockermirror.com</code></p>
+<ol start="3">
+<li>方式三：直接使用 Registry</li>
+</ol>
+<p><code>docker pull registry.dockermirror.com/ubuntu</code></p>
+<h2 id="测试可用的其他镜像仓库地址">测试可用的其他镜像仓库地址</h2>
+<p>https://huecker.io<br>
+https://registry.dockermirror.com<br>
+https://docker.m.daocloud.io<br>
+https://public.ecr.aws<br>
+https://noohub.ru</p>
+<h2 id="自用的daemonjson">自用的daemon.json</h2>
+<pre><code>{
+  &quot;registry-mirrors&quot;: [
+    &quot;https://huecker.io&quot;,
+    &quot;https://registry.dockermirror.com&quot;,
+    &quot;https://docker.m.daocloud.io&quot;,
+    &quot;https://public.ecr.aws&quot;,
+    &quot;https://noohub.ru&quot;
+  ],
+  &quot;max-concurrent-downloads&quot;: 10
+}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[mybatis-plus使用，记一次奇怪的问题]]></title>
+        <id>https://honia.eu.org/post/ji-yi-ci-qi-guai-de-wen-ti/</id>
+        <link href="https://honia.eu.org/post/ji-yi-ci-qi-guai-de-wen-ti/">
+        </link>
+        <updated>2024-06-19T09:16:14.000Z</updated>
+        <content type="html"><![CDATA[<p>使用mybatis-plus 中IService的saveBatch方法遇到的问题：<br>
+当Mapper文件类上无@Mapper(org.apache.ibatis.annotations.Mapper)注解时，会自动填充注主键uuid。如果添加了@Mapper注解，则不会自动填充uuid。</p>
+<p>后文：<br>
+参考：https://blog.csdn.net/u012060033/article/details/128040322</p>
+<p>@Repository ：@Repository的作用与@Controller，@Service的作用都是把对象交给Spring管理，将接口的一个实现类交给Spring管理。</p>
+<p>@Mapper: 这个注解一般使用在Dao层接口上，相当于一个mapper.xml文件，它的作用就是将接口生成一个动态代理类。加入了@Mapper注解，目的就是为了不再写mapper映射文件。这个注解就是用来映射mapper.xml文件的。使用@mapper后，不需要在spring配置中设置扫描地址，通过mapper.xml里面的namespace属性对应相关的mapper类，spring将动态的生成Bean后注入到ServiceImpl中</p>
+<p>@Mapper注解相当于是@Reponsitory注解和@MapperScan注解的和，会自动的进行配置加载。<br>
+@MapperScan注解多个包，@Mapper只能把当前接口类进行动态代理。</p>
+<p>在SpringBoot的启动类上给定@MapperScan注解。此时Dao层可以省略@Mapper注解，当然@Repository注解可写可不写</p>
+<p>当使用@Mapper注解的时候，可以省略@MapperScan以及@Repository。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[bootstrap.yml和application.yml]]></title>
+        <id>https://honia.eu.org/post/bootstrapyml-he-applicationyml/</id>
+        <link href="https://honia.eu.org/post/bootstrapyml-he-applicationyml/">
+        </link>
+        <updated>2024-06-13T13:42:29.000Z</updated>
+        <content type="html"><![CDATA[<p><strong>省流</strong>：均本地文件时，application.yml会覆盖bootstrap.yml中的同名属性；外部配置中心时，不会覆盖。</p>
+<p>--- 正文 ---</p>
+<p>在Spring Boot和Spring Cloud应用中，如果同时在<code>bootstrap.yml</code>和<code>application.yml</code>中配置了数据库连接，那么最终运行时使用的配置会依赖于属性源的加载顺序和优先级。</p>
+<h3 id="加载顺序和优先级">加载顺序和优先级</h3>
+<ol>
+<li>
+<p><strong><code>bootstrap.yml</code> 优先</strong>：<br>
+<code>bootstrap.yml</code> 文件中的配置属性会先于 <code>application.yml</code> 文件加载。这是因为 <code>bootstrap.yml</code> 在应用程序上下文的初始化过程中最早被处理，用于配置一些需要在应用程序启动前就初始化的属性。这主要包括从外部配置中心加载的配置等。</p>
+</li>
+<li>
+<p><strong><code>application.yml</code> 次优先</strong>：<br>
+<code>application.yml</code> 文件中的配置属性在 <code>bootstrap.yml</code> 之后加载。如果 <code>application.yml</code> 中声明了与 <code>bootstrap.yml</code> 中相同的配置属性，<code>application.yml</code> 中的值将会覆盖 <code>bootstrap.yml</code> 中的值。</p>
+</li>
+</ol>
+<h3 id="覆盖规则">覆盖规则</h3>
+<p>简单来说，<code>application.yml</code> 中的配置会覆盖 <code>bootstrap.yml</code> 中的同名配置属性，因此如果你在这两个文件中都配置了数据库连接，最终的生效配置将会是 <code>application.yml</code> 中的配置。</p>
+<h3 id="例子">例子</h3>
+<p>假设 <code>bootstrap.yml</code> 中配置了如下内容：</p>
+<pre><code class="language-yaml">spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/bootstrapdb
+    username: bootstrapUser
+    password: bootstrapPass
+</code></pre>
+<p>而 <code>application.yml</code> 中配置了如下内容：</p>
+<pre><code class="language-yaml">spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/applicationdb
+    username: applicationUser
+    password: applicationPass
+</code></pre>
+<p>最终在应用程序运行时，会使用 <code>application.yml</code> 中的数据库连接配置：</p>
+<pre><code class="language-yaml">spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/applicationdb
+    username: applicationUser
+    password: applicationPass
+</code></pre>
+<h3 id="特殊情况外部配置中心">特殊情况：外部配置中心</h3>
+<p>需要特别注意的是，当使用外部配置中心（例如 Spring Cloud Config Server）时，通常会将某些配置（例如数据库连接）从配置中心加载。在这种情况下：</p>
+<ol>
+<li><code>bootstrap.yml</code> 中配置的是外部配置中心的地址和参数，而非具体的数据库连接参数。</li>
+<li>真正的数据库连接参数从配置中心加载，并且其优先级高于 <code>application.yml</code>。</li>
+</ol>
+<h3 id="注意事项">注意事项</h3>
+<ol>
+<li><strong>避免混淆</strong>：尽量避免在 <code>bootstrap.yml</code> 和 <code>application.yml</code> 中同时配置相同的属性，以避免混淆和难以调试的问题。</li>
+<li><strong>文档化</strong>：对团队成员进行关于配置文件加载顺序和优先级的培训，并且将其记录在项目的文档中，以确保在多人合作时具有一致的理解。</li>
+</ol>
+<p>通过理解和合理设置这两种配置文件，可使你的Spring Boot应用程序配置更清晰、可维护。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Linux常用命令]]></title>
+        <id>https://honia.eu.org/post/linux/</id>
+        <link href="https://honia.eu.org/post/linux/">
+        </link>
+        <updated>2024-05-23T10:24:07.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="按时间段提取日志文件内容">按时间段提取日志文件内容</h1>
+<p>如果您想要将xn-app.log文件中2024-05-22 15:00:00到2024-05-22 16:00:00之间的内容保存到另一个文件，您可以使用awk命令结合两个条件。<br>
+以下是一个示例命令：</p>
+<p>awk -v start=&quot;2024-05-22 15:00:00&quot; -v end=&quot;2024-05-22 16:00:00&quot; '$0 &gt;= start &amp;&amp;$0 &lt; end {print &gt; &quot;xn-app-log_1500_to_1600.log&quot;}' xn-app.log</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Stream多字段去重]]></title>
+        <id>https://honia.eu.org/post/stream-duo-zi-duan-qu-chong/</id>
+        <link href="https://honia.eu.org/post/stream-duo-zi-duan-qu-chong/">
+        </link>
+        <updated>2024-05-15T09:27:47.000Z</updated>
+        <content type="html"><![CDATA[<pre><code>List&lt;Person&gt; uniquePeople = people.stream()
+                .collect(Collectors.toMap(
+                        person -&gt; StrUtil.join(&quot;#&quot;, person.getName(), person.getAge(), person.getSex()),
+                        Function.identity(), // 使用Person对象本身作为值
+                        (existing, replacement) -&gt; existing, // 如果有冲突，保留现有的Person对象
+                        LinkedHashMap::new // 使用LinkedHashMap来保留插入顺序（如果需要,否则不要此参数）
+                ))
+                .values().stream().collect(Collectors.toList());
+</code></pre>
+<p>使用Hutool的StrUtil.join()可避免字符串拼接时出现NPE</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[发送邮件错误Connection unexpectedly closed解决办法]]></title>
+        <id>https://honia.eu.org/post/fa-song-you-jian-cuo-wu-connection-unexpectedly-closed-jie-jue-ban-fa/</id>
+        <link href="https://honia.eu.org/post/fa-song-you-jian-cuo-wu-connection-unexpectedly-closed-jie-jue-ban-fa/">
+        </link>
+        <updated>2024-05-07T07:24:22.000Z</updated>
+        <content type="html"><![CDATA[<p>发邮件功能，本地调试正常，云服务报Connection unexpectedly closed。</p>
+<p>由于smtp的25端口容易收到攻击，所以对于某些云服务器，25端口是被禁止的。所以，此时应采用其他可用的端口和协议来发送邮件。</p>
+<p>对于SSL协议，默认的端口465，某些云服务器也是禁止的。</p>
+<p>所以 对于QQ邮箱，发送邮件服务器地址smtp.qq.com，使用SSL，可以换成<strong>587端口</strong>， 问题解决。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[什么是零拷贝]]></title>
+        <id>https://honia.eu.org/post/shi-me-shi-ling-kao-bei/</id>
+        <link href="https://honia.eu.org/post/shi-me-shi-ling-kao-bei/">
+        </link>
+        <updated>2024-03-28T02:20:35.000Z</updated>
+        <content type="html"><![CDATA[<p>参考链接：https://blog.csdn.net/meser88/article/details/108355541</p>
+<h1 id="是什么">是什么？</h1>
+<p>零拷贝是指计算机执行IO操作时，减少上下文切换和CPU的拷贝时间。</p>
+<p>传统IO的执行流程，包括read和write两个过程，需要进行4次上下文切换和4次拷贝（两次CPU拷贝+两次DMA拷贝），DMA拷贝指的是硬件到内核空间的内核缓冲区数据拷贝。</p>
+<h1 id="如何实现">如何实现？</h1>
+<p>主要有三种方式： mmap、sendfile、splice</p>
+<h2 id="mmap">mmap</h2>
+<p>将内核中的读缓冲区与用户空间的虚拟地址映射到同一个物理地址，所有的IO都在内核完成。</p>
+<h2 id="sendfile">sendfile</h2>
+<p>在两个文件描述符之间传输数据，在内核中操作。</p>
+<h2 id="splice">splice</h2>
+<p>类似sendfile，允许任意两个文件互相连接且不需要硬件支持</p>
+<h1 id="java提供的零拷贝">java提供的零拷贝</h1>
+<p>1、java的NIO</p>
+<p>DirectByteBuffer extends MappedByteBuffer</p>
+<p>FileChannel  transferFrom() 和 transferTo()</p>
+<p>2、Netty</p>
+<p>网络传输时，将整条消息分了多个数据包，需要将数据包组成完整的消息才能正确处理。CompositeChannelBuffer主要作用是将多个ChannelBuffer组成一个虚拟的ChannelBuffer，并没有真正组合起来只是保存了引用，避免了数据拷贝。</p>
+<p>3、Kafka</p>
+<p>索引文件使用了mmap+write方式，数据文件使用sendfile方式。</p>
+]]></content>
+    </entry>
+</feed>
