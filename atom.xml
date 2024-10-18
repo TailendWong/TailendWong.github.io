@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://blog.you.work.gd</id>
+    <title>Honia&apos;s Blog</title>
+    <updated>2024-10-18T07:35:40.638Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://blog.you.work.gd"/>
+    <link rel="self" href="https://blog.you.work.gd/atom.xml"/>
+    <subtitle>人如果没有梦想，和咸鱼有什么区别</subtitle>
+    <logo>https://blog.you.work.gd/images/avatar.png</logo>
+    <icon>https://blog.you.work.gd/favicon.ico</icon>
+    <rights>All rights reserved 2024, Honia&apos;s Blog</rights>
+    <entry>
+        <title type="html"><![CDATA[免费内网穿透方案推荐]]></title>
+        <id>https://blog.you.work.gd/post/mian-fei-nei-wang-chuan-tou-fang-an-tui-jian/</id>
+        <link href="https://blog.you.work.gd/post/mian-fei-nei-wang-chuan-tou-fang-an-tui-jian/">
+        </link>
+        <updated>2024-10-15T02:34:58.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="临时使用推荐">临时使用推荐</h1>
+<ul>
+<li><a href="https://ngrok.com/">ngrok.com</a></li>
+<li><a href="https://ipyingshe.com">闪库</a></li>
+<li><a href="https://freefrp.net/">freefrp</a></li>
+</ul>
+<h1 id="长期使用推荐更新于20241017">长期使用推荐（更新于20241017）</h1>
+<p>星空staryfrp⭐⭐⭐<br>
+5条  8Mbps  全实名2元，一个香港节点</p>
+<p>mossfrp⭐⭐<br>
+10条 全国内，带宽天数可选，签到获取银币购买</p>
+<p>mefrp ⭐⭐⭐<br>
+12Mbps实名后 30Mbps</p>
+<p>mohua⭐⭐<br>
+5条 8Mbps 节点不错，签到买流量太贵</p>
+<p>muhan⭐<br>
+垃圾，流量少，节点差</p>
+<p>星河 ⭐⭐⭐<br>
+5 条隧道，8M，全实名，节点一般</p>
+<p>hayfrp ⭐⭐⭐⭐⭐<br>
+15条，带宽未知，无需实名</p>
+<p>chmlfrp⭐⭐⭐<br>
+4条 国内8国外32Mbps  全实名，二级域名1个</p>
+<p><strong>以下为自用</strong><br>
+盛月映射⭐⭐⭐⭐<br>
+国内节点，带宽20M，但不方便建站(需备案)，可用于穿透服务<br>
+openfrp⭐⭐⭐⭐<br>
+免费带宽12Mbps，4条（2条），新手友好<br>
+LoCyanFrp⭐⭐⭐⭐<br>
+带宽10Mbps，条数不限，多服务器</p>
+<p><strong>部分内穿服务商聚合网站</strong>：https://内网穿透.中国</p>
+<h1 id="全端口映射推荐">全端口映射推荐</h1>
+<p>同义词：异地组网、虚拟局域网</p>
+<p>蒲公英⭐⭐⭐⭐ 限3台设备，带宽5Mbps<br>
+皎月连⭐⭐⭐<br>
+zerotier⭐⭐⭐<br>
+tailscale⭐⭐⭐</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Linux通过VNC远程控制及实现浏览器远控]]></title>
+        <id>https://blog.you.work.gd/post/linux-tong-guo-vnc-yuan-cheng-kong-zhi-ji-liu-lan-qi-yuan-kong/</id>
+        <link href="https://blog.you.work.gd/post/linux-tong-guo-vnc-yuan-cheng-kong-zhi-ji-liu-lan-qi-yuan-kong/">
+        </link>
+        <updated>2024-10-14T08:04:21.000Z</updated>
+        <content type="html"><![CDATA[<p>使用 VNC 及通过 noVNC 实现浏览器实现远程桌面访问</p>
+<h1 id="安装vnc服务">安装VNC服务</h1>
+<ol>
+<li>
+<p>在需要被控制的机器上安装vnc服务<br>
+<code>sudo apt update &amp;&amp; sudo apt install x11vnc -y</code></p>
+</li>
+<li>
+<p>初次运行 <code>x11vnc</code> 前需要设置远程访问的密码<br>
+<code>x11vnc -storepasswd</code></p>
+</li>
+<li>
+<p>上面密码设置后,保存在这个位置/home/jon/.vnc/passwd(具体以自己显示路径为准),需要把这个密码文件复制一份到/etc/x11vnc.pass这个路径,执行下面命令复制<br>
+<code>sudo cp /home/jon/.vnc/passwd /etc/x11vnc.pass</code></p>
+</li>
+<li>
+<p>设置x11vnc开机启动,创建系统服务文件<br>
+<code>sudo vim  /lib/systemd/system/x11vnc.service</code><br>
+填入以下内容</p>
+</li>
+</ol>
+<pre><code>[Unit]
+Description=Start x11vnc at startup.
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/x11vnc -auth guess -forever -loop -noxdamage -repeat -rfbauth /etc/x11vnc.pass -rfbport 5900 -shared
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+<ol start="5">
+<li>启动vnc服务</li>
+</ol>
+<pre><code>#设置开机自启
+sudo systemctl enable x11vnc
+
+#启动x11vnc
+sudo systemctl start x11vnc
+
+#查看状态
+sudo systemctl status x11vnc
+</code></pre>
+<p>到此已经可以通过vnc客户端连接了</p>
+<h1 id="通过novnc实现浏览器远控">通过noVNC实现浏览器远控</h1>
+<ol>
+<li>安装 noVNC</li>
+</ol>
+<pre><code>sudo apt install git -y
+git clone https://github.com/novnc/noVNC.git
+cd noVNC
+git submodule update --init --recursive
+</code></pre>
+<ol start="2">
+<li>安装 Websockify<br>
+noVNC 需要 Websockify 作为 WebSocket 到 TCP 之间的代理</li>
+</ol>
+<pre><code>sudo apt install python3-websockify -y
+</code></pre>
+<ol start="3">
+<li>启动 noVNC<br>
+切换到 noVNC 目录并启动 Websockify。默认情况下，noVNC 将在端口 6080 上运行。</li>
+</ol>
+<pre><code>./utils/novnc_proxy --vnc localhost:5900
+</code></pre>
+<h2 id="小插曲">小插曲</h2>
+<p>启动noVNC后，尝试通过浏览器远程控制，发现连不上，一方面是防火墙没放行对应端口，另一方面发现noVNC日志提示以下信息<br>
+<code>code 400, message Client must support 'binary' or 'base64' protocol</code></p>
+<p><strong>解决办法</strong><br>
+切换到 noVNC 目录，编辑<code>./core/websock.js</code>文件，<br>
+找到<br>
+<code>this.attach(new WebSocket(uri, protocols));</code><br>
+修改为<br>
+<code>this.attach(new WebSocket(uri, ['binary', 'base64']));</code><br>
+重启noVNC服务即可。</p>
+<p>参考链接：<br>
+https://programtree.blog.csdn.net/article/details/139996176<br>
+https://blog.csdn.net/LT15171009269/article/details/139412307<br>
+https://blog.csdn.net/u014374009/article/details/131780035</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[mysql踩坑记录]]></title>
+        <id>https://blog.you.work.gd/post/mysql-te-shu/</id>
+        <link href="https://blog.you.work.gd/post/mysql-te-shu/">
+        </link>
+        <updated>2024-10-11T02:21:31.000Z</updated>
+        <content type="html"><![CDATA[<p>mysql使用 = 精确查询时会忽略尾部空格， 不区分大小写。</p>
+<p>例如:  'AAA' = 'AAA  ' ,    'aaa' = 'aAa'</p>
+<h2 id="对于问题一">对于问题一</h2>
+<p><strong>为什么会这样？</strong><br>
+MySQL 在进行字符串比较时遵循以下规则：</p>
+<ol>
+<li>对于 CHAR 类型字段，存储时会自动删除尾随空格。</li>
+<li>对于 VARCHAR 类型字段，在比较时会忽略尾随空格。</li>
+</ol>
+<p><strong>如何避免这个问题？</strong></p>
+<ol>
+<li>
+<p>使用二进制比较：可以使用BINARY关键字进行严格比较。<br>
+SELECT name, LENGTH(<code>name</code>) FROM users WHERE BINARY name = 'AAA';</p>
+</li>
+<li>
+<p>使用LIKE进行精确匹配：<br>
+SELECT name, LENGTH(<code>name</code>) FROM users WHERE name LIKE 'AAA';</p>
+</li>
+<li>
+<p>显式地处理空格：可以通过TRIM函数显式去掉空格后再进行比较<br>
+SELECT name, LENGTH(<code>name</code>) FROM users WHERE TRIM(name) = 'AAA';</p>
+</li>
+</ol>
+<h2 id="对于问题二">对于问题二</h2>
+<ol>
+<li>
+<p>使用mysql 的BINARY 关键字使搜索区分大小写。</p>
+</li>
+<li>
+<p>修改字段的排序规则<br>
+字符集是一套符号和编码，校对规则是在字符集内用于比较字符的一套规则。 一般而言，校对规则以其相关的字符集名开始，通常包括一个语言名，并且以_ci（大小写不敏感）、_cs（大小写敏感）或_bin（二元）结束 。</p>
+</li>
+</ol>
+<p>比如 utf8字符集，，如下表：<br>
+1）utf8_bin：utf8_bin将字符串中的每一个字符用二进制数据存储，区分大小写。<br>
+2）utf8_general_ci：utf8_genera_ci不区分大小写，ci为case insensitive的缩写，即大小写不敏感。<br>
+3）utf8_general_cs：utf8_general_cs区分大小写，cs为case sensitive的缩写，即大小写敏感。<br>
+注：我本机使用5.7 版本不支持 utf8_general_cs 字符集，创建报错。</p>
+<h2 id="总结">总结</h2>
+<p><strong>实测结果</strong>:<br>
+以utf8mb4字符集为例<br>
+排序规则后缀对于大小写和尾部空格的影响</p>
+<ul>
+<li>utf8mb4_bin  字母大小写敏感，忽略尾部空格</li>
+<li>utf8mb4_0900_as_cs    字母大小写敏感，不忽略尾部空格</li>
+<li>utf8mb4_0900_ai_ci  不区分字母大小写，不忽略尾部空格</li>
+<li>utf8mb4_general_ci  不区分字母大小写，忽略尾部空格</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[IPv6记录]]></title>
+        <id>https://blog.you.work.gd/post/ipv6-ji-lu/</id>
+        <link href="https://blog.you.work.gd/post/ipv6-ji-lu/">
+        </link>
+        <updated>2024-09-27T05:57:41.000Z</updated>
+        <content type="html"><![CDATA[<p>家里是电信天翼网关光猫，如今基本都开启了ipv6的支持，可通过搜索“ipv6测试”来检测。</p>
+<p>如果获取不到ipv6地址，可能是你的无线路由器未开启，登录路由器管理系统，网络设置里找到ipv6开关打开，然后重新测试</p>
+<p>获取到ipv6地址后，你已经可以访问ipv6的网站了，但是从外部无法访问到家里的局域网设备，可能是未关闭防火墙ipv6防火墙（IPv6Session）。</p>
+<h1 id="关闭ipv6防火墙ipv6session">关闭ipv6防火墙（IPv6Session）</h1>
+<p>打开天翼光猫后台管理系统（超级管理员账号登录，密码可以通过打客服获取），找到安全--防火墙--IPv6 SESSION选项，关闭它，即可通过外网访问ipv6地址连接到家里设备。</p>
+<p>但由于国内环境和运营商限制，即使ipv6，80和443端口也是被禁止的。</p>
+<p>到此，已实现通过ipv6访问局域网设备。</p>
+<p>所以建站的话，还是考虑内网穿透方案吧</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Linux手动配置BBR ( 网络加速 )]]></title>
+        <id>https://blog.you.work.gd/post/linux-shou-dong-pei-zhi-bbr-wang-luo-jia-su/</id>
+        <link href="https://blog.you.work.gd/post/linux-shou-dong-pei-zhi-bbr-wang-luo-jia-su/">
+        </link>
+        <updated>2024-09-19T01:53:10.000Z</updated>
+        <content type="html"><![CDATA[<p>BBR是google开发的TCP阻塞控制算法，可以最大程度的利用带宽，提升网络传输速率。<br>
+Linux kernel 4.9 及以上已支持 tcp_bbr</p>
+<h1 id="1查看系统内核版本">1.查看系统内核版本</h1>
+<pre><code>uname -r
+</code></pre>
+<p>看内核版本是否大于等于4.9，否则要升级内核，或者安装bbr。</p>
+<h1 id="2开启bbr">2.开启BBR</h1>
+<p>在/etc/sysctl.conf末尾添加以下内容</p>
+<pre><code>net.core.default_qdisc=fq
+net.ipv4.tcp_congestion_control=bbr
+</code></pre>
+<h1 id="3保存生效">3.保存生效</h1>
+<pre><code>sysctl -p
+</code></pre>
+<h1 id="4检查bbr是否启用">4.检查BBR是否启用</h1>
+<p><code>sysctl net.ipv4.tcp_available_congestion_control</code>返回值一般为：net.ipv4.tcp_available_congestion_control = reno cubic bbr</p>
+<p><code>sysctl net.ipv4.tcp_congestion_control</code>返回值一般为：net.ipv4.tcp_congestion_control = bbr</p>
+<p><code>sysctl net.core.default_qdisc</code>返回值一般为：net.core.default_qdisc = fq</p>
+<p><code>lsmod | grep bbr</code>返回值有类似：tcp_bbr 20480 10</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[ES数据迁移]]></title>
+        <id>https://blog.you.work.gd/post/es-shu-ju-qian-yi/</id>
+        <link href="https://blog.you.work.gd/post/es-shu-ju-qian-yi/">
+        </link>
+        <updated>2024-09-03T02:27:19.000Z</updated>
+        <content type="html"><![CDATA[<p>下载 nodejs 并进行压缩配置 本文档以 v16.12.0 为例<br>
+1、下载nodejs<br>
+ http://zencor-shoping.oss-cn-beijing.aliyuncs.com/package/service/node-v16.12.0-linux-x64.tar.gz <br>
+2 、解压nodejs<br>
+cd /usr/local/<br>
+tar -xzvf  node-v16.12.0-linux-x64.tar.gz <br>
+3、配置环境变量<br>
+vim /etc/profile<br>
+export NODE_HOME=/usr/local/node-v16.12.0<br>
+export PATH=<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>P</mi><mi>A</mi><mi>T</mi><mi>H</mi><mo>:</mo></mrow><annotation encoding="application/x-tex">PATH:</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mord mathdefault">A</span><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="mord mathdefault" style="margin-right:0.08125em;">H</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">:</span></span></span></span>NODE_HOME/bin<br>
+export NODE_PATH=$NODE_HOME/lib/node_modules<br>
+4、安装<br>
+npm install elasticdump</p>
+<h1 id="导出">导出</h1>
+<p>multielasticdump <br>
+--direction=dump <br>
+--match='^.*$' <br>
+--input=http://127.0.0.1:9200 <br>
+--output=/tmp/es_backup <br>
+--includeType='data,mapping' <br>
+--limit=5000</p>
+<h1 id="导入">导入</h1>
+<p>multielasticdump <br>
+--direction=load <br>
+--match='^.*$' <br>
+--input=/tmp/es_backup <br>
+--output=http://xianniu:xianniu@124.222.87.102:9200 <br>
+--includeType='data,mapping' <br>
+--limit=5000 \</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[SpringBoot数据脱敏]]></title>
+        <id>https://blog.you.work.gd/post/springboot-shu-ju-tuo-min/</id>
+        <link href="https://blog.you.work.gd/post/springboot-shu-ju-tuo-min/">
+        </link>
+        <updated>2024-08-08T02:36:59.000Z</updated>
+        <content type="html"><![CDATA[<p>转载： https://mp.weixin.qq.com/s/pa1wUie6PzYXtH-wo_Plmg</p>
+<h1 id="引子">引子</h1>
+<p>@JsonSerialize 注解，能够在字段、方法或类级别上应用，为用户提供了高度自定义的序列化机制。</p>
+<p>@JsonSerialize允许我们指定一个自定义的序列化器类，通过using属性来实现。这个自定义序列化器需要继承自JsonSerializer<T>，其中T是待序列化对象的类型。</p>
+<p>除了using属性外，@JsonSerialize还包含其他有用的属性，如include，它用于定义序列化的包含策略。通过设置include属性，开发者可以指示Jackson在何种条件下将字段或属性包含进JSON输出。</p>
+<p>示例</p>
+<pre><code>@Data
+public class CustomDateClass {
+  
+    @JsonSerialize(using = CustomDateSerializer.class)
+    private Date myDate;
+  
+    //自定义的日期序列化器
+    public static class CustomDateSerializer extends ToStringSerializer&lt;Date&gt; {
+        private static final long serialVersionUID = 1L;
+  
+        public CustomDateSerializer() {
+          //传递null以使用默认日期格式
+            super(null);
+        }
+ 
+        //重写 serialize 方法来定制日期的序列化过程，将其格式化为 &quot;yyyy-MM-dd&quot; 的字符串。
+        @Override  
+        public void serialize(Date value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+            String formattedDate = new SimpleDateFormat(&quot;yyyy-MM-dd&quot;).format(value);
+            jgen.writeString(formattedDate);
+        }
+    }
+}
+</code></pre>
+<h1 id="脱敏">脱敏</h1>
+<h2 id="定义注解">定义注解</h2>
+<pre><code>@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+@JacksonAnnotationsInside
+@JsonSerialize(using = SensitiveJsonSerializer.class)
+public @interface Sensitive {
+    //脱敏策略
+    SensitiveStrategy strategy();
+}
+</code></pre>
+<h2 id="脱敏策略">脱敏策略</h2>
+<pre><code>/**
+ * 脱敏策略，枚举类，针对不同的数据定制特定的策略
+ */
+public enum SensitiveStrategy
+{
+    /**
+     * 姓名，第2位星号替换
+     */
+    USERNAME(s -&gt; s.replaceAll(&quot;(\\S)\\S(\\S*)&quot;, &quot;$1*$2&quot;)),
+
+    /**
+     * 密码，全部字符都用*代替
+     */
+    PASSWORD(DesensitizedUtil::password),
+
+    /**
+     * 身份证，中间10位星号替换
+     */
+    ID_CARD(s -&gt; s.replaceAll(&quot;(\\d{4})\\d{10}(\\d{4})&quot;, &quot;$1** **** ****$2&quot;)),
+
+    /**
+     * 手机号，中间4位星号替换
+     */
+    PHONE(s -&gt; s.replaceAll(&quot;(\\d{3})\\d{4}(\\d{4})&quot;, &quot;$1****$2&quot;)),
+
+    /**
+     * 电子邮箱，仅显示第一个字母和@后面的地址显示，其他星号替换
+     */
+    EMAIL(s -&gt; s.replaceAll(&quot;(^.)[^@]*(@.*$)&quot;, &quot;$1****$2&quot;)),
+
+    /**
+     * 银行卡号，保留最后4位，其他星号替换
+     */
+    BANK_CARD(s -&gt; s.replaceAll(&quot;\\d{15}(\\d{3})&quot;, &quot;**** **** **** **** $1&quot;)),
+
+    /**
+     * 车牌号码，包含普通车辆、新能源车辆
+     */
+    CAR_LICENSE(DesensitizedUtil::carLicense);
+
+    private final Function&lt;String, String&gt; desensitizer;
+
+    SensitiveStrategy(Function&lt;String, String&gt; desensitizer)
+    {
+        this.desensitizer = desensitizer;
+    }
+
+    public Function&lt;String, String&gt; desensitizer()
+    {
+        return desensitizer;
+    }
+}
+</code></pre>
+<h2 id="json序列化实现">JSON序列化实现</h2>
+<p>对标注注解@Sensitive的字段进行脱敏</p>
+<pre><code>/**
+ * 序列化注解自定义实现
+ * JsonSerializer&lt;String&gt;：指定String 类型，serialize()方法用于将修改后的数据载入
+ */
+public class SensitiveJsonSerializer extends JsonSerializer&lt;String&gt; implements ContextualSerializer {
+
+    private SensitiveStrategy strategy;
+ 
+    @Override
+    public void serialize(String value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        gen.writeString(strategy.desensitizer().apply(value));
+    }
+ 
+    /**
+     * 获取属性上的注解属性
+     */
+    @Override
+    public JsonSerializer&lt;?&gt; createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
+ 
+        Sensitive annotation = property.getAnnotation(Sensitive.class);
+        if (Objects.nonNull(annotation)&amp;&amp;Objects.equals(String.class, property.getType().getRawClass())) {
+            this.strategy = annotation.strategy();
+            return this;
+        }
+        return prov.findValueSerializer(property.getType(), property);
+    }
+}
+</code></pre>
+<p>创建一个脱敏工具类：</p>
+<pre><code>/**
+ * 脱敏工具类
+ */
+public class DesensitizedUtil
+{
+    /**
+     * 密码的全部字符都用*代替，比如：******
+     *
+     * @param password 密码
+     * @return 脱敏后的密码
+     */
+    public static String password(String password)
+    {
+        if (StringUtils.isBlank(password))
+        {
+            return StringUtils.EMPTY;
+        }
+        return StringUtils.repeat('*', password.length());
+    }
+
+    /**
+     * 车牌中间用*代替，如果是错误的车牌，不处理
+     *
+     * @param carLicense 完整的车牌号
+     * @return 脱敏后的车牌
+     */
+    public static String carLicense(String carLicense)
+    {
+        if (StringUtils.isBlank(carLicense))
+        {
+            return StringUtils.EMPTY;
+        }
+        // 普通车牌
+        if (carLicense.length() == 7)
+        {
+            carLicense = StringUtils.hide(carLicense, 3, 6);
+        }
+        else if (carLicense.length() == 8)
+        {
+            // 新能源车牌
+            carLicense = StringUtils.hide(carLicense, 3, 7);
+        }
+        return carLicense;
+    }
+}
+</code></pre>
+<p>使用</p>
+<pre><code>@Data
+public class Person {
+    /**
+     * 真实姓名
+     */
+    @Sensitive(strategy = SensitiveStrategy.USERNAME)
+    private String realName;
+    /**
+     * 电话号码
+     */
+    @Sensitive(strategy = SensitiveStrategy.PHONE)
+    private String phoneNumber;
+    /**
+     * 身份证号码
+     */
+    @Sensitive(strategy = SensitiveStrategy.ID_CARD)
+    private String idCard;
+}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Docker镜像]]></title>
+        <id>https://blog.you.work.gd/post/docker-jing-xiang/</id>
+        <link href="https://blog.you.work.gd/post/docker-jing-xiang/">
+        </link>
+        <updated>2024-07-02T02:27:46.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="搜索镜像">搜索镜像</h2>
+<p>https://hub.dockermirror.com/<br>
+https://gallery.ecr.aws/</p>
+<h2 id="配置镜像仓库">配置镜像仓库</h2>
+<ol>
+<li>方式一：Dockerfile使用镜像仓库</li>
+</ol>
+<pre><code>编辑 /etc/docker/daemon.json
+{
+  &quot;registry-mirrors&quot;: [&quot;https://registry.dockermirror.com&quot;]
+}
+重启docker
+sudo systemctl daemon-reload &amp;&amp; sudo systemctl restart docker
+</code></pre>
+<ol start="2">
+<li>方式二：命令行</li>
+</ol>
+<p><code>docker pull ubuntu --registry-mirror=https://registry.dockermirror.com</code></p>
+<ol start="3">
+<li>方式三：直接使用 Registry</li>
+</ol>
+<p><code>docker pull registry.dockermirror.com/ubuntu</code></p>
+<h2 id="测试可用的其他镜像仓库地址">测试可用的其他镜像仓库地址</h2>
+<p>https://huecker.io<br>
+https://registry.dockermirror.com<br>
+https://docker.m.daocloud.io<br>
+https://public.ecr.aws<br>
+https://noohub.ru</p>
+<h2 id="自用的daemonjson">自用的daemon.json</h2>
+<pre><code>{
+  &quot;registry-mirrors&quot;: [
+    &quot;https://huecker.io&quot;,
+    &quot;https://registry.dockermirror.com&quot;,
+    &quot;https://docker.m.daocloud.io&quot;,
+    &quot;https://public.ecr.aws&quot;,
+    &quot;https://noohub.ru&quot;
+  ],
+  &quot;max-concurrent-downloads&quot;: 10
+}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[mybatis-plus使用，记一次奇怪的问题]]></title>
+        <id>https://blog.you.work.gd/post/ji-yi-ci-qi-guai-de-wen-ti/</id>
+        <link href="https://blog.you.work.gd/post/ji-yi-ci-qi-guai-de-wen-ti/">
+        </link>
+        <updated>2024-06-19T09:16:14.000Z</updated>
+        <content type="html"><![CDATA[<p>使用mybatis-plus 中IService的saveBatch方法遇到的问题：<br>
+当Mapper文件类上无@Mapper(org.apache.ibatis.annotations.Mapper)注解时，会自动填充注主键uuid。如果添加了@Mapper注解，则不会自动填充uuid。</p>
+<p>后文：<br>
+参考：https://blog.csdn.net/u012060033/article/details/128040322</p>
+<p>@Repository ：@Repository的作用与@Controller，@Service的作用都是把对象交给Spring管理，将接口的一个实现类交给Spring管理。</p>
+<p>@Mapper: 这个注解一般使用在Dao层接口上，相当于一个mapper.xml文件，它的作用就是将接口生成一个动态代理类。加入了@Mapper注解，目的就是为了不再写mapper映射文件。这个注解就是用来映射mapper.xml文件的。使用@mapper后，不需要在spring配置中设置扫描地址，通过mapper.xml里面的namespace属性对应相关的mapper类，spring将动态的生成Bean后注入到ServiceImpl中</p>
+<p>@Mapper注解相当于是@Reponsitory注解和@MapperScan注解的和，会自动的进行配置加载。<br>
+@MapperScan注解多个包，@Mapper只能把当前接口类进行动态代理。</p>
+<p>在SpringBoot的启动类上给定@MapperScan注解。此时Dao层可以省略@Mapper注解，当然@Repository注解可写可不写</p>
+<p>当使用@Mapper注解的时候，可以省略@MapperScan以及@Repository。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[bootstrap.yml和application.yml]]></title>
+        <id>https://blog.you.work.gd/post/bootstrapyml-he-applicationyml/</id>
+        <link href="https://blog.you.work.gd/post/bootstrapyml-he-applicationyml/">
+        </link>
+        <updated>2024-06-13T13:42:29.000Z</updated>
+        <content type="html"><![CDATA[<p><strong>省流</strong>：均本地文件时，application.yml会覆盖bootstrap.yml中的同名属性；外部配置中心时，不会覆盖。</p>
+<p>--- 正文 ---</p>
+<p>在Spring Boot和Spring Cloud应用中，如果同时在<code>bootstrap.yml</code>和<code>application.yml</code>中配置了数据库连接，那么最终运行时使用的配置会依赖于属性源的加载顺序和优先级。</p>
+<h3 id="加载顺序和优先级">加载顺序和优先级</h3>
+<ol>
+<li>
+<p><strong><code>bootstrap.yml</code> 优先</strong>：<br>
+<code>bootstrap.yml</code> 文件中的配置属性会先于 <code>application.yml</code> 文件加载。这是因为 <code>bootstrap.yml</code> 在应用程序上下文的初始化过程中最早被处理，用于配置一些需要在应用程序启动前就初始化的属性。这主要包括从外部配置中心加载的配置等。</p>
+</li>
+<li>
+<p><strong><code>application.yml</code> 次优先</strong>：<br>
+<code>application.yml</code> 文件中的配置属性在 <code>bootstrap.yml</code> 之后加载。如果 <code>application.yml</code> 中声明了与 <code>bootstrap.yml</code> 中相同的配置属性，<code>application.yml</code> 中的值将会覆盖 <code>bootstrap.yml</code> 中的值。</p>
+</li>
+</ol>
+<h3 id="覆盖规则">覆盖规则</h3>
+<p>简单来说，<code>application.yml</code> 中的配置会覆盖 <code>bootstrap.yml</code> 中的同名配置属性，因此如果你在这两个文件中都配置了数据库连接，最终的生效配置将会是 <code>application.yml</code> 中的配置。</p>
+<h3 id="例子">例子</h3>
+<p>假设 <code>bootstrap.yml</code> 中配置了如下内容：</p>
+<pre><code class="language-yaml">spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/bootstrapdb
+    username: bootstrapUser
+    password: bootstrapPass
+</code></pre>
+<p>而 <code>application.yml</code> 中配置了如下内容：</p>
+<pre><code class="language-yaml">spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/applicationdb
+    username: applicationUser
+    password: applicationPass
+</code></pre>
+<p>最终在应用程序运行时，会使用 <code>application.yml</code> 中的数据库连接配置：</p>
+<pre><code class="language-yaml">spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/applicationdb
+    username: applicationUser
+    password: applicationPass
+</code></pre>
+<h3 id="特殊情况外部配置中心">特殊情况：外部配置中心</h3>
+<p>需要特别注意的是，当使用外部配置中心（例如 Spring Cloud Config Server）时，通常会将某些配置（例如数据库连接）从配置中心加载。在这种情况下：</p>
+<ol>
+<li><code>bootstrap.yml</code> 中配置的是外部配置中心的地址和参数，而非具体的数据库连接参数。</li>
+<li>真正的数据库连接参数从配置中心加载，并且其优先级高于 <code>application.yml</code>。</li>
+</ol>
+<h3 id="注意事项">注意事项</h3>
+<ol>
+<li><strong>避免混淆</strong>：尽量避免在 <code>bootstrap.yml</code> 和 <code>application.yml</code> 中同时配置相同的属性，以避免混淆和难以调试的问题。</li>
+<li><strong>文档化</strong>：对团队成员进行关于配置文件加载顺序和优先级的培训，并且将其记录在项目的文档中，以确保在多人合作时具有一致的理解。</li>
+</ol>
+<p>通过理解和合理设置这两种配置文件，可使你的Spring Boot应用程序配置更清晰、可维护。</p>
+]]></content>
+    </entry>
+</feed>
