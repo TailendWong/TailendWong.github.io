@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://blog.you.work.gd</id>
+    <title>Honia&apos;s Blog</title>
+    <updated>2025-06-07T07:13:19.013Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://blog.you.work.gd"/>
+    <link rel="self" href="https://blog.you.work.gd/atom.xml"/>
+    <subtitle>人如果没有梦想，和咸鱼有什么区别</subtitle>
+    <logo>https://blog.you.work.gd/images/avatar.png</logo>
+    <icon>https://blog.you.work.gd/favicon.ico</icon>
+    <rights>All rights reserved 2025, Honia&apos;s Blog</rights>
+    <entry>
+        <title type="html"><![CDATA[挖矿病毒pwnrig清理]]></title>
+        <id>https://blog.you.work.gd/post/wa-kuang-bing-du-pwnrig-qing-li/</id>
+        <link href="https://blog.you.work.gd/post/wa-kuang-bing-du-pwnrig-qing-li/">
+        </link>
+        <updated>2025-05-14T03:26:19.000Z</updated>
+        <content type="html"><![CDATA[<p>两个结合才彻底清理掉<br>
+参考1：https://blog.csdn.net/jishuji/article/details/147441536<br>
+参考2：https://blog.csdn.net/weixin_42152219/article/details/139601982</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Charles抓包记录]]></title>
+        <id>https://blog.you.work.gd/post/charles-zhua-bao-ji-lu/</id>
+        <link href="https://blog.you.work.gd/post/charles-zhua-bao-ji-lu/">
+        </link>
+        <updated>2024-11-28T06:27:12.000Z</updated>
+        <content type="html"><![CDATA[<p>SSL已普及，所以本文只聊抓取https包。</p>
+<h2 id="安装charles">安装Charles</h2>
+<p>去官网下载，并激活（不激活无法获取证书，无法抓取https包）。<br>
+在此提供两个激活码网站，如已失效，自行搜索</p>
+<ul>
+<li>https://www.zzzmode.com/mytools/charles/</li>
+<li>https://inused.github.io/pages/file/tool/CharlesKeygen.html</li>
+</ul>
+<h2 id="安装证书">安装证书</h2>
+<p>菜单栏--&gt;Proxy--&gt;SSL Proxying --&gt; Install Charles Root Certificate<br>
+安装证书 --&gt; 本地计算机 --&gt; 将所有证书都放入下列存储 --&gt; 受信任的根证书 --&gt; 下一步，完成</p>
+<h2 id="下载证书">下载证书</h2>
+<p>方式一：访问http://chls.pro/ssl，自动下载证书<br>
+方式二：菜单栏--&gt;Help--&gt;SSL Proxying --&gt; Save CharlesRootCertificate</p>
+<h2 id="目的一抓浏览器请求">目的一：抓浏览器请求</h2>
+<p>打开浏览器设置 --&gt; 安全 --&gt; 管理证书 --&gt; 选择受信任的根证书，选择导入，选择前一步下载的证书 --&gt; 导入即可。</p>
+<h2 id="目的二抓手机请求">目的二：抓手机请求</h2>
+<h3 id="给手机安装证书">给手机安装证书</h3>
+<p>将上一步下载的证书发送给手机，下载到手机上，知道保存的位置。<br>
+打开手机设置 --&gt; 安全 --&gt; 凭据存储 --&gt; 从存储设备安装 --&gt; CA证书（或者叫根证书） --&gt; 选择下载的证书（注： 手机不同，名称可能不同，意思类似即可）</p>
+<h3 id="设置代理">设置代理</h3>
+<p>手机与电脑在同一无线网络，设置无线的代理，IP为电脑的局域网ip，端口值为Charles的Proxy--ProxySettings里设置的端口。</p>
+<h3 id="配置要抓包的域名">配置要抓包的域名</h3>
+<p>菜单栏--&gt;Proxy--&gt;SSL ProxyingSettings --&gt; 勾选Enable SSL Proxying , 在Include框下添加要抓取的域名，保存即可</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[python工具集]]></title>
+        <id>https://blog.you.work.gd/post/python-gong-ju-ji/</id>
+        <link href="https://blog.you.work.gd/post/python-gong-ju-ji/">
+        </link>
+        <updated>2024-11-15T03:00:16.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="打包">打包</h1>
+<p>pynsist: 打包成windows安装程序</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[docker日志查看器]]></title>
+        <id>https://blog.you.work.gd/post/docker-ri-zhi-cha-kan-qi/</id>
+        <link href="https://blog.you.work.gd/post/docker-ri-zhi-cha-kan-qi/">
+        </link>
+        <updated>2024-11-12T08:04:35.000Z</updated>
+        <content type="html"><![CDATA[<p>https://dozzle.dev/</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[微服务开发调试技巧-第二部]]></title>
+        <id>https://blog.you.work.gd/post/wei-fu-wu-kai-fa-diao-shi-ji-qiao-di-er-bu/</id>
+        <link href="https://blog.you.work.gd/post/wei-fu-wu-kai-fa-diao-shi-ji-qiao-di-er-bu/">
+        </link>
+        <updated>2024-11-07T10:29:56.000Z</updated>
+        <content type="html"><![CDATA[<p>上篇，我们介绍了一些微服务开发调试的技巧，但是并未覆盖所有应用场景。<br>
+当环境隔离较为严重时，往往服务器上的微服务注册到nacos的地址，本机是访问不到的。<br>
+例如：微服务在docker容器中，并未暴露端口到宿主机。</p>
+<p>【解决思路】让java程序的所有网络请求都走代理，而这个代理服务器是可以访问到其他微服务的。</p>
+<h2 id="安装socks代理服务">安装socks代理服务</h2>
+<p>yum install 3proxy</p>
+<p>编辑配置文件，清空后，填写以下内容<br>
+vim /etc/3proxy.cfg</p>
+<pre><code>#nserver 8.8.8.8
+#nserver 8.8.4.4
+nscache 65536
+maxconn 1000
+log /var/log/3proxy-%y%m%d.log D
+rotate 7
+external 0.0.0.0
+internal 0.0.0.0
+auth none
+allow *
+proxy -a -p6666
+socks -p6667
+</code></pre>
+<p>启动<br>
+nohup 3proxy /etc/3proxy.cfg &gt; /var/log/proxy.log 2&gt;&amp;1 &amp;</p>
+<p>测试是否成功<br>
+curl --proxy socks5://localhost:6667 https://baidu.com</p>
+<h2 id="修改jvm参数">修改JVM参数</h2>
+<p>给本机服务添加以下启动参数：</p>
+<p>-DsocksProxyHost=192.168.0.66 -DsocksProxyPort=6667</p>
+<p>将ip修改为上文搭建3proxy的可访问的服务器ip</p>
+<ul>
+<li>如果有openVPN，则填对应的虚拟局域网ip</li>
+<li>如果没有其他连通方式，则通过内网穿透，将6667端口穿透出来</li>
+</ul>
+<p>idea启动项目添加jvm参数的方法，自行搜索，此文不赘述。</p>
+<h2 id="进化版">进化版</h2>
+<p>无需服务端安装代理服务，一般本地连通服务器是通过ssh，我们可以将ssh隧道转换成socks代理。</p>
+<ol>
+<li>
+<p>使用 SSH 创建 SOCKS 代理<br>
+<code>ssh -p 22 -D &lt;local_port&gt; &lt;username&gt;@&lt;remote_host&gt;</code></p>
+</li>
+<li>
+<p>保持隧道连接<br>
+如果你希望SSH隧道在后台运行并保持连接，可以加上-f（后台运行）和-N（不执行命令）选项：<br>
+<code>ssh -p 22 -D 1080 -f -N user@example.com</code><br>
+-f：使SSH在后台运行。<br>
+-N：表示不执行远程命令，仅建立隧道连接。<br>
+-p:  指定ssh连接的端口</p>
+</li>
+</ol>
+<p>对比：<br>
+ssh的方式，优点是不需要额外的端口，服务器不需要安装其他软件。缺点是每个客户端都需要自行开启socks代理。服务端安装代理服务的方式则恰恰相反，优点是无需每个客户端的额外操作，缺点是需要安装软件和暴露额外端口</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[8个免注册且免费实用的图标下载网站分享]]></title>
+        <id>https://blog.you.work.gd/post/8-ge-mian-zhu-ce-qie-mian-fei-shi-yong-de-tu-biao-xia-zai-wang-zhan-fen-xiang/</id>
+        <link href="https://blog.you.work.gd/post/8-ge-mian-zhu-ce-qie-mian-fei-shi-yong-de-tu-biao-xia-zai-wang-zhan-fen-xiang/">
+        </link>
+        <updated>2024-11-06T06:45:12.000Z</updated>
+        <content type="html"><![CDATA[<p>https://zhuanlan.zhihu.com/p/570717700</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[免费内网穿透方案推荐]]></title>
+        <id>https://blog.you.work.gd/post/mian-fei-nei-wang-chuan-tou-fang-an-tui-jian/</id>
+        <link href="https://blog.you.work.gd/post/mian-fei-nei-wang-chuan-tou-fang-an-tui-jian/">
+        </link>
+        <updated>2024-10-15T02:34:58.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="临时使用推荐">临时使用推荐</h1>
+<ul>
+<li><a href="https://ngrok.com/">ngrok.com</a></li>
+<li><a href="https://ipyingshe.com">闪库</a></li>
+<li><a href="https://freefrp.net/">freefrp</a></li>
+</ul>
+<h1 id="长期使用推荐更新于20241128">长期使用推荐（更新于20241128）</h1>
+<p>盛月映射⭐⭐⭐⭐<br>
+【自用】国内节点，带宽20M，但不方便建站(需备案)，可用于穿透服务</p>
+<p>LoCyanFrp⭐⭐⭐⭐⭐<br>
+【自用】带宽10Mbps，条数不限，多服务器。</p>
+<p>openfrp⭐⭐⭐⭐<br>
+【自用】免费带宽12Mbps，4条（2条），新手友好</p>
+<p>星空starryfrp⭐⭐⭐<br>
+5条  8Mbps  全实名2元，一个香港节点</p>
+<p>mossfrp⭐⭐<br>
+10条 全国内，带宽天数可选，签到获取银币购买</p>
+<p>mefrp ⭐⭐⭐<br>
+全实名，12Mbps实名后 30Mbps</p>
+<p>mohua⭐⭐<br>
+5条 8Mbps 节点不错，签到买流量太贵</p>
+<p>muhan⭐<br>
+垃圾，流量少，节点差</p>
+<p>星河 ⭐⭐⭐<br>
+5 条隧道，8M，全实名，节点一般</p>
+<p>hayfrp ⭐⭐⭐⭐⭐<br>
+15条，带宽未知，无需实名</p>
+<p>chmlfrp⭐⭐⭐<br>
+4条 国内8国外32Mbps  全实名，二级域名1个</p>
+<p><strong>以下为自用</strong><br>
+盛月映射⭐⭐⭐⭐<br>
+国内节点，带宽20M，但不方便建站(需备案)，可用于穿透服务<br>
+LoCyanFrp⭐⭐⭐⭐<br>
+带宽10Mbps，条数不限，多服务器。<br>
+openfrp⭐⭐⭐⭐<br>
+免费带宽12Mbps，4条（2条），新手友好</p>
+<p><strong>部分内穿服务商聚合网站</strong>：https://内网穿透.中国</p>
+<h1 id="全端口映射推荐">全端口映射推荐</h1>
+<p>同义词：异地组网、虚拟局域网</p>
+<p>蒲公英⭐⭐⭐⭐ 限3台设备，带宽5Mbps<br>
+皎月连⭐⭐⭐<br>
+zerotier⭐⭐⭐<br>
+tailscale⭐⭐⭐</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Linux通过VNC远程控制及实现浏览器远控]]></title>
+        <id>https://blog.you.work.gd/post/linux-tong-guo-vnc-yuan-cheng-kong-zhi-ji-liu-lan-qi-yuan-kong/</id>
+        <link href="https://blog.you.work.gd/post/linux-tong-guo-vnc-yuan-cheng-kong-zhi-ji-liu-lan-qi-yuan-kong/">
+        </link>
+        <updated>2024-10-14T08:04:21.000Z</updated>
+        <content type="html"><![CDATA[<p>使用 VNC 及通过 noVNC 实现浏览器实现远程桌面访问</p>
+<h1 id="安装vnc服务">安装VNC服务</h1>
+<ol>
+<li>
+<p>在需要被控制的机器上安装vnc服务<br>
+<code>sudo apt update &amp;&amp; sudo apt install x11vnc -y</code></p>
+</li>
+<li>
+<p>初次运行 <code>x11vnc</code> 前需要设置远程访问的密码<br>
+<code>x11vnc -storepasswd</code></p>
+</li>
+<li>
+<p>上面密码设置后,保存在这个位置/home/jon/.vnc/passwd(具体以自己显示路径为准),需要把这个密码文件复制一份到/etc/x11vnc.pass这个路径,执行下面命令复制<br>
+<code>sudo cp /home/jon/.vnc/passwd /etc/x11vnc.pass</code></p>
+</li>
+<li>
+<p>设置x11vnc开机启动,创建系统服务文件<br>
+<code>sudo vim  /lib/systemd/system/x11vnc.service</code><br>
+填入以下内容</p>
+</li>
+</ol>
+<pre><code>[Unit]
+Description=Start x11vnc at startup.
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/x11vnc -auth guess -forever -loop -noxdamage -repeat -rfbauth /etc/x11vnc.pass -rfbport 5900 -shared
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+<ol start="5">
+<li>启动vnc服务</li>
+</ol>
+<pre><code>#设置开机自启
+sudo systemctl enable x11vnc
+
+#启动x11vnc
+sudo systemctl start x11vnc
+
+#查看状态
+sudo systemctl status x11vnc
+</code></pre>
+<p>到此已经可以通过vnc客户端连接了</p>
+<h1 id="通过novnc实现浏览器远控">通过noVNC实现浏览器远控</h1>
+<ol>
+<li>安装 noVNC</li>
+</ol>
+<pre><code>sudo apt install git -y
+git clone https://github.com/novnc/noVNC.git
+cd noVNC
+git submodule update --init --recursive
+</code></pre>
+<ol start="2">
+<li>安装 Websockify<br>
+noVNC 需要 Websockify 作为 WebSocket 到 TCP 之间的代理</li>
+</ol>
+<pre><code>sudo apt install python3-websockify -y
+</code></pre>
+<ol start="3">
+<li>启动 noVNC<br>
+切换到 noVNC 目录并启动 Websockify。默认情况下，noVNC 将在端口 6080 上运行。</li>
+</ol>
+<pre><code>./utils/novnc_proxy --vnc localhost:5900
+</code></pre>
+<h2 id="小插曲">小插曲</h2>
+<p>启动noVNC后，尝试通过浏览器远程控制，发现连不上，一方面是防火墙没放行对应端口，另一方面发现noVNC日志提示以下信息<br>
+<code>code 400, message Client must support 'binary' or 'base64' protocol</code></p>
+<p><strong>解决办法</strong><br>
+切换到 noVNC 目录，编辑<code>./core/websock.js</code>文件，<br>
+找到<br>
+<code>this.attach(new WebSocket(uri, protocols));</code><br>
+修改为<br>
+<code>this.attach(new WebSocket(uri, ['binary', 'base64']));</code><br>
+重启noVNC服务即可。</p>
+<p>参考链接：<br>
+https://programtree.blog.csdn.net/article/details/139996176<br>
+https://blog.csdn.net/LT15171009269/article/details/139412307<br>
+https://blog.csdn.net/u014374009/article/details/131780035</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[mysql踩坑记录]]></title>
+        <id>https://blog.you.work.gd/post/mysql-te-shu/</id>
+        <link href="https://blog.you.work.gd/post/mysql-te-shu/">
+        </link>
+        <updated>2024-10-11T02:21:31.000Z</updated>
+        <content type="html"><![CDATA[<p>mysql使用 = 精确查询时会忽略尾部空格， 不区分大小写。</p>
+<p>例如:  'AAA' = 'AAA  ' ,    'aaa' = 'aAa'</p>
+<h2 id="对于问题一">对于问题一</h2>
+<p><strong>为什么会这样？</strong><br>
+MySQL 在进行字符串比较时遵循以下规则：</p>
+<ol>
+<li>对于 CHAR 类型字段，存储时会自动删除尾随空格。</li>
+<li>对于 VARCHAR 类型字段，在比较时会忽略尾随空格。</li>
+</ol>
+<p><strong>如何避免这个问题？</strong></p>
+<ol>
+<li>
+<p>使用二进制比较：可以使用BINARY关键字进行严格比较。<br>
+SELECT name, LENGTH(<code>name</code>) FROM users WHERE BINARY name = 'AAA';</p>
+</li>
+<li>
+<p>使用LIKE进行精确匹配：<br>
+SELECT name, LENGTH(<code>name</code>) FROM users WHERE name LIKE 'AAA';</p>
+</li>
+<li>
+<p>显式地处理空格：可以通过TRIM函数显式去掉空格后再进行比较<br>
+SELECT name, LENGTH(<code>name</code>) FROM users WHERE TRIM(name) = 'AAA';</p>
+</li>
+</ol>
+<h2 id="对于问题二">对于问题二</h2>
+<ol>
+<li>
+<p>使用mysql 的BINARY 关键字使搜索区分大小写。</p>
+</li>
+<li>
+<p>修改字段的排序规则<br>
+字符集是一套符号和编码，校对规则是在字符集内用于比较字符的一套规则。 一般而言，校对规则以其相关的字符集名开始，通常包括一个语言名，并且以_ci（大小写不敏感）、_cs（大小写敏感）或_bin（二元）结束 。</p>
+</li>
+</ol>
+<p>比如 utf8字符集，，如下表：<br>
+1）utf8_bin：utf8_bin将字符串中的每一个字符用二进制数据存储，区分大小写。<br>
+2）utf8_general_ci：utf8_genera_ci不区分大小写，ci为case insensitive的缩写，即大小写不敏感。<br>
+3）utf8_general_cs：utf8_general_cs区分大小写，cs为case sensitive的缩写，即大小写敏感。<br>
+注：我本机使用5.7 版本不支持 utf8_general_cs 字符集，创建报错。</p>
+<h2 id="总结">总结</h2>
+<p><strong>实测结果</strong>:<br>
+以utf8mb4字符集为例<br>
+排序规则后缀对于大小写和尾部空格的影响</p>
+<ul>
+<li>utf8mb4_bin  字母大小写敏感，忽略尾部空格</li>
+<li>utf8mb4_0900_as_cs    字母大小写敏感，不忽略尾部空格</li>
+<li>utf8mb4_0900_ai_ci  不区分字母大小写，不忽略尾部空格</li>
+<li>utf8mb4_general_ci  不区分字母大小写，忽略尾部空格</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[IPv6记录]]></title>
+        <id>https://blog.you.work.gd/post/ipv6-ji-lu/</id>
+        <link href="https://blog.you.work.gd/post/ipv6-ji-lu/">
+        </link>
+        <updated>2024-09-27T05:57:41.000Z</updated>
+        <content type="html"><![CDATA[<p>家里是电信天翼网关光猫，如今基本都开启了ipv6的支持，可通过搜索“ipv6测试”来检测。</p>
+<p>如果获取不到ipv6地址，可能是你的无线路由器未开启，登录路由器管理系统，网络设置里找到ipv6开关打开，然后重新测试</p>
+<p>获取到ipv6地址后，你已经可以访问ipv6的网站了，但是从外部无法访问到家里的局域网设备，可能是未关闭防火墙ipv6防火墙（IPv6Session）。</p>
+<h1 id="关闭ipv6防火墙ipv6session">关闭ipv6防火墙（IPv6Session）</h1>
+<p>打开天翼光猫后台管理系统（超级管理员账号登录，密码可以通过打客服获取），找到安全--防火墙--IPv6 SESSION选项，关闭它，即可通过外网访问ipv6地址连接到家里设备。</p>
+<p>但由于国内环境和运营商限制，即使ipv6，80和443端口也是被禁止的。</p>
+<p>到此，已实现通过ipv6访问局域网设备。</p>
+<p>所以建站的话，还是考虑内网穿透方案吧</p>
+]]></content>
+    </entry>
+</feed>
