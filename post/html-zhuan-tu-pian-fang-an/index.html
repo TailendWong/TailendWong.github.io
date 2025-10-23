@@ -1,0 +1,300 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>html转图片或pdf方案 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    html转图片或pdf方案
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2023-01-29 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h2 id="前言">前言</h2>
+<p>java将html转图片等方案，仅适合很简单的页面，对CSS的支持有限，效果不理想。<br>
+如：</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;com.github.xuwei-k&lt;/groupId&gt;
+    &lt;artifactId&gt;html2image&lt;/artifactId&gt;
+    &lt;version&gt;0.1.0&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;org.xhtmlrenderer&lt;/groupId&gt;
+    &lt;artifactId&gt;flying-saucer-core&lt;/artifactId&gt;
+    &lt;version&gt;9.1.16&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;net.sf.cssbox&lt;/groupId&gt;
+    &lt;artifactId&gt;cssbox&lt;/artifactId&gt;
+    &lt;version&gt;5.0.0&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+<h2 id="成熟方案一">成熟方案一</h2>
+<p>https://blog.csdn.net/weixin_41118077/article/details/119934868<br>
+java方案，效果也还可以，样式支持较全</p>
+<pre><code>&lt;dependency&gt;
+            &lt;groupId&gt;com.openhtmltopdf&lt;/groupId&gt;
+            &lt;artifactId&gt;openhtmltopdf-core&lt;/artifactId&gt;
+            &lt;version&gt;1.0.9&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.openhtmltopdf&lt;/groupId&gt;
+            &lt;artifactId&gt;openhtmltopdf-java2d&lt;/artifactId&gt;
+            &lt;version&gt;1.0.9&lt;/version&gt;
+        &lt;/dependency&gt;
+</code></pre>
+<h2 id="成熟方案二">成熟方案二</h2>
+<p>wkhtmltopdf和wkhtmltoimage是开源（LGPLv3）命令行工具，使用Qt WebKit渲染引擎将HTML渲染为PDF和各种图像格式。它们完全“无头”运行，并且不需要显示器或显示服务。<br>
+开发语言：C++<br>
+https://wkhtmltopdf.org/</p>
+<h2 id="成熟方案三">成熟方案三</h2>
+<p>Doctron，它是基于Docker、无状态、简单、快速、高质量的文档转换服务。目前支持将html转为pdf、图片(使用chrome(Chromium)浏览器内核，保证转换质量)。支持PDF添加水印。<br>
+开发语言：go<br>
+开源项目地址：https://github.com/lampnick/doctron</p>
+<h2 id="对比">对比</h2>
+<p>渲染内核不同：Chromium &gt; Qt WebKit（不支持ES6） (样式特性支持程度)<br>
+速度对比：C++ &gt; go<br>
+图片质量：wkhtmltoX &gt; Doctron</p>
+<table>
+<thead>
+<tr>
+<th>-</th>
+<th>png</th>
+<th>jpg_100</th>
+<th>jpg_50</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>wkhtml</td>
+<td>24.7M</td>
+<td>1.8M</td>
+<td>338K</td>
+</tr>
+<tr>
+<td>doctron</td>
+<td>2.2M</td>
+<td>1.7M</td>
+<td>302K</td>
+</tr>
+</tbody>
+</table>
+<p>部署便利： Doctron &gt; wkhtmltoX</p>
+<ul>
+<li>png比jpeg清晰度更高</li>
+<li>wkhtml的png确实非常清楚，但是体积太大，慎重考虑</li>
+</ul>
+<h2 id="补充可选方案">补充可选方案</h2>
+<h3 id="补充一rayin">补充一：rayin</h3>
+<p>https://gitee.com/Rayin/rayin</p>
+<h3 id="补充二cutycapt">补充二：cutycapt</h3>
+<p>https://www.cnblogs.com/tdalcn/p/8466122.html<br>
+https://www.likecs.com/show-733340.html</p>
+<p>由于Doctron截较长页面时超时（docker部署可复现，已提github issue，但本地启动项目没这个问题，可能是环境原因折腾两天未果决定换方案），wkhtmltoX样式支持不太好个别样式错乱了（还有一个原因是产出的结果图有白边，可能是bug），最终选择了cutycapt方案。</p>
+<pre><code>转长图服务的备选方案
+
+1.服务：nginx/openresty代理某个目录，生成的图片放里面，请求来了就调用下命令生成图片，响应回去url，谁调用，谁自己处理文件，决定是一次性的还是上传oss。
+
+2.安全：只允许生产和测试服务器ip访问，防火墙或lua处理
+
+3.垃圾处理：系统的定时任务
+https://www.cnblogs.com/xiao-xue-di/p/14689388.html
+
+nginx性能好，无需java环境，节省服务器资源，不用写代码
+
+
+lua获取get请求参数
+https://blog.csdn.net/xiejunna/article/details/75098266
+lua获取post请求参数
+https://www.cnblogs.com/cherylgi/p/16428883.html
+lua调用命令行生成图片
+https://blog.csdn.net/Outbreak_Jinx/article/details/90722210
+</code></pre>
+<h1 id="前端方式">前端方式</h1>
+<pre><code>&lt;script src=&quot;https://cdn.bootcdn.net/ajax/libs/html2canvas/1.4.1/html2canvas.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;https://cdn.bootcdn.net/ajax/libs/downloadjs/1.4.8/download.min.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+    // 使用html2canvas 转换html为canvas
+    function downloadForJS() {
+        html2canvas(document.querySelector(&quot;.container&quot;), {
+            scale: 2
+        }).then(function (canvas) {
+            var imgUri = canvas.toDataURL().replace(&quot;image/png&quot;, &quot;image/octet-stream&quot;); // 获取生成的图片的url 　
+            var box = document.querySelector(&quot;.container&quot;);
+            download(imgUri, 'my-node666.jpg');
+        })
+    }
+&lt;/script&gt;
+</code></pre>
+<p>当心跨域问题，让图片链接不跨域或者将url替换为base64</p>
+<pre><code>@Test
+    public void url2base64() {
+        String html = FileUtil.readUtf8String(&quot;D:\\example\\refactor\\test.html&quot;);
+        Pattern pattern = Pattern.compile(&quot;https?://.*\\.(png|jpe?g)&quot;, Pattern.MULTILINE);
+        List&lt;String&gt; all = ReUtil.findAll(pattern, html, 0);
+        Set&lt;String&gt; distinct = new HashSet&lt;&gt;(all);
+        Map&lt;String, String&gt; map = distinct.parallelStream().collect(Collectors.toMap(s -&gt; s, s -&gt; imgToBase64Short(s)));
+        for (Map.Entry&lt;String, String&gt; entry : map.entrySet()) {
+            html = StrUtil.replace(html, entry.getKey(), entry.getValue());
+        }
+        FileUtil.writeUtf8String(html, &quot;testB64.html&quot;);
+    }
+
+public static String imgToBase64Short(String path) {
+        try {
+            return ImgUtil.toBase64DataUri(ImgUtil.getImage(new URL(path)),&quot;png&quot;);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return path;
+        }
+    }
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/crontab-bu-zhi-xing/" class="post-title gt-a-link">
+                    crontab不执行
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

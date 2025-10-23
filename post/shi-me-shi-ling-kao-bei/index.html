@@ -1,0 +1,179 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>什么是零拷贝 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    什么是零拷贝
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-03-28 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>参考链接：https://blog.csdn.net/meser88/article/details/108355541</p>
+<h1 id="是什么">是什么？</h1>
+<p>零拷贝是指计算机执行IO操作时，减少上下文切换和CPU的拷贝时间。</p>
+<p>传统IO的执行流程，包括read和write两个过程，需要进行4次上下文切换和4次拷贝（两次CPU拷贝+两次DMA拷贝），DMA拷贝指的是硬件到内核空间的内核缓冲区数据拷贝。</p>
+<h1 id="如何实现">如何实现？</h1>
+<p>主要有三种方式： mmap、sendfile、splice</p>
+<h2 id="mmap">mmap</h2>
+<p>将内核中的读缓冲区与用户空间的虚拟地址映射到同一个物理地址，所有的IO都在内核完成。</p>
+<h2 id="sendfile">sendfile</h2>
+<p>在两个文件描述符之间传输数据，在内核中操作。</p>
+<h2 id="splice">splice</h2>
+<p>类似sendfile，允许任意两个文件互相连接且不需要硬件支持</p>
+<h1 id="java提供的零拷贝">java提供的零拷贝</h1>
+<p>1、java的NIO</p>
+<p>DirectByteBuffer extends MappedByteBuffer</p>
+<p>FileChannel  transferFrom() 和 transferTo()</p>
+<p>2、Netty</p>
+<p>网络传输时，将整条消息分了多个数据包，需要将数据包组成完整的消息才能正确处理。CompositeChannelBuffer主要作用是将多个ChannelBuffer组成一个虚拟的ChannelBuffer，并没有真正组合起来只是保存了引用，避免了数据拷贝。</p>
+<p>3、Kafka</p>
+<p>索引文件使用了mmap+write方式，数据文件使用sendfile方式。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/an-zhuo-ying-yong-xia-zai-googleplay/" class="post-title gt-a-link">
+                    安卓应用下载GooglePlay
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

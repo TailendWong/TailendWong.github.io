@@ -1,0 +1,351 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>SpringBoot数据脱敏 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    SpringBoot数据脱敏
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-08-08 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>转载： https://mp.weixin.qq.com/s/pa1wUie6PzYXtH-wo_Plmg</p>
+<h1 id="引子">引子</h1>
+<p>@JsonSerialize 注解，能够在字段、方法或类级别上应用，为用户提供了高度自定义的序列化机制。</p>
+<p>@JsonSerialize允许我们指定一个自定义的序列化器类，通过using属性来实现。这个自定义序列化器需要继承自JsonSerializer<T>，其中T是待序列化对象的类型。</p>
+<p>除了using属性外，@JsonSerialize还包含其他有用的属性，如include，它用于定义序列化的包含策略。通过设置include属性，开发者可以指示Jackson在何种条件下将字段或属性包含进JSON输出。</p>
+<p>示例</p>
+<pre><code>@Data
+public class CustomDateClass {
+  
+    @JsonSerialize(using = CustomDateSerializer.class)
+    private Date myDate;
+  
+    //自定义的日期序列化器
+    public static class CustomDateSerializer extends ToStringSerializer&lt;Date&gt; {
+        private static final long serialVersionUID = 1L;
+  
+        public CustomDateSerializer() {
+          //传递null以使用默认日期格式
+            super(null);
+        }
+ 
+        //重写 serialize 方法来定制日期的序列化过程，将其格式化为 &quot;yyyy-MM-dd&quot; 的字符串。
+        @Override  
+        public void serialize(Date value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+            String formattedDate = new SimpleDateFormat(&quot;yyyy-MM-dd&quot;).format(value);
+            jgen.writeString(formattedDate);
+        }
+    }
+}
+</code></pre>
+<h1 id="脱敏">脱敏</h1>
+<h2 id="定义注解">定义注解</h2>
+<pre><code>@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+@JacksonAnnotationsInside
+@JsonSerialize(using = SensitiveJsonSerializer.class)
+public @interface Sensitive {
+    //脱敏策略
+    SensitiveStrategy strategy();
+}
+</code></pre>
+<h2 id="脱敏策略">脱敏策略</h2>
+<pre><code>/**
+ * 脱敏策略，枚举类，针对不同的数据定制特定的策略
+ */
+public enum SensitiveStrategy
+{
+    /**
+     * 姓名，第2位星号替换
+     */
+    USERNAME(s -&gt; s.replaceAll(&quot;(\\S)\\S(\\S*)&quot;, &quot;$1*$2&quot;)),
+
+    /**
+     * 密码，全部字符都用*代替
+     */
+    PASSWORD(DesensitizedUtil::password),
+
+    /**
+     * 身份证，中间10位星号替换
+     */
+    ID_CARD(s -&gt; s.replaceAll(&quot;(\\d{4})\\d{10}(\\d{4})&quot;, &quot;$1** **** ****$2&quot;)),
+
+    /**
+     * 手机号，中间4位星号替换
+     */
+    PHONE(s -&gt; s.replaceAll(&quot;(\\d{3})\\d{4}(\\d{4})&quot;, &quot;$1****$2&quot;)),
+
+    /**
+     * 电子邮箱，仅显示第一个字母和@后面的地址显示，其他星号替换
+     */
+    EMAIL(s -&gt; s.replaceAll(&quot;(^.)[^@]*(@.*$)&quot;, &quot;$1****$2&quot;)),
+
+    /**
+     * 银行卡号，保留最后4位，其他星号替换
+     */
+    BANK_CARD(s -&gt; s.replaceAll(&quot;\\d{15}(\\d{3})&quot;, &quot;**** **** **** **** $1&quot;)),
+
+    /**
+     * 车牌号码，包含普通车辆、新能源车辆
+     */
+    CAR_LICENSE(DesensitizedUtil::carLicense);
+
+    private final Function&lt;String, String&gt; desensitizer;
+
+    SensitiveStrategy(Function&lt;String, String&gt; desensitizer)
+    {
+        this.desensitizer = desensitizer;
+    }
+
+    public Function&lt;String, String&gt; desensitizer()
+    {
+        return desensitizer;
+    }
+}
+</code></pre>
+<h2 id="json序列化实现">JSON序列化实现</h2>
+<p>对标注注解@Sensitive的字段进行脱敏</p>
+<pre><code>/**
+ * 序列化注解自定义实现
+ * JsonSerializer&lt;String&gt;：指定String 类型，serialize()方法用于将修改后的数据载入
+ */
+public class SensitiveJsonSerializer extends JsonSerializer&lt;String&gt; implements ContextualSerializer {
+
+    private SensitiveStrategy strategy;
+ 
+    @Override
+    public void serialize(String value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        gen.writeString(strategy.desensitizer().apply(value));
+    }
+ 
+    /**
+     * 获取属性上的注解属性
+     */
+    @Override
+    public JsonSerializer&lt;?&gt; createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
+ 
+        Sensitive annotation = property.getAnnotation(Sensitive.class);
+        if (Objects.nonNull(annotation)&amp;&amp;Objects.equals(String.class, property.getType().getRawClass())) {
+            this.strategy = annotation.strategy();
+            return this;
+        }
+        return prov.findValueSerializer(property.getType(), property);
+    }
+}
+</code></pre>
+<p>创建一个脱敏工具类：</p>
+<pre><code>/**
+ * 脱敏工具类
+ */
+public class DesensitizedUtil
+{
+    /**
+     * 密码的全部字符都用*代替，比如：******
+     *
+     * @param password 密码
+     * @return 脱敏后的密码
+     */
+    public static String password(String password)
+    {
+        if (StringUtils.isBlank(password))
+        {
+            return StringUtils.EMPTY;
+        }
+        return StringUtils.repeat('*', password.length());
+    }
+
+    /**
+     * 车牌中间用*代替，如果是错误的车牌，不处理
+     *
+     * @param carLicense 完整的车牌号
+     * @return 脱敏后的车牌
+     */
+    public static String carLicense(String carLicense)
+    {
+        if (StringUtils.isBlank(carLicense))
+        {
+            return StringUtils.EMPTY;
+        }
+        // 普通车牌
+        if (carLicense.length() == 7)
+        {
+            carLicense = StringUtils.hide(carLicense, 3, 6);
+        }
+        else if (carLicense.length() == 8)
+        {
+            // 新能源车牌
+            carLicense = StringUtils.hide(carLicense, 3, 7);
+        }
+        return carLicense;
+    }
+}
+</code></pre>
+<p>使用</p>
+<pre><code>@Data
+public class Person {
+    /**
+     * 真实姓名
+     */
+    @Sensitive(strategy = SensitiveStrategy.USERNAME)
+    private String realName;
+    /**
+     * 电话号码
+     */
+    @Sensitive(strategy = SensitiveStrategy.PHONE)
+    private String phoneNumber;
+    /**
+     * 身份证号码
+     */
+    @Sensitive(strategy = SensitiveStrategy.ID_CARD)
+    private String idCard;
+}
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/docker-jing-xiang/" class="post-title gt-a-link">
+                    Docker镜像
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

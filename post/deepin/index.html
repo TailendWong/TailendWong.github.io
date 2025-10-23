@@ -1,0 +1,275 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>环境搭建deepin | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    环境搭建deepin
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-09-13 ·
+                    </time>
+                    
+                        <a href="https://blog.you.work.gd/tag/P8x7Rur-0/" class="post-tags">
+                            # 迷你主机
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h2 id="修改软件源">修改软件源</h2>
+<p>sudo vim /etc/apt/sources.list</p>
+<pre><code>deb [by-hash=force] https://mirrors.aliyun.com/deepin apricot main contrib non-free
+deb https://mirrors.aliyun.com/debian/ buster main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ buster main non-free contrib
+deb https://mirrors.aliyun.com/debian-security buster/updates main
+deb-src https://mirrors.aliyun.com/debian-security buster/updates main
+deb https://mirrors.aliyun.com/debian/ buster-updates main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ buster-updates main non-free contrib
+deb https://mirrors.aliyun.com/debian/ buster-backports main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ buster-backports main non-free contrib
+</code></pre>
+<p>apt-get update</p>
+<h2 id="ssh">ssh</h2>
+<p>// 修改端口号<br>
+vim /etc/ssh/sshd_config</p>
+<h2 id="安装zerotier">安装zerotier</h2>
+<p>curl -s https://install.zerotier.com | sudo bash<br>
+zerotier-cli join {YourNetworkID}</p>
+<hr>
+<h2 id="以下内容有一键配置脚本">以下内容有一键配置脚本</h2>
+<h2 id="安装nginx">安装nginx</h2>
+<pre><code>sudo apt-get install build-essential libtool libpcre3 libpcre3-dev zlib1g-dev libssl-dev
+sudo wget http://nginx.org/download/nginx-1.21.6.tar.gz
+sudo tar -xvf nginx-1.21.6.tar.gz
+sudo useradd nginx
+cd nginx-1.21.6
+sudo ./configure --prefix=/usr/local/nginx \
+--user=nginx --group=nginx \
+--with-http_gzip_static_module \
+--with-http_flv_module \
+--with-http_ssl_module \
+--with-http_realip_module \
+--with-http_v2_module \
+--with-http_sub_module \
+--with-http_mp4_module \
+--with-http_stub_status_module \
+--with-http_gzip_static_module \
+--with-pcre --with-stream \
+--with-stream_ssl_module \
+--with-stream_realip_module
+sudo make &amp;&amp; sudo make install
+sudo ln -s /usr/local/nginx/sbin/nginx /usr/bin/
+</code></pre>
+<p>vim /etc/systemd/system/nginx.service</p>
+<pre><code>[Unit]
+Description=nginx service
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/local/nginx/sbin/nginx
+ExecReload=/usr/local/nginx/sbin/nginx -s reload
+ExecStop=/usr/local/nginx/sbin/nginx -s quit
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+<p>chmod 755  /etc/systemd/system/nginx.service<br>
+systemctl daemon-reload<br>
+systemctl enable nginx<br>
+systemctl start nginx</p>
+<h2 id="docker">docker</h2>
+<p>curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun<br>
+如果是非root用户，添加当前用户到docker用户组</p>
+<pre><code>sudo groupadd docker     #添加docker用户组
+sudo gpasswd -a $USER docker     #将登陆用户加入到docker用户组中
+newgrp docker     #更新用户组
+docker ps    #测试docker命令是否可以使用sudo正常使用
+# 配置镜像库
+sudo mkdir -p /etc/docker
+sudo tee /etc/docker/daemon.json &lt;&lt;-'EOF'
+{
+  &quot;registry-mirrors&quot;: [
+    &quot;https://4sjn347i.mirror.aliyuncs.com&quot;,
+    &quot;http://docker.mirrors.ustc.edu.cn&quot;,
+    &quot;https://hub-mirror.c.163.com&quot;,
+    &quot;https://mirror.baidubce.com&quot;,
+    &quot;https://dockerproxy.com&quot;
+  ],
+  &quot;max-concurrent-downloads&quot;: 10
+}
+EOF
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+</code></pre>
+<h2 id="mysql">mysql</h2>
+<pre><code>#安装MySQL8  
+docker pull mysql:8.0.27
+#创建数据存储目录
+mkdir -p /data/app/docker_volumn/mysql/conf
+mkdir -p /data/app/docker_volumn/mysql/data
+mkdir -p /data/app/docker_volumn/mysql/mysql-files
+#设置忽略大小写
+docker run -p 3306:3306 --name=mysql \
+-v /data/app/docker_volumn/mysql/conf/:/etc/mysql/ \
+-v /data/app/docker_volumn/mysql/data:/var/lib/mysql \
+-v /data/app/docker_volumn/mysql/mysql-files/:/var/lib/mysql-files \
+-e MYSQL_ROOT_PASSWORD=_root \
+-d --privileged=true --restart=always mysql:8.0.27 --lower-case-table-names=2
+# 进入容器
+docker exec -it mysql bash
+# 登录mysql
+mysql -uroot -p
+#mysql8 授权远程登录
+grant all privileges on *.* to 'root'@'%';
+#mysql5
+#GRANT ALL PRIVILEGES ON *.* TO 'test'@'%' IDENTIFIED BY 'test123' WITH GRANT OPTION;
+# 刷新授权
+flush privileges;
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/centos-bu-tong-zhuo-mian-zi-yuan-zhan-yong-dui-bi/" class="post-title gt-a-link">
+                    迷你主机Linux系统选型
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

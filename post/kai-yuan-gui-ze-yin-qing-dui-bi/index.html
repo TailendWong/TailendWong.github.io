@@ -1,0 +1,283 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>开源规则引擎对比 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    开源规则引擎对比
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-08-03 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <table>
+<thead>
+<tr>
+<th></th>
+<th>Drools</th>
+<th>easy-rules</th>
+<th>liteflow</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>规则格式</td>
+<td>xml</td>
+<td>json、yml、注解、builder</td>
+<td>xml、json、yml、注解、builder</td>
+</tr>
+<tr>
+<td>表达式</td>
+<td>支持</td>
+<td>MVEL、SpEL、JEXL</td>
+<td>通过脚本支持</td>
+</tr>
+<tr>
+<td>循环</td>
+<td>支持</td>
+<td>支持</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td>条件</td>
+<td>支持</td>
+<td>支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>可视化</td>
+<td>支持</td>
+<td>可自行实现</td>
+<td>可自行实现</td>
+</tr>
+<tr>
+<td>热更新</td>
+<td>支持</td>
+<td>可自行实现</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>生态</td>
+<td>完善</td>
+<td>一般</td>
+<td>一般</td>
+</tr>
+<tr>
+<td>文档</td>
+<td>多</td>
+<td>一般</td>
+<td>一般</td>
+</tr>
+<tr>
+<td>备注</td>
+<td>成熟，相关组件多，需要编写xml规则文件，学习成本高</td>
+<td>较成熟，基于注解的编程模型，学习成本低，但不活跃</td>
+<td>自研规则表达式，学习成本较低，有断更风险</td>
+</tr>
+</tbody>
+</table>
+<h2 id="为什么需要">为什么需要</h2>
+<p>当规则复杂且分支较多，难以应对变化，难以维护，不能及时生效，需要重启服务<br>
+https://www.cnblogs.com/dalianpai/p/14759526.html</p>
+<h2 id="drools">Drools</h2>
+<p>Drools 是用 Java 语言编写的开放源码规则引擎，基于Apache协议，基于RETE算法，功能强大，老牌规则引擎，生态完善，但太重了。</p>
+<ul>
+<li>Drools相关的组件太多，需要逐个研究才知道是否需要</li>
+<li>Drools逻辑复杂，不了解原理，一旦出现问题排查难度高</li>
+<li>Drools需要编写规则文件，学习成本高</li>
+</ul>
+<pre><code>rule rule_001
+ when
+ $p:Person(name==&quot;张三&quot;,birthday==&quot;1987-07-24&quot;);
+ then
+ $p.setName(&quot;李四&quot;);
+ update($p); 
+ System.out.println(&quot;执行了 name==\&quot;张三\&quot;,birthday==\&quot;1987-07-24\&quot; 规则&quot;);
+ System.out.println(&quot;改完后的名字：&quot;+$p.getName());
+end
+</code></pre>
+<h2 id="easy-rules">Easy Rules</h2>
+<p>轻量级的java规则引擎，学习成本低，代码优雅，但2年前停止维护</p>
+<ul>
+<li>轻量级框架和易于学习的API</li>
+<li>基于POJO的开发与注解的编程模型</li>
+<li>定义抽象的业务规则并轻松应用它们</li>
+<li>支持从简单规则创建组合规则的能力</li>
+<li>支持使用表达式语言（如MVEL和SpEL）定义规则的能力</li>
+</ul>
+<pre><code>Rule ageRule = new MVELRule()
+        .name(&quot;age rule&quot;)
+        .description(&quot;Check if person's age is &gt; 18 and marks the person as adult&quot;)
+        .priority(1)
+        .when(&quot;person.age &gt; 18&quot;)
+        .then(&quot;person.setAdult(true);&quot;);
+</code></pre>
+<p>https://github.com/j-easy/easy-rules/wiki/fizz-buzz</p>
+<h2 id="liteflow">liteflow</h2>
+<p>国产组件式规则引擎框架，但比较年轻。</p>
+<ul>
+<li>规则文件格式丰富</li>
+<li>支持脚本语言</li>
+<li>热刷新</li>
+<li>支持重试</li>
+<li>声明式组件</li>
+</ul>
+<pre><code>&lt;chain name=&quot;chain1&quot;&gt;
+    THEN(
+        a,
+        WHEN(
+            b,
+            SWITCH(c).to(d,e)
+        ),
+        f
+    );
+&lt;/chain&gt;
+</code></pre>
+<p>https://liteflow.yomahub.com/</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/java-zhong-de-mou-hao/" class="post-title gt-a-link">
+                    java中的冒号
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

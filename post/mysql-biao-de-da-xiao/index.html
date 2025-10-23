@@ -1,0 +1,221 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>mysql表的大小 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    mysql表的大小
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-11-10 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <blockquote>
+<p>转自https://blog.csdn.net/weixin_42112658/article/details/113455210</p>
+</blockquote>
+<p>1.查看所有数据库容量大小select</p>
+<pre><code>SELECT
+	table_schema AS '数据库',
+	sum( table_rows ) AS '记录数',
+	sum(
+	TRUNCATE ( data_length / 1024 / 1024, 2 )) AS '数据容量(MB)',
+	sum(
+	TRUNCATE ( index_length / 1024 / 1024, 2 )) AS '索引容量(MB)' 
+FROM
+	information_schema.TABLES 
+GROUP BY
+	table_schema 
+ORDER BY
+	sum( data_length ) DESC,
+	sum( index_length ) DESC;
+</code></pre>
+<p>2.查看所有数据库各表容量大小select</p>
+<pre><code>SELECT
+	table_schema AS '数据库',
+	table_name AS '表名',
+	table_rows AS '记录数',
+	TRUNCATE ( data_length / 1024 / 1024, 2 ) AS '数据容量(MB)',
+	TRUNCATE ( index_length / 1024 / 1024, 2 ) AS '索引容量(MB)' 
+FROM
+	information_schema.TABLES 
+ORDER BY
+	data_length DESC,
+	index_length DESC;
+</code></pre>
+<p>3.查看指定数据库容量大小</p>
+<p>例：查看mysql库容量大小select</p>
+<pre><code>SELECT
+	table_schema AS '数据库',
+	sum( table_rows ) AS '记录数',
+	sum(
+	TRUNCATE ( data_length / 1024 / 1024, 2 )) AS '数据容量(MB)',
+	sum(
+	TRUNCATE ( index_length / 1024 / 1024, 2 )) AS '索引容量(MB)' 
+FROM
+	information_schema.TABLES 
+WHERE
+	table_schema = {数据库名};
+</code></pre>
+<p>4.查看指定数据库各表容量大小</p>
+<p>例：查看mysql库各表容量大小select</p>
+<pre><code>SELECT
+	table_schema AS '数据库',
+	table_name AS '表名',
+	table_rows AS '记录数',
+	TRUNCATE ( data_length / 1024 / 1024, 2 ) AS '数据容量(MB)',
+	TRUNCATE ( index_length / 1024 / 1024, 2 ) AS '索引容量(MB)' 
+FROM
+	information_schema.TABLES 
+WHERE
+	table_schema = {数据库名} 
+ORDER BY
+	data_length DESC,
+	index_length DESC;
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/mysql8-wang-ji-mi-ma/" class="post-title gt-a-link">
+                    mysql8忘记密码
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

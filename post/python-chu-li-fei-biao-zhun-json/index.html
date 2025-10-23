@@ -1,0 +1,222 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>python处理非标准json | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    python处理非标准json
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-08-19 ·
+                    </time>
+                    
+                        <a href="https://blog.you.work.gd/tag/nuoUbzbyA/" class="post-tags">
+                            # python
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <p><ul class="markdownIt-TOC">
+<li><a href="#%E7%9B%AE%E5%BD%95">目录</a>
+<ul>
+<li><a href="#%E9%94%99%E8%AF%AF%E6%8F%8F%E8%BF%B0">错误描述</a></li>
+<li><a href="#%E9%94%99%E8%AF%AF%E5%8E%9F%E5%9B%A0">错误原因</a></li>
+<li><a href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88">解决方案</a>
+<ul>
+<li><a href="#%E6%96%B9%E6%A1%88%E4%B8%80%E6%AD%A3%E5%88%99%E6%9B%BF%E6%8D%A2%E4%BF%AE%E5%A4%8D">方案一：正则替换修复</a></li>
+<li><a href="#%E6%96%B9%E6%A1%88%E4%BA%8C%E5%B7%A5%E5%85%B7%E5%BA%93">方案二：工具库</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</p>
+<blockquote>
+<p>转载自https://www.cnpython.com/qa/1318923</p>
+</blockquote>
+<h1 id="目录">目录</h1>
+<h2 id="错误描述">错误描述</h2>
+<p>当使用<code>res.json[&quot;data&quot;]</code>却得到<code>TypeError: 'method' object is not subscriptable</code></p>
+<h2 id="错误原因">错误原因</h2>
+<p>当json中的key没有用双引号包裹，例如<code>{abc:&quot;1:2:3:4&quot;, efg:&quot;5:6:7:8&quot;, &quot;hij&quot;:&quot;foo&quot;}</code>，内置的json模块无法处理，会报错。</p>
+<h2 id="解决方案">解决方案</h2>
+<h3 id="方案一正则替换修复">方案一：正则替换修复</h3>
+<pre><code>import re
+jtxt_bad ='{abc:&quot;1:2:3:4&quot;, efg:&quot;5:6:7:8&quot;, &quot;hij&quot;:&quot;foo&quot;, klm:&quot;bar&quot;\n}'
+jtxt = re.sub(r'\b([a-zA-Z]+):(&quot;[^&quot;]+&quot;[,\n}])', r'&quot;\1&quot;:\2', jtxt_bad)
+print(f'Original: {jtxt_bad}\nRepaired: {jtxt}')
+</code></pre>
+<p>输出为</p>
+<pre><code>Original: {abc:&quot;1:2:3:4&quot;, efg:&quot;5:6:7:8&quot;, &quot;hij&quot;:&quot;foo&quot;, klm:&quot;bar&quot;
+}
+Repaired: {&quot;abc&quot;:&quot;1:2:3:4&quot;, &quot;efg&quot;:&quot;5:6:7:8&quot;, &quot;hij&quot;:&quot;foo&quot;, &quot;klm&quot;:&quot;bar&quot;
+}
+</code></pre>
+<h3 id="方案二工具库">方案二：工具库</h3>
+<pre><code>import dirtyjson
+
+d = dirtyjson.loads('{address:&quot;1600:3050:rf02:hf64:h000:0000:345e:d321&quot;}')
+
+print( d['address'] )
+
+d = dirtyjson.loads('{abc:&quot;1:2:3:4&quot;, efg:&quot;5:6:7:8&quot;, &quot;hij&quot;:&quot;foo&quot;}')
+
+print( d['abc'] )
+</code></pre>
+<p>它创建AttributedDict，因此可能需要dict()来创建普通字典</p>
+<pre><code>d = dirtyjson.loads('{abc:&quot;1:2:3:4&quot;, efg:&quot;5:6:7:8&quot;, &quot;hij&quot;:&quot;foo&quot;}')
+
+print( d )
+
+print( dict(d) )
+</code></pre>
+<p>结果:</p>
+<pre><code>AttributedDict([('abc', '1:2:3:4'), ('efg', '5:6:7:8'), ('hij', 'foo')])
+
+{'abc': '1:2:3:4', 'efg': '5:6:7:8', 'hij': 'foo'}
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/collectorstomap-kong-zhi-zhen/" class="post-title gt-a-link">
+                    Collectors.toMap空指针
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

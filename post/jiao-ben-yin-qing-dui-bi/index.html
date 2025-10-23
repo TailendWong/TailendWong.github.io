@@ -1,0 +1,272 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>脚本引擎对比 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    脚本引擎对比
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-08-04 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <pre><code>    public static void main(String[] args) {
+        String exp = &quot;本金*(1+年数*年利率)&quot; ;
+        // Dict为hutool
+        Object a = Dict.create().set(&quot;本金&quot;, 100).set(&quot;年数&quot;,2).set(&quot;年利率&quot;, 0.1);
+        Object obj = MVEL.eval(exp,a);
+        System.out.println(obj);
+    }
+</code></pre>
+<h2 id="表达式性能对比">表达式性能对比</h2>
+<pre><code>public static void main(String[] args) throws Exception {
+        long s = System.currentTimeMillis();
+//        ScriptEngine js = new ScriptEngineManager().getEngineByName(&quot;js&quot;);
+//        GroovyScriptEvaluator groovyScriptEvaluator = new GroovyScriptEvaluator();
+//        GroovyShell groovyShell = new GroovyShell();
+//        ExpressRunner runner = new ExpressRunner();
+//        ExpressionParser parser = new SpelExpressionParser();
+//        Context context = Context.newBuilder().allowAllAccess(true).build();
+//        JexlScriptEngine engine = new JexlScriptEngine();
+        for (int i = 0; i &lt; 10000; i++) {
+//            Object eval = Integer.valueOf(1 * i);
+//            Object eval = js.eval(&quot;1 * &quot; + i);
+//            Object eval = groovyScriptEvaluator.evaluate(new StaticScriptSource(&quot;1 * &quot; + i));
+//            Object eval = groovyShell.evaluate(&quot;1 * &quot; + i);
+//            Object eval = runner.execute(&quot;1 * &quot; + i, null, null, true, false);
+//            Object eval = MVEL.eval(&quot;1 * &quot; + i);
+//            Object eval = parser.parseExpression(&quot;1 * &quot; + i).getValue();
+//            Value eval = context.eval(&quot;js&quot;, &quot;1 * &quot; + i);
+//            Object eval = engine.eval(&quot;1 * &quot; + i);
+            Object eval = AviatorEvaluator.execute(&quot;1 * &quot; + i);
+            System.out.println(&quot;1 * &quot; + i + &quot; = &quot; + eval);
+        }
+        long e = System.currentTimeMillis();
+        System.out.println(&quot;take &quot; + (e-s));
+
+        // 单位ms
+        // java 119
+        // MVEL 345  
+        // SpEL 418
+        // aviator 711   compile模式500  cache模式400
+        // QLExpress 1507 
+        // jexl3 1706
+        // graalvm js 2245
+        // ScriptEngine js 14988
+        // groovyEvaluator 58781
+        // groovyShell 40536
+    }
+</code></pre>
+<h2 id="结论">结论</h2>
+<ul>
+<li>表达式引擎比脚本引擎效率高</li>
+<li>脚本引擎功能更强，支持直接调用java方法api</li>
+</ul>
+<h3 id="mvel">MVEL</h3>
+<p>支持条件、循环、函数、调用自定义java方法<br>
+入门http://t.zoukankan.com/firstdream-p-6651078.html<br>
+官方https://github.com/mvel/mvel<br>
+自定义java方法https://blog.csdn.net/jian876601394/article/details/110410374</p>
+<h3 id="spel">SpEL</h3>
+<p>spring内置，可调用一些java api，不支持循环<br>
+https://docs.spring.io/spring-framework/docs/4.2.x/spring-framework-reference/html/expressions.html</p>
+<h3 id="aviator">aviator</h3>
+<p>** 不得不提一句，谷歌大法好 **，开启编译和缓存模式后，性能提升一倍</p>
+<pre><code>// 编译并开启缓存
+Expression compile = AviatorEvaluator.compile(&quot;1 * param&quot;, true); 
+// 清除缓存
+AviatorEvaluator.invalidateCache(&quot;1 * param&quot;); 
+</code></pre>
+<p>支持正则、try catch、导入java包，google背书<br>
+https://www.yuque.com/boyan-avfmj/aviatorscript/cpow90</p>
+<blockquote>
+<p>以下是脚本引擎</p>
+</blockquote>
+<h3 id="qlexpress">QLExpress</h3>
+<p>支持条件、循环、函数，alibaba背书<br>
+https://github.com/alibaba/QLExpress</p>
+<h3 id="graalvm">graalvm</h3>
+<p>支持多语言：ruby，js，python，groovy，kotlin等，eclipse、oracle背书</p>
+<h2 id="maven依赖">maven依赖</h2>
+<pre><code>&lt;!-- aviator表达式引擎支持 --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.googlecode.aviator&lt;/groupId&gt;
+            &lt;artifactId&gt;aviator&lt;/artifactId&gt;
+            &lt;version&gt;5.2.7&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;!-- jexl3表达式引擎支持 --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.apache.commons&lt;/groupId&gt;
+            &lt;artifactId&gt;commons-jexl3&lt;/artifactId&gt;
+            &lt;version&gt;3.2.1&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;!-- javascript-graalvm支持 --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.eclipse.dirigible&lt;/groupId&gt;
+            &lt;artifactId&gt;dirigible-engine-javascript-graalvm&lt;/artifactId&gt;
+            &lt;version&gt;5.12.0&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.mvel&lt;/groupId&gt;
+            &lt;artifactId&gt;mvel2&lt;/artifactId&gt;
+            &lt;version&gt;2.4.8.Final&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.alibaba&lt;/groupId&gt;
+            &lt;artifactId&gt;QLExpress&lt;/artifactId&gt;
+            &lt;version&gt;3.2.0&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.codehaus.groovy&lt;/groupId&gt;
+            &lt;artifactId&gt;groovy-all&lt;/artifactId&gt;
+            &lt;version&gt;3.0.8&lt;/version&gt;
+        &lt;/dependency&gt;
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/kai-yuan-gui-ze-yin-qing-dui-bi/" class="post-title gt-a-link">
+                    开源规则引擎对比
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

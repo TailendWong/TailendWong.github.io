@@ -1,0 +1,215 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>java8中的Collectors.groupingBy用法详解 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    java8中的Collectors.groupingBy用法详解
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2023-05-09 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>转载https://www.zhangshengrong.com/p/2Y1kzKGJXZ/</p>
+<h1 id="分组">分组</h1>
+<h2 id="按照类目分组">按照类目分组：</h2>
+<pre><code>Map&lt;String, List&lt;Product&gt;&gt; prodMap= prodList.stream().collect(Collectors.groupingBy(Product::getCategory));
+ 
+//{&quot;啤酒&quot;:[{&quot;category&quot;:&quot;啤酒&quot;,&quot;id&quot;:4,&quot;name&quot;:&quot;青岛啤酒&quot;,&quot;num&quot;:3,&quot;price&quot;:10},{&quot;category&quot;:&quot;啤酒&quot;,&quot;id&quot;:5,&quot;name&quot;:&quot;百威啤酒&quot;,&quot;num&quot;:10,&quot;price&quot;:15}],&quot;零食&quot;:[{&quot;category&quot;:&quot;零食&quot;,&quot;id&quot;:1,&quot;name&quot;:&quot;面包&quot;,&quot;num&quot;:1,&quot;price&quot;:15.5},{&quot;category&quot;:&quot;零食&quot;,&quot;id&quot;:2,&quot;name&quot;:&quot;饼干&quot;,&quot;num&quot;:2,&quot;price&quot;:20},{&quot;category&quot;:&quot;零食&quot;,&quot;id&quot;:3,&quot;name&quot;:&quot;月饼&quot;,&quot;num&quot;:3,&quot;price&quot;:30}]}
+</code></pre>
+<h2 id="按照几个属性拼接分组">按照几个属性拼接分组</h2>
+<pre><code>Map&lt;String, List&lt;Product&gt;&gt; prodMap = prodList.stream().collect(Collectors.groupingBy(item -&gt; item.getCategory() + &quot;_&quot; + item.getName()));
+ 
+//{&quot;零食_月饼&quot;:[{&quot;category&quot;:&quot;零食&quot;,&quot;id&quot;:3,&quot;name&quot;:&quot;月饼&quot;,&quot;num&quot;:3,&quot;price&quot;:30}],&quot;零食_面包&quot;:[{&quot;category&quot;:&quot;零食&quot;,&quot;id&quot;:1,&quot;name&quot;:&quot;面包&quot;,&quot;num&quot;:1,&quot;price&quot;:15.5}],&quot;啤酒_百威啤酒&quot;:[{&quot;category&quot;:&quot;啤酒&quot;,&quot;id&quot;:5,&quot;name&quot;:&quot;百威啤酒&quot;,&quot;num&quot;:10,&quot;price&quot;:15}],&quot;啤酒_青岛啤酒&quot;:[{&quot;category&quot;:&quot;啤酒&quot;,&quot;id&quot;:4,&quot;name&quot;:&quot;青岛啤酒&quot;,&quot;num&quot;:3,&quot;price&quot;:10}],&quot;零食_饼干&quot;:[{&quot;category&quot;:&quot;零食&quot;,&quot;id&quot;:2,&quot;name&quot;:&quot;饼干&quot;,&quot;num&quot;:2,&quot;price&quot;:20}]}
+</code></pre>
+<h2 id="根据不同条件分组">根据不同条件分组</h2>
+<pre><code>Map&lt;String, List&lt;Product&gt;&gt; prodMap= prodList.stream().collect(Collectors.groupingBy(item -&gt; {
+ if(item.getNum() &lt; 3) {
+ return &quot;3&quot;;
+ }else {
+ return &quot;other&quot;;
+ }
+}));
+ 
+//{&quot;other&quot;:[{&quot;category&quot;:&quot;零食&quot;,&quot;id&quot;:3,&quot;name&quot;:&quot;月饼&quot;,&quot;num&quot;:3,&quot;price&quot;:30},{&quot;category&quot;:&quot;啤酒&quot;,&quot;id&quot;:4,&quot;name&quot;:&quot;青岛啤酒&quot;,&quot;num&quot;:3,&quot;price&quot;:10},{&quot;category&quot;:&quot;啤酒&quot;,&quot;id&quot;:5,&quot;name&quot;:&quot;百威啤酒&quot;,&quot;num&quot;:10,&quot;price&quot;:15}],&quot;3&quot;:[{&quot;category&quot;:&quot;零食&quot;,&quot;id&quot;:1,&quot;name&quot;:&quot;面包&quot;,&quot;num&quot;:1,&quot;price&quot;:15.5},{&quot;category&quot;:&quot;零食&quot;,&quot;id&quot;:2,&quot;name&quot;:&quot;饼干&quot;,&quot;num&quot;:2,&quot;price&quot;:20}]}
+</code></pre>
+<h2 id="多级分组">多级分组</h2>
+<p>要实现多级分组，我们可以使用一个由双参数版本的Collectors.groupingBy工厂方法创 建的收集器，它除了普通的分类函数之外，还可以接受collector类型的第二个参数。那么要进 行二级分组的话，我们可以把一个内层groupingBy传递给外层groupingBy，并定义一个为流 中项目分类的二级标准。</p>
+<pre><code>Map&lt;String, Map&lt;String, List&lt;Product&gt;&gt;&gt; prodMap= prodList.stream().collect(Collectors.groupingBy(Product::getCategory, Collectors.groupingBy(item -&gt; {
+ if(item.getNum() &lt; 3) {
+ return &quot;3&quot;;
+ }else {
+ return &quot;other&quot;;
+ }
+})));
+ 
+//{&quot;啤酒&quot;:{&quot;other&quot;:[{&quot;category&quot;:&quot;啤酒&quot;,&quot;id&quot;:4,&quot;name&quot;:&quot;青岛啤酒&quot;,&quot;num&quot;:3,&quot;price&quot;:10},{&quot;category&quot;:&quot;啤酒&quot;,&quot;id&quot;:5,&quot;name&quot;:&quot;百威啤酒&quot;,&quot;num&quot;:10,&quot;price&quot;:15}]},&quot;零食&quot;:{&quot;other&quot;:[{&quot;category&quot;:&quot;零食&quot;,&quot;id&quot;:3,&quot;name&quot;:&quot;月饼&quot;,&quot;num&quot;:3,&quot;price&quot;:30}],&quot;3&quot;:[{&quot;category&quot;:&quot;零食&quot;,&quot;id&quot;:1,&quot;name&quot;:&quot;面包&quot;,&quot;num&quot;:1,&quot;price&quot;:15.5},{&quot;category&quot;:&quot;零食&quot;,&quot;id&quot;:2,&quot;name&quot;:&quot;饼干&quot;,&quot;num&quot;:2,&quot;price&quot;:20}]}}
+</code></pre>
+<h1 id="按子组收集数据">按子组收集数据</h1>
+<h2 id="求总数">求总数</h2>
+<pre><code>Map&lt;String, Long&gt; prodMap = prodList.stream().collect(Collectors.groupingBy(Product::getCategory, Collectors.counting()));
+ 
+//{&quot;啤酒&quot;:2,&quot;零食&quot;:3}
+</code></pre>
+<h2 id="求和">求和</h2>
+<pre><code>Map&lt;String, Integer&gt; prodMap = prodList.stream().collect(Collectors.groupingBy(Product::getCategory, Collectors.summingInt(Product::getNum)));
+ 
+//{&quot;啤酒&quot;:13,&quot;零食&quot;:6}
+</code></pre>
+<h2 id="把收集器的结果转换为另一种类型">把收集器的结果转换为另一种类型</h2>
+<pre><code>Map&lt;String, Product&gt; prodMap = prodList.stream().collect(Collectors.groupingBy(Product::getCategory, Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparingInt(Product::getNum)), Optional::get)));
+ 
+//{&quot;啤酒&quot;:{&quot;category&quot;:&quot;啤酒&quot;,&quot;id&quot;:5,&quot;name&quot;:&quot;百威啤酒&quot;,&quot;num&quot;:10,&quot;price&quot;:15},&quot;零食&quot;:{&quot;category&quot;:&quot;零食&quot;,&quot;id&quot;:3,&quot;name&quot;:&quot;月饼&quot;,&quot;num&quot;:3,&quot;price&quot;:30}}
+</code></pre>
+<h2 id="联合其他收集器">联合其他收集器</h2>
+<pre><code>Map&lt;String, Set&lt;String&gt;&gt; prodMap = prodList.stream().collect(Collectors.groupingBy(Product::getCategory, Collectors.mapping(Product::getName, Collectors.toSet())));
+ 
+//{&quot;啤酒&quot;:[&quot;青岛啤酒&quot;,&quot;百威啤酒&quot;],&quot;零食&quot;:[&quot;面包&quot;,&quot;饼干&quot;,&quot;月饼&quot;]}
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/mac-guan-bi-ruan-jian-jian-cha/" class="post-title gt-a-link">
+                    Mac关闭软件检查
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

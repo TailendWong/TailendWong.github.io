@@ -1,0 +1,183 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>Charles抓包记录 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Charles抓包记录
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-11-28 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>SSL已普及，所以本文只聊抓取https包。</p>
+<h2 id="安装charles">安装Charles</h2>
+<p>去官网下载，并激活（不激活无法获取证书，无法抓取https包）。<br>
+在此提供两个激活码网站，如已失效，自行搜索</p>
+<ul>
+<li>https://www.zzzmode.com/mytools/charles/</li>
+<li>https://inused.github.io/pages/file/tool/CharlesKeygen.html</li>
+</ul>
+<h2 id="安装证书">安装证书</h2>
+<p>菜单栏--&gt;Proxy--&gt;SSL Proxying --&gt; Install Charles Root Certificate<br>
+安装证书 --&gt; 本地计算机 --&gt; 将所有证书都放入下列存储 --&gt; 受信任的根证书 --&gt; 下一步，完成</p>
+<h2 id="下载证书">下载证书</h2>
+<p>方式一：访问http://chls.pro/ssl，自动下载证书<br>
+方式二：菜单栏--&gt;Help--&gt;SSL Proxying --&gt; Save CharlesRootCertificate</p>
+<h2 id="目的一抓浏览器请求">目的一：抓浏览器请求</h2>
+<p>打开浏览器设置 --&gt; 安全 --&gt; 管理证书 --&gt; 选择受信任的根证书，选择导入，选择前一步下载的证书 --&gt; 导入即可。</p>
+<h2 id="目的二抓手机请求">目的二：抓手机请求</h2>
+<h3 id="给手机安装证书">给手机安装证书</h3>
+<p>将上一步下载的证书发送给手机，下载到手机上，知道保存的位置。<br>
+打开手机设置 --&gt; 安全 --&gt; 凭据存储 --&gt; 从存储设备安装 --&gt; CA证书（或者叫根证书） --&gt; 选择下载的证书（注： 手机不同，名称可能不同，意思类似即可）</p>
+<h3 id="设置代理">设置代理</h3>
+<p>手机与电脑在同一无线网络，设置无线的代理，IP为电脑的局域网ip，端口值为Charles的Proxy--ProxySettings里设置的端口。</p>
+<h3 id="配置要抓包的域名">配置要抓包的域名</h3>
+<p>菜单栏--&gt;Proxy--&gt;SSL ProxyingSettings --&gt; 勾选Enable SSL Proxying , 在Include框下添加要抓取的域名，保存即可</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/python-gong-ju-ji/" class="post-title gt-a-link">
+                    python工具集
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

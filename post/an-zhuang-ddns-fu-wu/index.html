@@ -1,0 +1,203 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>安装DDNS服务 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    安装DDNS服务
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-09-16 ·
+                    </time>
+                    
+                        <a href="https://blog.you.work.gd/tag/P8x7Rur-0/" class="post-tags">
+                            # 迷你主机
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <p>DDNS动态域名解析服务，家庭宽带ip大多不是固定的，路由因断电重启或者过一段时间，公网ip会变化。这就造成我们在域名服务商那里配置的A记录不一致，在ip变化后自动更新A记录的ip，这就是DDNS。</p>
+<p>我使用的是荣耀路由器，打开DMZ主机功能，把迷你主机暴露到公网。<br>
+路由器自带的是DDNS是花生壳的服务，配置很简单，注册个花生壳账号，进入控制台把壳域名填进来，还有账号密码，就可以了。</p>
+<p>但花生壳的域名是自动生成分配的二级域名，不便于记忆，并不比ip好记。。。</p>
+<p>秉着勤俭节约的思想，跟随我白嫖一个顶级域名。</p>
+<p>众所周知，<a href="https://freenom.com">freenom</a>是全球著名的唯一的免费顶级域名服务商。<br>
+去注册就好了，最长可选1年免费，到期前15天可以再续1年，一直续期一直爽~~</p>
+<p>哦，不够爽，如何自动续期呢？</p>
+<h2 id="解决方案">解决方案</h2>
+<p>https://github.com/mkorthof/freenom-script<br>
+选择shell的原因，linux原生支持，不需要安装别的环境，不需要安装别的库，成本最低</p>
+<h3 id="修改配置文件freenomconf">修改配置文件freenom.conf</h3>
+<p>因为运行商的公网ip出口有两个，对国内和国外不同，所以脚本内的获取ip的方式不能用</p>
+<pre><code># 修改freenom_update_dig的值为0，关闭dig
+freenom_update_dig=&quot;0&quot;
+
+# 修改ttl值
+freenom_update_ttl=&quot;300&quot;
+
+# 注释掉curl获取ip的方法
+#ipCmd+=(&quot;curl -%ipv% -A %agent% -m 10 -s https://diagnostic.opendns.com/myip&quot;)
+#ipCmd+=(&quot;curl -%ipv% -A %agent% -m 10 -s https://www.ripe.net/@@ipaddress&quot;)
+#ipCmd+=(&quot;curl -%ipv% -A %agent% -m 10 -s http://ipv6-test.com/api/myip.php&quot;)
+#ipCmd+=(&quot;curl -%ipv% -A %agent% -m 10 -s http://checkip.dns.he.net&quot;)
+#ipCmd+=(&quot;curl -%ipv% -A %agent% -m 10 -s https://cgi1.apnic.net/cgi-bin/my-ip.php&quot;)
+#ipCmd+=(&quot;curl -%ipv% -A %agent% -m 10 -s ipv%ipv%.test-ipv6.com/ip/?callback&quot;)
+#ipCmd+=(&quot;curl -4 -A %agent% -m 10 -s https://checkip.amazonaws.com&quot;)
+
+# 添加获取国内出口ip的方法
+ipCmd+=(&quot;curl -%ipv% -A %agent% -m 10 -s https://4.ipw.cn&quot;)
+ipCmd+=(&quot;curl -%ipv% -A %agent% -m 10 -s https://ddns.oray.com/checkip&quot;)
+ipCmd+=(&quot;curl -%ipv% -A %agent% -m 10 -s https://myip4.ipip.net&quot;)
+ipCmd+=(&quot;curl -%ipv% -A %agent% -m 10 -s http://pv.sohu.com/cityjson&quot;)
+</code></pre>
+<h3 id="添加定时任务">添加定时任务</h3>
+<p>sudo crontab -e</p>
+<pre><code># custom this is my test demo
+0 9 * * 0 /opt/freenom.sh -r -a
+0 * * * * /opt/freenom.sh -u honia.tk;/opt/freenom.sh -u honia.tk -s api
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/mi-ni-zhu-ji/" class="post-title gt-a-link">
+                    迷你主机
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

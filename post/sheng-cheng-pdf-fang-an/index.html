@@ -1,0 +1,398 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>生成pdf方案 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    生成pdf方案
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2023-05-27 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h1 id="依赖包">依赖包</h1>
+<pre><code>&lt;!-- pdf 开始 --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.itextpdf&lt;/groupId&gt;
+            &lt;artifactId&gt;itextpdf&lt;/artifactId&gt;
+            &lt;version&gt;5.5.6&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.xhtmlrenderer&lt;/groupId&gt;
+            &lt;artifactId&gt;flying-saucer-core&lt;/artifactId&gt;
+            &lt;version&gt;9.0.3&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.xhtmlrenderer&lt;/groupId&gt;
+            &lt;artifactId&gt;flying-saucer-pdf-itext5&lt;/artifactId&gt;
+            &lt;version&gt;9.0.3&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;!-- pdf 结束 --&gt;
+        &lt;!-- freemarker 开始 --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-freemarker&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;!-- freemarker 结束 --&gt;
+</code></pre>
+<h1 id="工具类">工具类</h1>
+<pre><code>import com.itextpdf.text.pdf.BaseFont;
+import com.example.call.file.FileService;
+import com.example.call.file.vo.FileUploadVo;
+import com.example.call.quote.vo.QResultOrderCopiesVO;
+import com.example.core.model.ReturnT;
+import com.example.core.util.LocalDateTimeUtil;
+import com.example.core.util.MultipartFileUtil;
+import com.example.core.util.PropertyUtil;
+import com.example.core.util.SpringUtil;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+import org.springframework.web.multipart.MultipartFile;
+import org.xhtmlrenderer.pdf.ITextFontResolver;
+import org.xhtmlrenderer.pdf.ITextRenderer;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+/**
+ * &lt;生成PDF文件&gt;
+ */
+public class PdfTool1 {
+
+    /**
+     * &lt;生成合并报价单PDF文件，并上传OSS返回其URL&gt;
+     * @param vo 报价单数据对象
+     * @return java.lang.String
+     * @author hmy
+     * @date 2022/12/28 21:00
+     * @version 1.0.0
+     */
+    public static String createPdfFile(QtResultOrderCopiesVO vo){
+        try {
+            String htmlString = &quot;&quot;;
+            try {
+                Configuration cfg = SpringUtil.getBean(Configuration.class);
+                //本次测试不依赖Spring容器时使用下边的
+//            Configuration cfg = new Configuration(Configuration.VERSION_2_3_22);
+//            cfg.setDirectoryForTemplateLoading(new File(&quot;D:\\myfiles\\xianniu-quote\\src\\main\\resources\\templates&quot;));
+//            cfg.setDefaultEncoding(&quot;UTF-8&quot;);
+//            cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+
+                Template temp = cfg.getTemplate(&quot;t_merge.ftl&quot;);
+                htmlString = FreeMarkerTemplateUtils.processTemplateIntoString(temp, vo);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException(&quot;PDF模板获取异常&quot;);
+            }
+            byte[] dataArray = html2pdf(htmlString);
+            String url = uploadPdf(dataArray);
+            return url;
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new RuntimeException(&quot;生成PDF异常&quot;);
+        }
+    }
+
+    private static String uploadPdf(byte[] dataArray) throws IOException {
+        String fileName = &quot;生成结果&quot;+ LocalDateTimeUtil.getCurrentStrByFormatter(LocalDateTimeUtil.yyyyMMddHHmmssSSS) +&quot;.pdf&quot;;
+        PropertyUtil p = SpringUtil.getBean(PropertyUtil.class);
+        String fileUploadPath = p.getProperties(&quot;xxx.file-upload-path&quot;); //临时文件保存目录
+        String filePath = ExcelUtils.getWebRootPath(fileUploadPath+ fileName);
+        FileOutputStream fileOutputStream = new FileOutputStream(filePath);
+        // 输出pdf
+        assert dataArray != null;
+        fileOutputStream.write(dataArray);
+        fileOutputStream.flush();
+        fileOutputStream.close();
+
+        File file = new File(filePath);
+        FileService fileService = SpringUtil.getBean(FileService.class);
+        String url = &quot;&quot;;
+        MultipartFile multipartFile = MultipartFileUtil.toMultipartFile(file);
+        //将导入结果反馈给前端
+        ReturnT&lt;FileUploadVo&gt; r = fileService.uploadFile(multipartFile);
+        if(r.verifySuccess()) {
+            url = r.getData().getUrl();
+        }
+        return url;
+    }
+
+    /**
+     * html转pdf
+     * @param htmlString html字符
+     * @return byte[]
+     */
+    public static byte[] html2pdf(String htmlString) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try {
+            ITextRenderer renderer = new ITextRenderer();
+            renderer.setDocumentFromString(htmlString);
+            // 解决中文支持问题
+            ITextFontResolver fontResolver = renderer.getFontResolver();
+            fontResolver.addFont(&quot;simsun.ttf&quot;, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+            fontResolver.addFont(&quot;fontawesome-webfont.ttf&quot;, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+            //解决图片的相对路径问题,图片使用base64编码即可,否则就得如下使用,建议使用base64
+//	        renderer.getSharedContext().setBaseURL(&quot;http://www.baidu.com/test.jpg&quot;);
+            renderer.getSharedContext().setReplacedElementFactory(new B64ImgReplacedElementFactory());
+            renderer.layout();
+            renderer.createPDF(byteArrayOutputStream);
+            return byteArrayOutputStream.toByteArray();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                byteArrayOutputStream.flush();
+                byteArrayOutputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * 生成pdf单元测试
+     */
+//    @Test
+//    public void createMergeResultPdfTest() {
+//        QResultOrderCopiesVO vo = new QResultOrderCopiesVO();
+//        Map&lt;String, Object&gt; model = BeanUtil.beanToMap(vo);
+//        // other value map
+//
+//        try {
+//            Configuration cfg = new Configuration(Configuration.VERSION_2_3_22);
+////            cfg.setDirectoryForTemplateLoading(new File(&quot;D:\\myfiles\\xia-quote\\src\\main\\resources\\templates&quot;));
+//            cfg.setDirectoryForTemplateLoading(new File(&quot;src\\main\\resources\\templates&quot;));
+//            cfg.setDefaultEncoding(&quot;UTF-8&quot;);
+//            cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+//
+//            Template temp = cfg.getTemplate(&quot;t_merge&quot; + &quot;.ftl&quot;);
+//
+//            String htmlString = FreeMarkerTemplateUtils.processTemplateIntoString(temp, model);
+//            FileUtil.writeUtf8String(htmlString, &quot;createMergeResultPdfTest.html&quot;);
+//            byte[] dataArray = PdfTool.html2pdf(htmlString);
+//            if (dataArray != null &amp;&amp; dataArray.length &gt; 0) {
+//                // 输出pdf
+//                FileOutputStream fileOutputStream = new FileOutputStream(&quot;createMergeResultOrderPdfTest.pdf&quot;);
+//                fileOutputStream.write(dataArray);
+//                fileOutputStream.flush();
+//                fileOutputStream.close();
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw new RuntimeException(&quot;PDF模板获取异常&quot;);
+//        }
+//    }
+
+}
+</code></pre>
+<h1 id="辅助类">辅助类</h1>
+<pre><code>// 支持base64的实现
+public class B64ImgReplacedElementFactory implements ReplacedElementFactory {
+    public ReplacedElement createReplacedElement(LayoutContext c, BlockBox box, UserAgentCallback uac, int cssWidth, int cssHeight) {
+        Element e = box.getElement();
+        if (e == null) {
+            return null;
+        }
+        String nodeName = e.getNodeName();
+        if (nodeName.equals(&quot;img&quot;)) {
+            String attribute = e.getAttribute(&quot;src&quot;);
+            FSImage fsImage;
+            try {
+                fsImage = buildImage(attribute, uac);
+            } catch (BadElementException e1) {
+                fsImage = null;
+            } catch (IOException e1) {
+                fsImage = null;
+            }
+            if (fsImage != null) {
+                if (cssWidth != -1 || cssHeight != -1) {
+                    fsImage.scale(cssWidth, cssHeight);
+                }
+                return new ITextImageElement(fsImage);
+            }
+        }
+        return null;
+    }
+
+    public void remove(Element arg0) {
+        // Auto-generated method stub
+
+    }
+
+    public void reset() {
+        // Auto-generated method stub
+
+    }
+
+    public void setFormSubmissionListener(FormSubmissionListener arg0) {
+        // Auto-generated method stub
+
+    }
+
+    protected FSImage buildImage(String srcAttr, UserAgentCallback uac) throws IOException, BadElementException {
+        FSImage fsImage;
+        if (srcAttr.startsWith(&quot;data:image/&quot;)) {
+            String b64encoded = srcAttr.substring(srcAttr.indexOf(&quot;base64,&quot;) + &quot;base64,&quot;.length(), srcAttr.length());
+            byte[] decodedBytes = Base64.getDecoder().decode(b64encoded);
+            fsImage = new ITextFSImage(Image.getInstance(decodedBytes));
+        } else {
+            fsImage = uac.getImageResource(srcAttr).getImage();
+        }
+        return fsImage;
+    }
+}
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/java8-zhong-de-collectorsgroupingby-yong-fa-xiang-jie/" class="post-title gt-a-link">
+                    java8中的Collectors.groupingBy用法详解
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

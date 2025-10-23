@@ -1,0 +1,211 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>微服务开发调试技巧-第二部 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    微服务开发调试技巧-第二部
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-11-07 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>上篇，我们介绍了一些微服务开发调试的技巧，但是并未覆盖所有应用场景。<br>
+当环境隔离较为严重时，往往服务器上的微服务注册到nacos的地址，本机是访问不到的。<br>
+例如：微服务在docker容器中，并未暴露端口到宿主机。</p>
+<p>【解决思路】让java程序的所有网络请求都走代理，而这个代理服务器是可以访问到其他微服务的。</p>
+<h2 id="安装socks代理服务">安装socks代理服务</h2>
+<p>yum install 3proxy</p>
+<p>编辑配置文件，清空后，填写以下内容<br>
+vim /etc/3proxy.cfg</p>
+<pre><code>#nserver 8.8.8.8
+#nserver 8.8.4.4
+nscache 65536
+maxconn 1000
+log /var/log/3proxy-%y%m%d.log D
+rotate 7
+external 0.0.0.0
+internal 0.0.0.0
+auth none
+allow *
+proxy -a -p6666
+socks -p6667
+</code></pre>
+<p>启动<br>
+nohup 3proxy /etc/3proxy.cfg &gt; /var/log/proxy.log 2&gt;&amp;1 &amp;</p>
+<p>测试是否成功<br>
+curl --proxy socks5://localhost:6667 https://baidu.com</p>
+<h2 id="修改jvm参数">修改JVM参数</h2>
+<p>给本机服务添加以下启动参数：</p>
+<p>-DsocksProxyHost=192.168.0.66 -DsocksProxyPort=6667</p>
+<p>将ip修改为上文搭建3proxy的可访问的服务器ip</p>
+<ul>
+<li>如果有openVPN，则填对应的虚拟局域网ip</li>
+<li>如果没有其他连通方式，则通过内网穿透，将6667端口穿透出来</li>
+</ul>
+<p>idea启动项目添加jvm参数的方法，自行搜索，此文不赘述。</p>
+<h2 id="进化版">进化版</h2>
+<p>无需服务端安装代理服务，一般本地连通服务器是通过ssh，我们可以将ssh隧道转换成socks代理。</p>
+<ol>
+<li>
+<p>使用 SSH 创建 SOCKS 代理<br>
+<code>ssh -p 22 -D &lt;local_port&gt; &lt;username&gt;@&lt;remote_host&gt;</code></p>
+</li>
+<li>
+<p>保持隧道连接<br>
+如果你希望SSH隧道在后台运行并保持连接，可以加上-f（后台运行）和-N（不执行命令）选项：<br>
+<code>ssh -p 22 -D 1080 -f -N user@example.com</code><br>
+-f：使SSH在后台运行。<br>
+-N：表示不执行远程命令，仅建立隧道连接。<br>
+-p:  指定ssh连接的端口</p>
+</li>
+</ol>
+<p>对比：<br>
+ssh的方式，优点是不需要额外的端口，服务器不需要安装其他软件。缺点是每个客户端都需要自行开启socks代理。服务端安装代理服务的方式则恰恰相反，优点是无需每个客户端的额外操作，缺点是需要安装软件和暴露额外端口</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/8-ge-mian-zhu-ce-qie-mian-fei-shi-yong-de-tu-biao-xia-zai-wang-zhan-fen-xiang/" class="post-title gt-a-link">
+                    8个免注册且免费实用的图标下载网站分享
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

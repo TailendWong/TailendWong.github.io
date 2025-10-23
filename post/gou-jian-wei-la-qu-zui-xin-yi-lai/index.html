@@ -1,0 +1,214 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>构建未拉取最新依赖 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    构建未拉取最新依赖
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-10-19 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h2 id="问题背景">问题背景</h2>
+<p>搭建了maven私服，开发的依赖包，未修改版本号push代码并deploy后，构建未拉取最新的依赖。maven构建时，如果本地有该版本，则不重新拉取。</p>
+<h2 id="解决方案">解决方案</h2>
+<ul>
+<li>
+<p>方法一：Jenkins手动清除旧的依赖，缓存（临时方案）</p>
+</li>
+<li>
+<p>方法二：项目配置中增加构建前脚本（构建前清空该仓库）</p>
+</li>
+<li>
+<p>方法三：修改Jenkins中maven配置文件（推荐）</p>
+<pre><code class="language-xml"> &lt;repositories&gt;
+    &lt;!--包含需要连接到远程仓库的信息 --&gt;
+    &lt;repository&gt;
+        &lt;!--远程仓库唯一标识 --&gt;
+        &lt;id&gt;your_repo&lt;/id&gt;
+        &lt;!--远程仓库名称 --&gt;
+        &lt;name&gt;your_repo&lt;/name&gt;
+        &lt;!--如何处理远程仓库里发布版本的下载 --&gt;
+        &lt;releases&gt;
+            &lt;!--true或者false表示该仓库是否为下载某种类型构件（发布版，快照版）开启。 --&gt;
+            &lt;enabled&gt;true&lt;/enabled&gt;
+            &lt;!--该元素指定更新发生的频率。Maven会比较本地POM和远程POM的时间戳。这里的选项是：always（一直），daily（默认，每日），interval：X（这里X是以分钟为单位的时间间隔），或者never（从不）。 --&gt;
+            &lt;updatePolicy&gt;always&lt;/updatePolicy&gt;
+            &lt;!--当Maven验证构件校验文件失败时该怎么做-ignore（忽略），fail（失败），或者warn（警告）。 --&gt;
+            &lt;checksumPolicy&gt;warn&lt;/checksumPolicy&gt;
+        &lt;/releases&gt;
+        &lt;!--如何处理远程仓库里快照版本的下载。有了releases和snapshots这两组配置，POM就可以在每个单独的仓库中，为每种类型的构件采取不同的策略。例如，可能有人会决定只为开发目的开启对快照版本下载的支持。参见repositories/repository/releases元素 --&gt;
+        &lt;snapshots&gt;
+            &lt;!--true或者false表示该仓库是否为下载某种类型构件（发布版，快照版）开启。 --&gt;
+            &lt;enabled&gt;true&lt;/enabled&gt;
+            &lt;!--该元素指定更新发生的频率。Maven会比较本地POM和远程POM的时间戳。这里的选项是：always（一直），daily（默认，每日），interval：X（这里X是以分钟为单位的时间间隔），或者never（从不）。 --&gt;
+            &lt;updatePolicy&gt;always&lt;/updatePolicy&gt;
+            &lt;!--当Maven验证构件校验文件失败时该怎么做-ignore（忽略），fail（失败），或者warn（警告）。 --&gt;
+            &lt;checksumPolicy&gt;warn&lt;/checksumPolicy&gt;
+        &lt;/snapshots&gt;
+        &lt;!--远程仓库URL，按protocol://hostname/path形式 --&gt;
+        &lt;url&gt;https://mvn.hostname.com.cn/repository/maven-public/&lt;/url&gt;
+        &lt;!--用于定位和排序构件的仓库布局类型-可以是default（默认）或者legacy（遗留）。Maven 2为其仓库提供了一个默认的布局；然而，Maven 
+            1.x有一种不同的布局。我们可以使用该元素指定布局是default（默认）还是legacy（遗留）。 --&gt;
+        &lt;layout&gt;default&lt;/layout&gt;
+    &lt;/repository&gt;
+ &lt;/repositories&gt;
+</code></pre>
+</li>
+<li>
+<p>方法四：强制使用远程仓库中最新的依赖（非内网消耗网络流量和带宽）<br>
+jenkins控制台-系统管理–maven项目配置–local maven Reposiory 选择Loacl to the workspace，OK。<br>
+<img src="https://blog.you.work.gd/post-images/1666171243328.png" alt="" loading="lazy"></p>
+</li>
+</ul>
+<blockquote>
+<p>参考链接：https://www.ngui.cc/el/1121734.html?action=onClick</p>
+</blockquote>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/git-push-zi-dong-deploy/" class="post-title gt-a-link">
+                    git push自动deploy
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

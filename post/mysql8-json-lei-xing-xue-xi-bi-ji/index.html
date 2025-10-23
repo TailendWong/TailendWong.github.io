@@ -1,0 +1,524 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>MYSQL8 JSON 类型学习笔记 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    MYSQL8 JSON 类型学习笔记
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-07-17 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><ul class="markdownIt-TOC">
+<li><a href="#%E5%9F%BA%E7%A1%80">基础</a>
+<ul>
+<li><a href="#%E5%87%BD%E6%95%B0%E9%80%9F%E6%9F%A5%E8%A1%A8">函数速查表</a></li>
+<li><a href="#sql%E4%BC%98%E5%8C%96">sql优化</a></li>
+<li><a href="#%E5%88%9B%E5%BB%BAjson%E5%80%BC">创建JSON值</a></li>
+<li><a href="#%E6%9F%A5%E8%AF%A2">查询</a></li>
+<li><a href="#%E8%A7%84%E8%8C%83%E5%8C%96">规范化</a></li>
+<li><a href="#%E5%90%88%E5%B9%B6">合并</a></li>
+<li><a href="#%E8%B7%AF%E5%BE%84%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%92%8C%E6%90%9C%E7%B4%A2">路径表达式和搜索</a></li>
+<li><a href="#%E4%BF%AE%E6%94%B9">修改</a></li>
+<li><a href="#%E6%AF%94%E8%BE%83%E5%92%8C%E6%8E%92%E5%BA%8F">比较和排序</a></li>
+<li><a href="#%E8%BD%AC%E6%8D%A2">转换</a></li>
+<li><a href="#%E8%81%9A%E5%90%88">聚合</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h1 id="基础">基础</h1>
+<h2 id="函数速查表">函数速查表</h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+<th>Introduced</th>
+<th>Deprecated</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-&gt;</td>
+<td>Return value from JSON column after evaluating path; equivalent to JSON_EXTRACT().</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>-&gt;&gt;</td>
+<td>Return value from JSON column after evaluating path and unquoting the result; equivalent to JSON_UNQUOTE(JSON_EXTRACT()).</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_ARRAY()</td>
+<td>Create JSON array</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_ARRAY_APPEND()</td>
+<td>Append data to JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_ARRAY_INSERT()</td>
+<td>Insert into JSON array</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_CONTAINS()</td>
+<td>Whether JSON document contains specific object at path</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_CONTAINS_PATH()</td>
+<td>Whether JSON document contains any data at path</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_DEPTH()</td>
+<td>Maximum depth of JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_EXTRACT()</td>
+<td>Return data from JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_INSERT()</td>
+<td>Insert data into JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_KEYS()</td>
+<td>Array of keys from JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_LENGTH()</td>
+<td>Number of elements in JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_MERGE()</td>
+<td>Merge JSON documents, preserving duplicate keys. Deprecated synonym for JSON_MERGE_PRESERVE()</td>
+<td></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>JSON_MERGE_PATCH()</td>
+<td>Merge JSON documents, replacing values of duplicate keys</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_MERGE_PRESERVE()</td>
+<td>Merge JSON documents, preserving duplicate keys</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_OBJECT()</td>
+<td>Create JSON object</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_OVERLAPS()</td>
+<td>Compares two JSON documents, returns TRUE (1) if these have any key-value pairs or array elements in common, otherwise FALSE (0)</td>
+<td>8.0.17</td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_PRETTY()</td>
+<td>Print a JSON document in human-readable format</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_QUOTE()</td>
+<td>Quote JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_REMOVE()</td>
+<td>Remove data from JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_REPLACE()</td>
+<td>Replace values in JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_SCHEMA_VALID()</td>
+<td>Validate JSON document against JSON schema; returns TRUE/1 if document validates against schema, or FALSE/0 if it does not</td>
+<td>8.0.17</td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_SCHEMA_VALIDATION_REPORT()</td>
+<td>Validate JSON document against JSON schema; returns report in JSON format on outcome on validation including success or failure and reasons for failure</td>
+<td>8.0.17</td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_SEARCH()</td>
+<td>Path to value within JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_SET()</td>
+<td>Insert data into JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_STORAGE_FREE()</td>
+<td>Freed space within binary representation of JSON column value following partial update</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_STORAGE_SIZE()</td>
+<td>Space used for storage of binary representation of a JSON document</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_TABLE()</td>
+<td>Return data from a JSON expression as a relational table</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_TYPE()</td>
+<td>Type of JSON value</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_UNQUOTE()</td>
+<td>Unquote JSON value</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_VALID()</td>
+<td>Whether JSON value is valid</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>JSON_VALUE()</td>
+<td>Extract value from JSON document at location pointed to by path provided; return this value as VARCHAR(512) or specified type</td>
+<td>8.0.21</td>
+<td></td>
+</tr>
+<tr>
+<td>MEMBER OF()</td>
+<td>Returns true (1) if first operand matches any element of JSON array passed as second operand, otherwise returns false (0)</td>
+<td>8.0.17</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="sql优化">sql优化</h2>
+<blockquote>
+<p>写出高性能sql说白了就是对优化器的口味</p>
+</blockquote>
+<ol>
+<li>在 MySQL 8.0中，优化器可以对 JSON 列执行部分原位更新，而不是删除旧文档并将新文档完整地写入该列。<br>
+需要满足的条件:</li>
+</ol>
+<ul>
+<li>UPDATE 语句使用 JSON _ SET ()、 JSON _ REPLACE ()或 JSON _ REMOVE ()三个函数中的任何一个来更新列。</li>
+<li>输入列和目标列必须是同一列。</li>
+<li>所有更改都用新的数组或对象值替换现有的数组或对象值，并且不向父对象或数组添加任何新元素。</li>
+<li>被替换的值必须至少与替换值一样大。换句话说，新值不能大于旧值。</li>
+</ul>
+<h2 id="创建json值">创建JSON值</h2>
+<ul>
+<li>有效的JSON值，否则报错<br>
+<code>INSERT INTO t1 VALUES('{&quot;key1&quot;: &quot;value1&quot;, &quot;key2&quot;: &quot;value2&quot;}');</code></li>
+<li>JSON _ TYPE ()函数期望一个 JSON 参数，并尝试将其解析为一个 JSON 值。如果值有效，则返回值的 JSON 类型，否则将产生错误。<br>
+MySQL 使用 utf8mb4字符集和 utf8mb4 _ bin 排序规则处理 JSON 上下文中使用的字符串。其他字符集中的字符串根据需要转换为 utf8mb4。(对于 ascii 或 utf8字符集中的字符串，不需要转换，因为 ascii 和 utf8是 utf8mb4的子集。)</li>
+<li>JSON _ ARRAY ()接受一个(可能是空的)值列表，并返回一个包含这些值的 JSON 数组</li>
+<li>JSON _ OBJECT ()接受一个(可能是空的)键值对列表，并返回一个包含这些键值对的 JSON 对象</li>
+<li>JSON _ MERGE _ PRESERVE ()接受两个或多个 JSON 文档并返回<strong>组合结果</strong></li>
+</ul>
+<h2 id="查询">查询</h2>
+<p>column-path 操作符-&gt; 和 内联路径操作符-&gt;&gt;（不包括周围的引号或任何转义符）</p>
+<pre><code>mysql&gt; SELECT col-&gt;&quot;$.mascot&quot; FROM qtest;
++---------------------------------------------+
+| col-&gt;&quot;$.mascot&quot;                             |
++---------------------------------------------+
+| &quot;Our mascot is a dolphin named \&quot;Sakila\&quot;.&quot; |
++---------------------------------------------+
+
+mysql&gt; SELECT sentence-&gt;&gt;&quot;$.mascot&quot; FROM facts;
++-----------------------------------------+
+| sentence-&gt;&gt;&quot;$.mascot&quot;                   |
++-----------------------------------------+
+| Our mascot is a dolphin named &quot;Sakila&quot;. |
++-----------------------------------------+
+</code></pre>
+<h2 id="规范化">规范化</h2>
+<p>文本插入和JSON_OBJECT函数都会依据“最后的重复键获胜”规则，例如{&quot;a&quot;: 1, &quot;a&quot;: 2}会得到{&quot;a&quot;: 2}</p>
+<h2 id="合并">合并</h2>
+<p><strong>JSON_MERGE_PRESERVE与JSON_MERGE_PATCH区别</strong><br>
+简单的说：json_merge_patch是覆盖，json_merge_preserve是组合（转化为数组或连接数组）</p>
+<ul>
+<li>对于json对象<br>
+如果参数列表中的json文档之间属性没有交集，则两个函数表现一致；否则，json_merge_preserve将相同键的值组成数组值，如果已经有数组值，则组合进这个数组或者将数组连接起来；<strong>重要的是</strong>如果第二个文档中某个属性为null并且第一个文档中有此属性，则结果中无此属性。</li>
+</ul>
+<blockquote>
+<p>JSON _ MERGE _ PATCH ()移除第一个对象中的任何成员，并在第二个对象中使用匹配的键，前提是与第二个对象中的键关联的值不为 JSON null。</p>
+</blockquote>
+<ul>
+<li>对于json数组<br>
+json_merge_patch用第二个文档覆盖了第一个文档；json_merge_preserve仍旧是组合起来</li>
+</ul>
+<h2 id="路径表达式和搜索">路径表达式和搜索</h2>
+<p>路径表达式对于提取部分 JSON 文档或修改 JSON 文档的函数非常有用，路径语法使用一个前导 $字符来表示正在考虑的 JSON 文档。</p>
+<pre><code>SELECT JSON_EXTRACT('{&quot;id&quot;: 14, &quot;name&quot;: &quot;Aztalan&quot;}', '$.name');
+SELECT JSON_SET('&quot;x&quot;', '$[0]', 'a');
+</code></pre>
+<p>[ N ] 附加到选择数组的路径<br>
+[M to N] 指定数组值的子集或范围</p>
+<p><strong>路径可以包含*或</strong>通配符**</p>
+<ul>
+<li>. [ * ]计算 JSON 对象中所有成员的值。</li>
+<li>[ * ]计算 JSON 数组中所有元素的值。</li>
+<li>prefix**suffix 后缀计算以命名前缀开始并以命名后缀结束的所有路径。</li>
+</ul>
+<p><strong>路径包含空格</strong><br>
+需要用引号，例如<code>$.&quot;a fish&quot; </code></p>
+<p><strong>last关键字</strong><br>
+last表示最后一个元素的索引<code>$[last-3 to last-1]</code><br>
+如果对非数组求值，则为元素本身</p>
+<pre><code>mysql&gt; SELECT JSON_REPLACE('&quot;Sakila&quot;', '$[last]', 10);
++-----------------------------------------+
+| JSON_REPLACE('&quot;Sakila&quot;', '$[last]', 10) |
++-----------------------------------------+
+| 10                                      |
++-----------------------------------------+
+</code></pre>
+<h2 id="修改">修改</h2>
+<p>JSON _ SET ()替换现有路径的值，并为不存在的路径添加值<br>
+JSON _ INSERT ()添加新值，但不替换现有值，如果该位置已有值，则不操作原值，忽略新值<br>
+JSON _ REPLACE ()替换现有值并忽略新值<br>
+JSON _ REMOVE ()返回原始文档中删除减去一个 JSON 文档和一个或多个路径选择的值</p>
+<h2 id="比较和排序">比较和排序</h2>
+<p>可以使用 = 、 &lt; 、 &lt; = 、 &gt; 、 &gt; = 、 &lt; &gt; 、 ! = 和 &lt; = &gt; 运算符比较 JSON 值<br>
+&lt;=&gt;是null-safe相等比较，对于有null值的比较不会返回null<br>
+&quot;不支持&quot;between、in、greatest（最大）、least（最小），但是经过本人测试，是支持的。<br>
+官方文档原文为</p>
+<blockquote>
+<p>A workaround for the comparison operators and functions just listed is to cast JSON values to a native MySQL numeric or string data type so they have a consistent non-JSON scalar type.<br>
+貌似意思是说，对于数值类型和字符串类型是支持上述比较操作的</p>
+</blockquote>
+<p>如果类型不同，则比较结果仅由具有较高优先级的类型确定</p>
+<blockquote>
+<p>类型名称是由 JSON _ TYPE ()函数返回的名称。在一行中一起显示的类型具有相同的优先级<br>
+BLOB<br>
+BIT<br>
+OPAQUE<br>
+DATETIME<br>
+TIME<br>
+DATE<br>
+BOOLEAN<br>
+ARRAY<br>
+OBJECT<br>
+STRING<br>
+INTEGER, DOUBLE（整数都被转换为 DOUBLE）<br>
+NULL</p>
+</blockquote>
+<h2 id="转换">转换</h2>
+<p><strong>转换规则</strong></p>
+<ul>
+<li>隐式转换为utf8mb4然后解析为json值；反过来json转为字符串</li>
+<li>NULL转为null</li>
+<li>几何类型通过调用ST_AsGeoJSON()函数</li>
+<li>其他类型，生成一个由单个标量值组成的 JSON 文档；反过来如果 JSON 文档由目标类型的单个标量值组成，该标量值可以强制转换为目标类型。否则，返回NULL并发出警告</li>
+</ul>
+<p>应用举例</p>
+<pre><code>ORDER BY CAST(JSON_EXTRACT(jdoc, '$.id') AS UNSIGNED)
+</code></pre>
+<h2 id="聚合">聚合</h2>
+<p>对于 JSON 值的聚合，SQLNULL 值与其他数据类型一样被忽略。除了 MIN ()、 MAX ()和 GROUP _ CONCAT ()之外，非 NULL 值被转换为数值类型并进行聚合。对于数值标量的 JSON 值，转换为 number 应该会产生有意义的结果，尽管(取决于值)可能会发生截断和精度损失。转换为其他 JSON 值的数量可能不会产生有意义的结果。</p>
+<p><strong>注意点</strong></p>
+<ul>
+<li>JSON对象中的 null、true、false必须小写</li>
+<li>特殊字符需要\转义，文本形式插入需要\转义<pre><code>mysql&gt; INSERT INTO facts VALUES
+   &gt;   (JSON_OBJECT(&quot;mascot&quot;, &quot;Our mascot is a dolphin named \&quot;Sakila\&quot;.&quot;));
+ mysql&gt; INSERT INTO facts VALUES
+   &gt;   ('{&quot;mascot&quot;: &quot;Our mascot is a dolphin named \\&quot;Sakila\\&quot;.&quot;}');
+</code></pre>
+</li>
+</ul>
+<p>【完结】</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/bugs/" class="post-title gt-a-link">
+                    BUGS
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

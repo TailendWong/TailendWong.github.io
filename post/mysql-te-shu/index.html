@@ -1,0 +1,208 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>mysql踩坑记录 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    mysql踩坑记录
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-10-11 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>mysql使用 = 精确查询时会忽略尾部空格， 不区分大小写。</p>
+<p>例如:  'AAA' = 'AAA  ' ,    'aaa' = 'aAa'</p>
+<h2 id="对于问题一">对于问题一</h2>
+<p><strong>为什么会这样？</strong><br>
+MySQL 在进行字符串比较时遵循以下规则：</p>
+<ol>
+<li>对于 CHAR 类型字段，存储时会自动删除尾随空格。</li>
+<li>对于 VARCHAR 类型字段，在比较时会忽略尾随空格。</li>
+</ol>
+<p><strong>如何避免这个问题？</strong></p>
+<ol>
+<li>
+<p>使用二进制比较：可以使用BINARY关键字进行严格比较。<br>
+SELECT name, LENGTH(<code>name</code>) FROM users WHERE BINARY name = 'AAA';</p>
+</li>
+<li>
+<p>使用LIKE进行精确匹配：<br>
+SELECT name, LENGTH(<code>name</code>) FROM users WHERE name LIKE 'AAA';</p>
+</li>
+<li>
+<p>显式地处理空格：可以通过TRIM函数显式去掉空格后再进行比较<br>
+SELECT name, LENGTH(<code>name</code>) FROM users WHERE TRIM(name) = 'AAA';</p>
+</li>
+</ol>
+<h2 id="对于问题二">对于问题二</h2>
+<ol>
+<li>
+<p>使用mysql 的BINARY 关键字使搜索区分大小写。</p>
+</li>
+<li>
+<p>修改字段的排序规则<br>
+字符集是一套符号和编码，校对规则是在字符集内用于比较字符的一套规则。 一般而言，校对规则以其相关的字符集名开始，通常包括一个语言名，并且以_ci（大小写不敏感）、_cs（大小写敏感）或_bin（二元）结束 。</p>
+</li>
+</ol>
+<p>比如 utf8字符集，，如下表：<br>
+1）utf8_bin：utf8_bin将字符串中的每一个字符用二进制数据存储，区分大小写。<br>
+2）utf8_general_ci：utf8_genera_ci不区分大小写，ci为case insensitive的缩写，即大小写不敏感。<br>
+3）utf8_general_cs：utf8_general_cs区分大小写，cs为case sensitive的缩写，即大小写敏感。<br>
+注：我本机使用5.7 版本不支持 utf8_general_cs 字符集，创建报错。</p>
+<h2 id="总结">总结</h2>
+<p><strong>实测结果</strong>:<br>
+以utf8mb4字符集为例<br>
+排序规则后缀对于大小写和尾部空格的影响</p>
+<ul>
+<li>utf8mb4_bin  字母大小写敏感，忽略尾部空格</li>
+<li>utf8mb4_0900_as_cs    字母大小写敏感，不忽略尾部空格</li>
+<li>utf8mb4_0900_ai_ci  不区分字母大小写，不忽略尾部空格</li>
+<li>utf8mb4_general_ci  不区分字母大小写，忽略尾部空格</li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/ipv6-ji-lu/" class="post-title gt-a-link">
+                    IPv6记录
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

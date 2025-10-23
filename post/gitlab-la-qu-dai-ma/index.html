@@ -1,0 +1,245 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>gitlab批量拉取代码 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    gitlab批量拉取代码
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-09-19 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>在项目列表打开控制台，执行以下代码，打印拉取本页项目代码命令</p>
+<pre><code>var list = [];$.each($('.projects-list .project-title a'),(k,v) =&gt; {console.log(v.href);list.push('git clone '+v.href)});list.join(';')
+</code></pre>
+<pre><code>// 如果是分组下的项目列表，使用这个
+var list = [];$.each($('.groups-list .project-row-contents&gt;a'),(k,v) =&gt; {console.log(v.href);list.push('git clone '+v.href)});list.join(';')
+</code></pre>
+<p>温馨提示：分批并行拉取效果更好</p>
+<h2 id="克隆代码">克隆代码</h2>
+<pre><code>@Test
+public void fastclone() {
+        String diskSymbol = &quot;D&quot;;
+        String workPath = &quot;/yourpath&quot;;
+        // git project urls
+        List&lt;String&gt; purls = new ArrayList&lt;&gt;();
+
+        FileUtil.mkdir(diskSymbol + &quot;:&quot; + workPath);
+        List&lt;List&lt;String&gt;&gt; split = ListUtil.split(purls, RuntimeUtil.getProcessorCount());
+        split.parallelStream().forEach(urls -&gt; {
+            List&lt;String&gt; commands = new ArrayList&lt;&gt;();
+            commands.add(diskSymbol + &quot;:&quot;);
+            commands.add(String.format(&quot;cd %s:%s&quot;, diskSymbol, workPath));
+            urls.forEach(url -&gt; commands.add(&quot;git clone &quot; + url));
+            Process p = RuntimeUtil.exec(null, new File(&quot;C:/WINDOWS/system32&quot;), &quot;cmd.exe /c &quot; + String.join(&quot; &amp;&amp; &quot;, commands));
+            System.out.println(RuntimeUtil.getResult(p));
+            p.destroy();
+        });
+}
+</code></pre>
+<h2 id="更新代码">更新代码</h2>
+<pre><code>@Test
+public void fastpull() {
+    String diskSymbol = &quot;D&quot;;
+    String workPath = &quot;/yourpath&quot;;
+
+    File file = new File(diskSymbol + &quot;:&quot; + workPath);
+    if (file.exists()) {
+        file.mkdirs();
+    }
+    File[] files = file.listFiles();
+    List&lt;String&gt; pdirs = Arrays.stream(Optional.ofNullable(files).orElse(new File[]{})).filter(File::isDirectory).map(File::getAbsolutePath).collect(Collectors.toList());
+    List&lt;List&lt;String&gt;&gt; split = ListUtil.split(pdirs, RuntimeUtil.getProcessorCount());
+    split.parallelStream().forEach(dirs -&gt; {
+            for (String dir : dirs) {
+                String[] commands = {&quot;cmd&quot;,&quot;/c&quot;,&quot;echo ====== %cd% ====== &amp;&amp; git pull&quot;};
+                Process p = RuntimeUtil.exec(null, new File(dir), commands);
+                System.out.println(IoUtil.read(p.getInputStream()));
+                p.destroy();
+            }
+    });
+}
+</code></pre>
+<h2 id="拉取代码python版本">拉取代码python版本</h2>
+<pre><code>import os
+import subprocess
+from multiprocessing import Pool
+import multiprocessing
+
+
+def pull_dir(dir):
+        commands = [&quot;cmd&quot;, &quot;/c&quot;, &quot;echo ====== %cd% ====== &amp;&amp; git pull&quot;]
+        p = subprocess.Popen(commands, cwd=dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        output, _ = p.communicate()
+        print(output.decode())
+
+def fastpull():
+    diskSymbol = &quot;D&quot;
+    workPath = &quot;/xian/refactor&quot;
+
+    directory = diskSymbol + &quot;:&quot; + workPath
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    dirs = [f for f in os.listdir(directory) if os.path.isdir(os.path.join(directory, f)) and f != &quot;logs&quot; and f != &quot;xian-transfer&quot;]
+    pdirs = [os.path.abspath(os.path.join(directory, d)) for d in dirs]
+
+    num_processors = multiprocessing.cpu_count()
+    split = [pdirs[i:i+num_processors] for i in range(0, len(pdirs), num_processors)]
+
+    for item in split:
+        with Pool() as pool:
+            pool.map(pull_dir, item)
+    
+if __name__ == &quot;__main__&quot; :
+    fastpull()
+
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/freenom-sheng-ji-zhu-ce-yu-ming-shi-bai/" class="post-title gt-a-link">
+                    freenom升级注册域名失败
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

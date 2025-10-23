@@ -1,0 +1,208 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>maven打包后文件不可用问题 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    maven打包后文件不可用问题
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2023-04-01 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h1 id="根本原因">根本原因</h1>
+<p>项目中配置了 这段代码</p>
+<pre><code>&lt;resource&gt;
+    &lt;directory&gt;src/main/resources&lt;/directory&gt;
+    &lt;!--用于将resources下的文件中的变量替换为变量值--&gt;
+    &lt;filtering&gt;true&lt;/filtering&gt;
+&lt;/resource&gt;
+</code></pre>
+<p>可能会误将 excel模板文件，zip文件，字体文件等中的内容替换掉</p>
+<h1 id="解决方案">解决方案</h1>
+<h2 id="方案一">方案一</h2>
+<pre><code>&lt;!-- 资源文件拷贝插件 --&gt;
+&lt;plugin&gt;
+    &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+    &lt;artifactId&gt;maven-resources-plugin&lt;/artifactId&gt;
+    &lt;configuration&gt;
+        &lt;encoding&gt;UTF-8&lt;/encoding&gt;
+        &lt;!-- 过滤后缀文件 --&gt;
+        &lt;nonFilteredFileExtensions&gt;
+            &lt;nonFilteredFileExtension&gt;xlsx&lt;/nonFilteredFileExtension&gt;
+            &lt;nonFilteredFileExtension&gt;xls&lt;/nonFilteredFileExtension&gt;
+            &lt;nonFilteredFileExtension&gt;ttf&lt;/nonFilteredFileExtension&gt;
+        &lt;/nonFilteredFileExtensions&gt;
+    &lt;/configuration&gt;
+&lt;/plugin&gt;
+</code></pre>
+<h2 id="方案二">方案二</h2>
+<pre><code>&lt;build&gt;
+    &lt;resource&gt;
+       &lt;directory&gt;${project.basedir}/src/main/resources&lt;/directory&gt;
+       &lt;filtering&gt;true&lt;/filtering&gt;
+        &lt;excludes&gt;
+            &lt;exclude&gt;static/**&lt;/exclude&gt;
+        &lt;/excludes&gt;
+    &lt;/resource&gt;
+    或
+   &lt;resource&gt;
+        &lt;directory&gt;${project.basedir}/src/main/resources&lt;/directory&gt;
+        &lt;filtering&gt;false&lt;/filtering&gt;
+        &lt;includes&gt;
+            &lt;include&gt;static/**&lt;/include&gt;
+        &lt;/includes&gt;
+    &lt;/resource&gt;
+&lt;/build&gt;
+</code></pre>
+<h1 id="相关链接">相关链接：</h1>
+<p>https://blog.csdn.net/qq_29235677/article/details/107449699<br>
+https://www.cnblogs.com/huozhonghun/p/15840212.html<br>
+https://zhuanlan.zhihu.com/p/78416099</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/feign-diao-yong-chao-shi/" class="post-title gt-a-link">
+                    feign调用超时
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

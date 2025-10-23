@@ -1,0 +1,273 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>ES去重查询 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    ES去重查询
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2023-04-25 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h2 id="方式一性能更好">方式一（性能更好）</h2>
+<p>注意事项：<br>
+1、折叠功能ES5.3版本之后才发布的。<br>
+2、聚合&amp;折叠只能针对keyword类型和number类型有效</p>
+<pre><code>POST /qt_config_device/_search
+{
+  &quot;query&quot;: {
+    &quot;term&quot;: {
+      &quot;tenantId&quot;: 554
+    }
+  },
+  &quot;_source&quot;: &quot;&quot;,  // 过滤无关内容
+  &quot;collapse&quot;: {
+    &quot;field&quot;: &quot;vendorName.keyword&quot;
+  },
+  &quot;size&quot;: 3, 
+  &quot;aggs&quot;: {
+    &quot;vendor_count&quot;: { // 查询总数
+      &quot;cardinality&quot;: {
+        &quot;field&quot;: &quot;vendorName.keyword&quot;
+      }
+    }
+  }
+}
+</code></pre>
+<p>对应的java实现</p>
+<pre><code>/**
+     * 折叠的实现方式，性能更好
+     * @param fuzzySearchPO
+     * @return
+     * @throws IOException
+     */
+    private List&lt;String&gt; searchVendorV2(FuzzySearchPO fuzzySearchPO) throws IOException {
+        Long tenantId = Long.valueOf(UserContext.currentUser().getTenantId());
+
+        SearchRequest request = new SearchRequest(EsDb.qt_device.getValue());
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.fetchSource(false);
+        BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
+        boolQueryBuilder.must(QueryBuilders.termQuery(&quot;tenantId&quot;, tenantId));
+        if (StringUtils.isNotBlank(fuzzySearchPO.getKey())) {
+            boolQueryBuilder.must(QueryBuilders.wildcardQuery(&quot;vendorName.keyword&quot;, &quot;*&quot; + fuzzySearchPO.getKey() + &quot;*&quot;));
+        }
+        sourceBuilder.query(boolQueryBuilder);
+
+        //指定去重字段
+        CollapseBuilder collapseBuilder = new CollapseBuilder(&quot;vendorName.keyword&quot;);
+        sourceBuilder.collapse(collapseBuilder);
+        sourceBuilder.size(Optional.ofNullable(fuzzySearchPO.getSize()).orElse(10));
+        log.info(&quot;es查询语句：{}&quot;, sourceBuilder.toString());
+        request.source(sourceBuilder);
+        SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
+
+        SearchHit[] hits = response.getHits().getHits();
+        List&lt;String&gt; vendorNames = Arrays.stream(hits).map(h -&gt; h.getFields().get(&quot;vendorName.keyword&quot;).getValues().get(0).toString()).collect(Collectors.toList());
+
+        return vendorNames;
+    }
+</code></pre>
+<h2 id="方式二">方式二</h2>
+<pre><code>POST /qt_config_device/_search
+{
+  &quot;query&quot;: {
+    &quot;term&quot;: {
+      &quot;tenantId&quot;: 554
+    }
+  },
+  &quot;size&quot;: 0,  // 过滤无关内容
+  &quot;timeout&quot;: &quot;60s&quot;,
+  &quot;aggs&quot;: {
+    &quot;vendor_terms&quot;: {
+      &quot;terms&quot;: {
+        &quot;field&quot;: &quot;vendorName.keyword&quot;,
+        &quot;size&quot;: 3
+      }
+      
+    }
+  }
+}
+</code></pre>
+<p>对应的java实现</p>
+<pre><code>/**
+     * 存储桶的实现方式
+     * @param fuzzySearchPO
+     * @return
+     * @throws IOException
+     */
+    private List&lt;String&gt; searchVendorV1(FuzzySearchPO fuzzySearchPO) throws IOException {
+        Long tenantId = Long.valueOf(UserContext.currentUser().getTenantId());
+
+        SearchRequest request = new SearchRequest(EsDb.qt_device.getValue());
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+
+        BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
+        boolQueryBuilder.must(QueryBuilders.termQuery(&quot;tenantId&quot;, tenantId));
+        if (StringUtils.isNotBlank(fuzzySearchPO.getKey())) {
+            boolQueryBuilder.must(QueryBuilders.wildcardQuery(&quot;vendorName.keyword&quot;, &quot;*&quot; + fuzzySearchPO.getKey() + &quot;*&quot;));
+        }
+        sourceBuilder.query(boolQueryBuilder);
+
+        TermsAggregationBuilder terms = AggregationBuilders.terms(&quot;vendor_terms&quot;).field(&quot;vendorName.keyword&quot;).size(Optional.ofNullable(fuzzySearchPO.getSize()).orElse(10));
+        sourceBuilder.aggregation(terms);
+        sourceBuilder.size(0);
+        log.info(&quot;es查询语句：{}&quot;, sourceBuilder.toString());
+        request.source(sourceBuilder);
+        SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
+
+        ParsedTerms terms1 = (ParsedTerms) response.getAggregations().getAsMap().get(&quot;vendor_terms&quot;);
+        List&lt;ParsedTerms.ParsedBucket&gt; buckets = (List&lt;ParsedTerms.ParsedBucket&gt;) terms1.getBuckets();
+        List&lt;String&gt; vendorNames = buckets.stream().map(ParsedMultiBucketAggregation.ParsedBucket::getKeyAsString).collect(Collectors.toList());
+
+        return vendorNames;
+    }
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/maven-si-fu/" class="post-title gt-a-link">
+                    maven私服
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

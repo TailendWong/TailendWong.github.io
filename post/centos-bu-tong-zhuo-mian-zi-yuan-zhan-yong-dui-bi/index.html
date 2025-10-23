@@ -1,0 +1,266 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>迷你主机Linux系统选型 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    迷你主机Linux系统选型
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-09-11 ·
+                    </time>
+                    
+                        <a href="https://blog.you.work.gd/tag/P8x7Rur-0/" class="post-tags">
+                            # 迷你主机
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h2 id="背景">背景</h2>
+<p>手上有一个迷你主机，想用来做服务器，但又有看电视的需求（租的房子电视往往只是个显示器，非智能电视不能联网）</p>
+<h2 id="环境">环境</h2>
+<p>centos7.9<br>
+分区 /（max）、/boot（200M）、swap（819M）</p>
+<h2 id="最小化安装">最小化安装</h2>
+<p>used: 137M  boot: 117M</p>
+<h2 id="gnome安装">gnome安装</h2>
+<p>used：567M boot: 152M  df: 4.9GB</p>
+<h2 id="kde安装">kde安装</h2>
+<p>used：526M boot: 164M</p>
+<h2 id="mini后安装gnome">mini后安装gnome</h2>
+<p>used：545M boot: 135M</p>
+<h2 id="server-with-gui安装">server with GUI安装</h2>
+<p>实际上是gnome<br>
+used：585M boot: 152M</p>
+<h2 id="总结">总结</h2>
+<p>kde占用资源更少，高度可配置<br>
+个人更习惯gnome的风格</p>
+<h2 id="遇到的问题">遇到的问题</h2>
+<h4 id="centos最小化安装默认不开启网络">Centos最小化安装默认不开启网络</h4>
+<p><code>vi /etc/sysconfig/network-scripts/ifcfg-en***</code>（这里的*每个机器可能不同）,修改ONBOOT=yes然后service network restart</p>
+<h4 id="主机无法ssh连接虚拟机">主机无法ssh连接虚拟机</h4>
+<p><code>ip addr</code>获取ip地址为10.0.2.15，但不能用这个地址，会去访问公网的这个地址，需要通过端口转发<br>
+将主机中VirtualBox Host-Only Network的网关ip（192.168.56.1）的一个端口转发到虚拟机10.0.2.15的22端口<br>
+<img src="https://image-1300295648.cos.ap-chongqing.myqcloud.com/markdown/image-20201009212406669.png" alt="pic1" loading="lazy"></p>
+<p>NAT: 网络地址转换，可访问外部网络，但外部访问内部需要端口转发<br>
+仅主机网络模式：仅可和主机通信，无法访问外部网络</p>
+<h4 id="修改yum源">修改yum源</h4>
+<p>curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo &amp;&amp; yum clean all &amp;&amp; yum makecache</p>
+<h4 id="安装chrome浏览器">安装chrome浏览器</h4>
+<p>cat &gt; /etc/yum.repos.d/google-chrome.repo &lt;&lt; 'EOF'<br>
+[google-chrome]<br>
+name=google-chrome<br>
+baseurl=http://dl.google.com/linux/chrome/rpm/stable/$basearch<br>
+enabled=1<br>
+gpgcheck=1<br>
+gpgkey=https://dl-ssl.google.com/linux/linux_signing_key.pub<br>
+EOF &amp;&amp; yum -y install google-chrome-stable --nogpgcheck</p>
+<hr>
+<p>之前优先考虑服务器，所以选择了centos，折腾半天，发现都不太满意。centos真只适合服务器，普通用户日常软件生态太差。。。<br>
+接下来考虑ubuntu和deepin</p>
+<h2 id="deepin">deepin</h2>
+<p>deepin先下载完，先测试这个<br>
+安装过程的小插曲，默认一路安装，分区时提示硬盘要64G，选择自定义分区可绕过这个限制，自定义分区主要是/、/boot(可选)、/swap，就可以了。<br>
+语言我选择的英文，如果选中文的话，文档和下载之类的目录名是中文，命令行 cd的时候不太方便。后来发现跟centos/ubuntu不一样，语言选中文“下载/文档”等目录在命令行里也是英文，Nice。<br>
+进入系统后，配置有限，我选择Normal模式保证性能。</p>
+<p>used: 559~647M  boot: 121M   df: 6.5G<br>
+关闭界面后<code>sudo systemctl disable lightdm</code><br>
+used: 202~222M</p>
+<p>/boot默认最小1.5GB，所以之后装的时候只分/和swap分区<br>
+语言选中英文对比</p>
+<pre><code>                used          df
+英文版：   570M       6.9G
+中文版：   589M       7.0G
+重启后英文版：   537M       6.9G
+重启后中文版：   547M       6.9G
+英文版安装中文： 563M       6.9G
+</code></pre>
+<p>兼容性令人惊讶：windows和安卓应用也可以在上面运行</p>
+<h2 id="ubuntu">ubuntu</h2>
+<p>used: 663~728M  boot: 141M   df: 5.2G    /total: 8.7G<br>
+对中国用户不是很友好，面向服务器的，内置Firefox浏览器不能播放网页视频，提示需要安装video codecs，还得折腾，图形界面偶尔会有报错弹窗</p>
+<h2 id="感受">感受</h2>
+<p>如果你仅仅用来做服务系统，推荐CentOS、Ubuntu<br>
+如果你还需要图形界面辅助，推荐Ubuntu<br>
+如果你还有影音或办公需求，推荐Deepin</p>
+<p>题外话：deepin是想让Linux走进普通用户的电脑，而不仅仅是作为服务器或者开发者的专属，像windows和mac os那样更贴近大众。其他linux对于大众来说，门槛还是有些高，更适合开发者。</p>
+<h2 id="决定">决定</h2>
+<p><strong>中文deepin，开着界面，未来不用了再关</strong><br>
+结合个人需求，deepin是唯一的选择，将来还可以选择关闭图形界面。mac os虽好，但太耗资源。</p>
+<h2 id="续">续</h2>
+<p>开启ssh服务与开机自启</p>
+<pre><code>sudo service ssh start
+sudo systemctl enable ssh
+</code></pre>
+<p>禁用图形界面自启</p>
+<pre><code>sudo systemctl mask lightdm
+重启后就没图形界面了
+</code></pre>
+<p>恢复图形界面</p>
+<pre><code>sudo systemctl unmask lightdm
+sudo service lightdm start
+</code></pre>
+<hr>
+<h2 id="探索systemctl-enabledisable-lightdm的方式">探索systemctl enable/disable lightdm的方式</h2>
+<p>系统版本：deepin-desktop-community-20.7-amd64.iso</p>
+<pre><code>$ sudo systemctl disable lightdm
+Synchronizing state of lightdm.service with SysV service script with /lib/systemd/systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install disable lightdm
+insserv: warning: current start runlevel(s) (empty) of script `lightdm' overrides LSB defaults (2 3 4 5).
+insserv: warning: current stop runlevel(s) (0 1 2 3 4 5 6) of script `lightdm' overrides LSB defaults (0 1 6).
+Removed /etc/systemd/system/display-manager.service.
+</code></pre>
+<p>哦？ 删了一个文件！<br>
+display-manager.service 是lightdm.service的一个软连接</p>
+<p>重启后，不是图形界面了<br>
+然后再把它打开 <code>sudo systemctl enable lightdm</code><br>
+重启后图形界面未恢复</p>
+<p>原因是之前删除的软连接并没有重新创建，执行如下命令后，重启即可<br>
+<code>sudo ln -s /lib/systemd/system/lightdm.service /etc/systemd/system/display-manager.service</code></p>
+<h2 id="真机安装遇到的问题">真机安装遇到的问题</h2>
+<p>因为是主板是UEFI启动模式，所以自定义分区的时候，除了创建 / 和 swap 还必须创建 efi分区，否则会安装失败</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/for-u/" class="post-title gt-a-link">
+                    开放API
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

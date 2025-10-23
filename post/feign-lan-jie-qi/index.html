@@ -1,0 +1,238 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>feign拦截器 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    feign拦截器
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2023-03-10 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h1 id="请求拦截">请求拦截</h1>
+<pre><code>/**
+ * 服务间header传递配置
+ */
+@Slf4j
+@Configuration //由各个项目自己配置
+public class FeignConfiguration implements RequestInterceptor {
+    @Override
+    public void apply(RequestTemplate template) {
+        if (UserContext.getHeaders()!=null) {
+            UserContext.getHeaders().forEach(template::header);
+        }
+        try {
+            // 服务调用异常辅助信息
+            Target&lt;?&gt; target = template.feignTarget();
+            FeignMetaVO feignMetaVO = new FeignMetaVO(target.name(), target.type().getSimpleName(), template.url(), template.method(),
+                    JSON.toJSONString(template.queries()), new String(template.body(), StandardCharsets.UTF_8));
+            UserContext.setExtra(UserContextExtraKeyEnum.FEIGN_META.getCode(), JSON.toJSONString(feignMetaVO));
+            // 以下部分，保留一段时间后删除，仅服务调用异常时打印
+            FeignMetaVO simpleInfo = ConvertUtils.sourceToTarget(feignMetaVO, FeignMetaVO.class);
+            simpleInfo.setBody(&quot;仅服务调用异常时打印此字段&quot;); // 请求体内容可能很多，所以平时不打印，仅服务调用异常时打印
+            log.info(&quot;Feign调用调试信息：{}&quot;, simpleInfo);
+            UserContext.addCallChainNode(target.name()); // 添加调用链路节点，用于打印调用链路
+        } catch (Exception e) {
+            // 忽略异常
+        }
+    }
+}
+</code></pre>
+<h1 id="响应拦截">响应拦截</h1>
+<h2 id="方式一">方式一</h2>
+<p>注入自定义解码器</p>
+<pre><code>@Slf4j
+@Configuration
+@ConditionalOnClass({Feign.class})
+@AutoConfigureBefore(FeignAutoConfiguration.class)
+public class FeignConfig {
+
+	@Autowired
+    private ObjectFactory&lt;HttpMessageConverters&gt; messageConverters;
+
+	@Bean
+	public Decoder feignDecoder() {
+		return new OptionalDecoder(new ResponseEntityDecoder(new MyDecoder(this.messageConverters)));
+	}
+}
+
+</code></pre>
+<p>继承SpringDecoder自定义解码器</p>
+<pre><code>class MyDecoder extends SpringDecoder {
+
+	MyDecoder(ObjectFactory&lt;HttpMessageConverters&gt; messageConverters) {
+		super(messageConverters);
+	}
+
+	@Override
+	public Object decode(Response response, Type type) throws IOException, FeignException {
+
+		// 这里可以从response对象里面获取响应头和响应体
+
+        // 获取响应头
+		Map&lt;String, Collection&lt;String&gt;&gt; headers = response.headers();
+
+		return super.decode(response, type);
+	}
+}
+
+</code></pre>
+<h2 id="方式二">方式二</h2>
+<p>https://zhuanlan.zhihu.com/p/528834129</p>
+<h1 id="附">附</h1>
+<p>提取堆栈摘要</p>
+<pre><code> private String compressStack(RuntimeException ex) {
+        String stacktrace = ExceptionUtil.stacktraceToString(ex, 3000);// 只保留有效堆栈，限制3000字符（经验值），不够再改
+        String format = stacktrace.replace(&quot;  &quot;, &quot;&quot;);
+        String repack = Arrays.stream(format.split(&quot;\n&quot;)).filter(row -&gt; !row.startsWith(&quot;at&quot;) || row.contains(&quot;xianniu&quot;)).collect(Collectors.joining(&quot;\n&quot;));
+        return repack;
+    }
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/shi-yong-mybatis-plus-geng-xin-null-zi-duan-mybatisplus/" class="post-title gt-a-link">
+                    使用mybatis-plus更新null字段mybatisplus
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

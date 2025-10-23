@@ -1,0 +1,209 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>bootstrap.yml和application.yml | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    bootstrap.yml和application.yml
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-06-13 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><strong>省流</strong>：均本地文件时，application.yml会覆盖bootstrap.yml中的同名属性；外部配置中心时，不会覆盖。</p>
+<p>--- 正文 ---</p>
+<p>在Spring Boot和Spring Cloud应用中，如果同时在<code>bootstrap.yml</code>和<code>application.yml</code>中配置了数据库连接，那么最终运行时使用的配置会依赖于属性源的加载顺序和优先级。</p>
+<h3 id="加载顺序和优先级">加载顺序和优先级</h3>
+<ol>
+<li>
+<p><strong><code>bootstrap.yml</code> 优先</strong>：<br>
+<code>bootstrap.yml</code> 文件中的配置属性会先于 <code>application.yml</code> 文件加载。这是因为 <code>bootstrap.yml</code> 在应用程序上下文的初始化过程中最早被处理，用于配置一些需要在应用程序启动前就初始化的属性。这主要包括从外部配置中心加载的配置等。</p>
+</li>
+<li>
+<p><strong><code>application.yml</code> 次优先</strong>：<br>
+<code>application.yml</code> 文件中的配置属性在 <code>bootstrap.yml</code> 之后加载。如果 <code>application.yml</code> 中声明了与 <code>bootstrap.yml</code> 中相同的配置属性，<code>application.yml</code> 中的值将会覆盖 <code>bootstrap.yml</code> 中的值。</p>
+</li>
+</ol>
+<h3 id="覆盖规则">覆盖规则</h3>
+<p>简单来说，<code>application.yml</code> 中的配置会覆盖 <code>bootstrap.yml</code> 中的同名配置属性，因此如果你在这两个文件中都配置了数据库连接，最终的生效配置将会是 <code>application.yml</code> 中的配置。</p>
+<h3 id="例子">例子</h3>
+<p>假设 <code>bootstrap.yml</code> 中配置了如下内容：</p>
+<pre><code class="language-yaml">spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/bootstrapdb
+    username: bootstrapUser
+    password: bootstrapPass
+</code></pre>
+<p>而 <code>application.yml</code> 中配置了如下内容：</p>
+<pre><code class="language-yaml">spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/applicationdb
+    username: applicationUser
+    password: applicationPass
+</code></pre>
+<p>最终在应用程序运行时，会使用 <code>application.yml</code> 中的数据库连接配置：</p>
+<pre><code class="language-yaml">spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/applicationdb
+    username: applicationUser
+    password: applicationPass
+</code></pre>
+<h3 id="特殊情况外部配置中心">特殊情况：外部配置中心</h3>
+<p>需要特别注意的是，当使用外部配置中心（例如 Spring Cloud Config Server）时，通常会将某些配置（例如数据库连接）从配置中心加载。在这种情况下：</p>
+<ol>
+<li><code>bootstrap.yml</code> 中配置的是外部配置中心的地址和参数，而非具体的数据库连接参数。</li>
+<li>真正的数据库连接参数从配置中心加载，并且其优先级高于 <code>application.yml</code>。</li>
+</ol>
+<h3 id="注意事项">注意事项</h3>
+<ol>
+<li><strong>避免混淆</strong>：尽量避免在 <code>bootstrap.yml</code> 和 <code>application.yml</code> 中同时配置相同的属性，以避免混淆和难以调试的问题。</li>
+<li><strong>文档化</strong>：对团队成员进行关于配置文件加载顺序和优先级的培训，并且将其记录在项目的文档中，以确保在多人合作时具有一致的理解。</li>
+</ol>
+<p>通过理解和合理设置这两种配置文件，可使你的Spring Boot应用程序配置更清晰、可维护。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/linux/" class="post-title gt-a-link">
+                    Linux常用命令
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

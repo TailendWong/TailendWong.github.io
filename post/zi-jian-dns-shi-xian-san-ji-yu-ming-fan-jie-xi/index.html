@@ -1,0 +1,312 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>自建DNS实现多级域名泛解析 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    自建DNS实现多级域名泛解析
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-09-16 ·
+                    </time>
+                    
+                        <a href="https://blog.you.work.gd/tag/P8x7Rur-0/" class="post-tags">
+                            # 迷你主机
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h2 id="国内dns服务商">国内dns服务商</h2>
+<ul>
+<li>dns.la<br>
+泛解析  ttl=300s</li>
+<li>zndns.com<br>
+api接口不支持？ ttl=10s</li>
+<li>jd<br>
+ttl=120s</li>
+<li>wangsucloud.com</li>
+<li>万网</li>
+<li>dnspod</li>
+</ul>
+<p>都有一个特点：需要注册账号且绑定手机号</p>
+<h2 id="为什么要自建">为什么要自建？</h2>
+<ul>
+<li>修改记录的实时性</li>
+<li>高效，省去维护域名解析的重复劳动</li>
+<li>降本，节省泛解析的费用，有些服务商是收费的</li>
+<li>不想用手机号注册账号/实名认证，太麻烦</li>
+</ul>
+<blockquote>
+<p>管理局域网的DNS、给手机App Store加速、纠正错误的DNS解析记录、保证上网更加安全、去掉网页讨厌的广告</p>
+</blockquote>
+<h2 id="选型">选型</h2>
+<ol>
+<li>
+<p>bind9<br>
+配置文件稍有门槛<br>
+https://blog.oxida.cn/archives/103</p>
+</li>
+<li>
+<p>dnsmasq</p>
+<ul>
+<li>添加指定泛域名通过指定DNS服务器解析(防域名被劫持，或者转发指定域名解析)</li>
+</ul>
+<pre><code>#增加配置 /etc/dnsmasp.conf
+server=/sohu.com/10.1.1.1
+</code></pre>
+<ul>
+<li>添加指定泛域名解析成指定IP （可用来屏蔽特定的域名）</li>
+</ul>
+<pre><code>#增加配置 /etc/dnsmasp.conf
+address=/baidu.com/2.2.2.2
+</code></pre>
+<ul>
+<li>添加A记录</li>
+</ul>
+<pre><code>#增加配置 /etc/dnsmasp.conf
+host-record=test13.test,10.10.10.13
+</code></pre>
+<ul>
+<li>添加别名记录（需要先添加源地址解析记录，在添加别名记录）</li>
+</ul>
+<pre><code>    #增加配置 /data/dnsmasq/dnsmasq.d/test.test
+    10.10.10.20   20.test.test
+    #增加配置 /etc/dnsmasp.conf
+    cname=10.test.test,20.test.test
+</code></pre>
+<p>https://blog.csdn.net/qq_21127151/article/details/121203249<br>
+https://blog.csdn.net/ethnicitybeta/article/details/122672861</p>
+</li>
+<li>
+<p>tankdns<br>
+开箱即用，支持多平台，国产软件，简单易用，暂不支持泛解析</p>
+</li>
+<li>
+<p>coredns<br>
+go语言实现的，插件化，也是不错的选择。http://t.zoukankan.com/flying607-p-12917376.html</p>
+</li>
+</ol>
+<p>最终选择了dnsmasq，因为系统自带，成本最低，同时配置简单易懂。</p>
+<h2 id="搭建dns服务">搭建dns服务</h2>
+<p>//停止之前的<br>
+kill -9 {PID}<br>
+// 重装下最新版<br>
+sudo apt install dnsmasq<br>
+// 修改/etc/dnsmasq.conf<br>
+address=/dev.honia.tk/2.2.2.2<br>
+host-record=honia.tk,2.2.2.2<br>
+//启动<br>
+dnsmasq -h</p>
+<h3 id="dns配置中ip自动更新">dns配置中ip自动更新</h3>
+<p>由于配置文件里的ip是写死的，所以我们需要实现一个功能：ip变化时，修改这里的ip。</p>
+<p>update_dnsconf.sh脚本替换ip，文件缓存历史ip，重启服务</p>
+<pre><code>#!/usr/bin/env bash
+
+base_dir='/var/log/freenom/'
+out_file='dns_last_ip.cache'
+ns1_file='freenom_ns1.honia.tk.ip4'
+dns_conf_path='/etc/dnsmasq.conf'
+# ns1的ip
+currentIp=`cat &quot;${base_dir}${ns1_file}&quot; 2&gt;/dev/null`
+cacheIp=`cat &quot;${base_dir}${out_file}&quot; 2&gt;/dev/null`
+# echo &quot;curr===&gt; $currentIp&quot;
+# echo &quot;cache===&gt; $cacheIp&quot;
+
+if [[ &quot;${currentIp}&quot; == &quot;&quot; ]]; then
+  exit 0
+fi
+
+if [[ &quot;${currentIp}&quot; != &quot;${cacheIp}&quot; ]]; then
+  # echo &quot;The two strings are different&quot;
+  oldIp=$(cat ${dns_conf_path} | egrep &quot;address=/dev\.rchvip\.tk/.*&quot; | sed -r &quot;s/address=\/dev\.rchvip\.tk\/(.*)$/\1/g&quot; | xargs echo -n)
+  sed -i &quot;s/${oldIp}/${currentIp}/g&quot; &quot;${dns_conf_path}&quot;
+  # update cache
+  echo -n &quot;$currentIp&quot; &gt; &quot;${base_dir}${out_file}&quot;
+  # reload conf
+  kill -9 &quot;$(pgrep dnsmasq)&quot;
+  dnsmasq -h
+fi
+</code></pre>
+<h2 id="修改域名的nameserver">修改域名的nameserver</h2>
+<ol>
+<li>给自建的dns服务绑定域名<br>
+点击顶部导航中的Services---&gt;My Domains---&gt;点击域名后的ManageDomain---&gt;选择Manage Freenom DNS选项卡---&gt;添加两个A记录，分别是ns1和ns2，ip是自建dns服务的公网ip<br>
+因为填写nameserver必须得填域名且至少两个，所以要给我们的dns服务绑两个域名</li>
+<li>修改域名的nameserver<br>
+！注意！由于修改nameservers会导致freenom管理的域名解析记录失效，所以我们修改另一个域名的nameserver，也就是说修改解析ns1和ns2的域名的nameservers是不行的。<br>
+点击另一个域名后的ManageDomain---&gt;选择Management Tools---&gt;Nameservers---&gt;Use custom nameservers (enter below)---&gt;填写ns1和ns1的域名，保存</li>
+</ol>
+<p>当ns1能ping通的时候，也就是解析生效后，就实现泛解析了</p>
+<h2 id="dns开机自启动">dns开机自启动</h2>
+<p>编辑rc.local<code>sudo vim /etc/rc.local</code>，输入以下内容</p>
+<pre><code>#!/bin/bash
+# rc.local config file created by use
+
+# 把你需要执行的命令写在这里
+dnsmasq -h
+
+exit 0
+</code></pre>
+<p>赋予执行权限<code>sudo chmod a+x /etc/rc.local</code></p>
+<p>参考链接：https://wiki.deepin.org/zh/%E7%B3%BB%E7%BB%9F%E7%AE%A1%E7%90%86/%E8%87%AA%E5%90%AF%E5%8A%A8%E7%A8%8B%E5%BA%8F</p>
+<h1 id="续">续</h1>
+<p>完犊子，我的公网ip只有家里网络和部分地区同运营商网络可以ping通，公司网络ping不通。</p>
+<blockquote>
+<p>一般情况下，你不是直接访问公网的， 经过nat转换了，ping 公网ip的话也是ping到你出口路由ip， 并不会直接到你的pc。</p>
+</blockquote>
+<p>可恶的宽带通运营商，最终只能先用 内网穿透 的方式了。<br>
+著名的内网穿透技术有frp，ngrok，可以自建。</p>
+<p>列几个不错的免费的服务提供商</p>
+<ul>
+<li>ngrok.cc 需实名</li>
+<li>natfrp.com 无需实名</li>
+<li>ngrok.io 无需实名，每次启动随机二级域名，80端口</li>
+<li>natapp.cn 没试</li>
+<li>freefrp.net 以前不需要，现在不知道</li>
+<li>zerotier-one.com 组建局域网，需要安装客户端，严格来说这是另一种方案不属于内网穿透</li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/an-zhuang-ddns-fu-wu/" class="post-title gt-a-link">
+                    安装DDNS服务
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

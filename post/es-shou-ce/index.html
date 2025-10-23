@@ -1,0 +1,269 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>ES手册 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    ES手册
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2023-07-07 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h2 id="创建索引">创建索引</h2>
+<pre><code>PUT /comma_analyzer_demo
+{
+  &quot;mappings&quot;: {
+    &quot;properties&quot;: {
+      &quot;info&quot;:{
+        &quot;type&quot;: &quot;text&quot;,
+        &quot;analyzer&quot;: &quot;ik_smart&quot;
+      }
+    }
+  }
+}
+</code></pre>
+<h2 id="查询索引">查询索引</h2>
+<pre><code>#查询索引映射
+GET /comma_analyzer_demo/_mapping
+#查询索引设置
+GET /comma_analyzer_demo/_settings
+</code></pre>
+<h2 id="删除索引">删除索引</h2>
+<pre><code>DELETE /comma_analyzer_demo
+</code></pre>
+<h2 id="修改索引">修改索引</h2>
+<ol>
+<li>用新的索引配置创建索引</li>
+<li>重建索引，从旧索引导入数据到新索引</li>
+<li>删除原索引</li>
+<li>设置别名，无缝切换</li>
+</ol>
+<pre><code># 用新的索引配置创建索引
+PUT comma_analyzer_demo1
+{
+  &quot;settings&quot;: {
+      &quot;analysis&quot;: {
+        &quot;analyzer&quot;: {
+            &quot;comma&quot;: {
+            &quot;type&quot;: &quot;pattern&quot;,
+            &quot;pattern&quot;: &quot;,&quot;
+            }
+        }
+      }
+    },
+  &quot;mappings&quot;: {
+    &quot;properties&quot;: {
+      &quot;info&quot; : {
+                &quot;type&quot; : &quot;text&quot;,
+                &quot;analyzer&quot;: &quot;comma&quot;,
+                &quot;search_analyzer&quot;: &quot;comma&quot;,
+                &quot;fields&quot; : {
+                  &quot;keyword&quot; : {
+                    &quot;type&quot; : &quot;keyword&quot;,
+                    &quot;ignore_above&quot; : 256
+                  }
+                }
+            }
+    }
+  }
+}
+# 从旧索引导入数据到新索引
+POST _reindex
+{
+  &quot;source&quot;: {
+    &quot;index&quot;: &quot;comma_analyzer_demo&quot;
+  },
+  &quot;dest&quot;: {
+    &quot;index&quot;: &quot;comma_analyzer_demo1&quot;
+  }
+}
+# 删除原索引
+DELETE /comma_analyzer_demo
+# 设置别名
+PUT /comma_analyzer_demo1/_alias/comma_analyzer_demo
+</code></pre>
+<h2 id="添加或更新数据">添加或更新数据</h2>
+<pre><code>POST /comma_analyzer_demo1/_doc/1
+{
+  &quot;info&quot;:&quot;中间件工程师,虚拟化工程师,数据库工程师,存储工程师,网络工程师,系统测试工程师,运维工程师&quot;
+}
+</code></pre>
+<h2 id="查询分词结果">查询分词结果</h2>
+<pre><code>GET _analyze
+{
+  &quot;analyzer&quot;: &quot;ik_smart&quot;,
+  &quot;text&quot;:&quot;中间件工程师,虚拟化工程师,数据库工程师,存储工程师,网络工程师,系统测试工程师,运维工程师&quot;
+}
+</code></pre>
+<h2 id="查询索引某条记录某个字段实际的分词结果">查询索引某条记录某个字段实际的分词结果</h2>
+<pre><code>GET /${index}/${type}/${id}/_termvectors?fields=${fields_name}
+# 例如：
+GET /comma_analyzer_demo1/_doc/1/_termvectors?fields=info
+</code></pre>
+<h2 id="查看别名都指向哪些索引">查看别名都指向哪些索引</h2>
+<pre><code>GET /*/_alias/comma_analyzer_demo
+</code></pre>
+<h2 id="平滑切换索引">平滑切换索引</h2>
+<pre><code>POST /_aliases 
+{
+    &quot;actions&quot;: [{
+        &quot;remove&quot;: {
+            &quot;index&quot;: &quot;topic_v1&quot;,
+            &quot;alias&quot;: &quot;topic_alias&quot;
+        }
+    }, {
+        &quot;add&quot;: {
+            &quot;index&quot;: &quot;topic_v2&quot;,
+            &quot;alias&quot;: &quot;topic_alias&quot;
+        }
+    }]
+}
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/bat-jiao-ben-zhi-geng-xin-github-de-hosts/" class="post-title gt-a-link">
+                    bat脚本之更新github的hosts
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

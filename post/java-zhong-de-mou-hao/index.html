@@ -1,0 +1,205 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>java中的冒号 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    java中的冒号
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-08-03 ·
+                    </time>
+                    
+                        <a href="https://blog.you.work.gd/tag/cViFIjH8z/" class="post-tags">
+                            # java基础
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h2 id="起因">起因</h2>
+<p>查看class文件的反编译代码时发现了这么一段代码：</p>
+<pre><code>label47: {
+                    Object this$appid = this.getAppid();
+                    Object other$appid = other.getAppid();
+                    if (this$appid == null) {
+                        if (other$appid == null) {
+                            break label47;
+                        }
+                    } else if (this$appid.equals(other$appid)) {
+                        break label47;
+                    }
+
+                    return false;
+}
+</code></pre>
+<p>一下子勾起了我的兴趣，这是什么操作，java还能这么写？<br>
+不信邪的我，在正常的代码的方法里也仿写了一段，居然编译通过！</p>
+<p>这我能忍？</p>
+<h2 id="追寻">追寻</h2>
+<p>原来它在这个地方叫<strong>跳转标记</strong>，不近可以标记代码块，还可以标记循环，如</p>
+<pre><code>outer:for(int i=0;i&lt;5;i++){
+            for(int i=0;i&lt;5;i++){
+                if(i==3){
+                    continue outer;
+                }
+            }
+        }
+//这个地方就是跳转标识,可用来标记地方 里层循环 continue直接跳出外层循环，继续执行外层循环
+</code></pre>
+<p>当然了，这里用break也能达到相同的目的，但是要是再有一层循环呢？借助中间变量也能实现，但是跳转标记来做岂不是更间接。</p>
+<p>真是一个有趣的玩法！</p>
+<h2 id="回忆">回忆</h2>
+<p>回忆下java中其他用到冒号的地方:</p>
+<ul>
+<li>三目表达式</li>
+<li>for循环</li>
+<li>switch</li>
+</ul>
+<blockquote>
+<p>参考链接：https://blog.csdn.net/chinajobs/article/details/45874017</p>
+</blockquote>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/tong-guo-hong-fa-qi-ji-lu-zhuang-tai-bian-geng-ji-lu-de-que-dian/" class="post-title gt-a-link">
+                    通过触发器记录状态变更记录的缺点
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

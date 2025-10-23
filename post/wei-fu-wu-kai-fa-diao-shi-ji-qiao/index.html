@@ -1,0 +1,379 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>微服务开发调试技巧 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1761204263976">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1761204263976"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    微服务开发调试技巧
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2023-09-22 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>服务之间相互调用，单独调试某一个服务会有一些不便，如果通过发布到测试环境来调试需要频繁部署且效率底下，那么如何高效调试微服务呢？</p>
+<h1 id="技巧一修改应用名称">技巧一：修改应用名称</h1>
+<p><strong>适用场景</strong>： 仅调试某个服务，只需启动这一个服务，无需启动其他服务</p>
+<p>调用关系例如 serviceA -&gt; serviceB<br>
+那么 serviceA-dev -&gt; serviceB 也是可以调用到的，因为serviceA中FeignClient注解中的name属性依旧指向serviceB。这里将<code>application.name = serviceA</code>改为<code>application.name = serviceA-dev</code> 是因为 这两个应用名都可以从nacos中拿到dev分组下的serviceA-dev.yaml远程配置。另外，无需担心线上的服务调用到本地启动的服务，因为本地的服务名是serviceA-dev, 线上Feign调用时找的服务名是serviceA。</p>
+<p>这样，调试serviceA时就不需要启动调用的其他服务了。</p>
+<h2 id="补充">补充</h2>
+<p>即使应用名不是serviceA-dev（例如：serviceA-Tony）也可读到配置的方法如下，指定配置文件的前缀prefix。</p>
+<pre><code>spring:
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.1.1.4:8848
+        namespace: 3808c751-0e87-4819-a308-8c2efa7f3a2d
+        file-extension: yaml
+        prefix: xn-delivery  // 指定
+</code></pre>
+<h1 id="技巧二修改网关">技巧二：修改网关</h1>
+<p><strong>适用场景</strong>： 前端通过网关访问某几个本地服务<br>
+<strong>缺点</strong>： 本地服务之间互相调用未访问本地服务，需要通过修改@FeignClient注解的服务名(name/value属性)或者指定本地服务地址(url属性)</p>
+<p>有时候我们想本地与前端联调，需要本地启动网关，但是我们本地不可能把所有的服务都启动起来，这就需要当访问 gatewayhostname/serviceA时，转发到 serviceA-dev服务。所以我们需要自定义负载均衡策略。</p>
+<p>实现较多，见本文末尾。</p>
+<p>参考：<br>
+https://blog.csdn.net/m0_37954663/article/details/107102980</p>
+<p>https://zhuanlan.zhihu.com/p/574044768</p>
+<h1 id="技巧三自定义负载均衡策略">技巧三：自定义负载均衡策略</h1>
+<p><strong>适用场景</strong>： 可插拔式（优雅）实现某几个本地服务之间互相调用</p>
+<p>A需要调用其他本地服务如B，在A中给B服务配置本地优先负载策略。</p>
+<pre><code>### LocalFirstRule.java
+// 本地服务优先 负载均衡规则
+public class LocalFirstRule extends NacosRule {
+    // 本地服务后缀
+    public static final String LOCAL_SUFFIX = &quot;-dev&quot;;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocalFirstRule.class);
+    public LocalFirstRule() {
+    }
+    @Resource
+    private NacosDiscoveryProperties nacosDiscoveryProperties;
+    @Resource
+    private NacosServiceManager nacosServiceManager;
+
+    public static final LinkedHashSet&lt;String&gt; LOCAL_IPV4S = NetUtil.localIpv4s();
+
+    public Server choose(Object key) {
+        try {
+            String clusterName = this.nacosDiscoveryProperties.getClusterName();
+            String group = this.nacosDiscoveryProperties.getGroup();
+            DynamicServerListLoadBalancer loadBalancer = (DynamicServerListLoadBalancer)this.getLoadBalancer();
+            String name = loadBalancer.getName() + LOCAL_SUFFIX;
+            NamingService namingService = this.nacosServiceManager.getNamingService(this.nacosDiscoveryProperties.getNacosProperties());
+            List&lt;Instance&gt; instances = namingService.selectInstances(name, group, true);
+            if (CollectionUtils.isEmpty(instances)) {
+                LOGGER.warn(&quot;no instance in service {}&quot;, name);
+                return null;
+            } else {
+                List&lt;Instance&gt; instancesToChoose = instances;
+                if (StringUtils.isNotBlank(clusterName)) {
+                    List&lt;Instance&gt; sameClusterInstances = (List)instances.stream().filter((instancex) -&gt; {
+                        return Objects.equals(clusterName, instancex.getClusterName());
+                    }).collect(Collectors.toList());
+                    if (!CollectionUtils.isEmpty(sameClusterInstances)) {
+                        instancesToChoose = sameClusterInstances;
+                    } else {
+                        LOGGER.warn(&quot;A cross-cluster call occurs，name = {}, clusterName = {}, instance = {}&quot;, new Object[]{name, clusterName, instances});
+                    }
+                }
+
+                // 选择本地IP的实例
+                instancesToChoose = instancesToChoose.stream().filter((instancex) -&gt; LOCAL_IPV4S.contains(instancex.getIp())).collect(Collectors.toList());
+                if (CollectionUtils.isEmpty(instancesToChoose)) {
+                    LOGGER.warn(&quot;local no instance in service {}&quot;, name);
+                    return null;
+                }
+
+                Instance instance = ExtendBalancer.getHostByRandomWeight2(instancesToChoose);
+                return new NacosServer(instance);
+            }
+        } catch (Exception var10) {
+            LOGGER.warn(&quot;NacosRule error&quot;, var10);
+            return null;
+        }
+    }
+}
+</code></pre>
+<pre><code>// 给某个服务配置本地优先的负载均衡规则
+@RibbonClient(name = &quot;contract&quot;, configuration = LocalFirstRule.class)
+public class ContractRibbonConfig {
+}
+</code></pre>
+<p><strong>注意</strong>：如果你使用的是Spring Cloud 2020.0.x及之后的版本中，Ribbon已经被Spring Cloud LoadBalancer取代。要自定义负载均衡策略，您需要遵循Spring Cloud LoadBalancer的方式。</p>
+<h1 id="附录">附录</h1>
+<h2 id="技巧二的实现">技巧二的实现</h2>
+<pre><code>/**
+ * @author hmy
+ * @date 2024年04月12日 10:59
+ * @description A是为了文件排名靠前
+ */
+public class ARouteConfig {
+    /**
+     * 需要代理到本地的服务，逗号分隔
+     */
+    public static final String PROXY_SERVICES = &quot;xx-quote,xx-contract&quot;;
+       /**
+     * 本地服务名后缀， 为了dev环境feign调用不到本地服务
+     */
+    public static final String LOCAL_SUFFIX = &quot;-dev&quot;;
+}
+</code></pre>
+<pre><code>/**
+ * @Description 将指定的服务路由到本地
+ * @Author hmy
+ * @Date 2024-01-02 17:57
+ * @Version
+ **/
+@Configuration
+public class GatewayConfig {
+
+    @Bean
+    public LoadBalancerClientFilter loadBalancerClientFilter(LoadBalancerClient client,
+                                                             LoadBalancerProperties properties,
+                                                             DiscoveryClient discoveryClient) {
+            return new CustomLoadBalancerClientFilter(client, properties,discoveryClient);
+    }
+
+}
+</code></pre>
+<pre><code>/**
+ * @Description 自定义负载均衡
+ * @Author hmy
+ * @Date 2024-01-02 10:36
+ * @Version
+ **/
+public class CustomLoadBalancerClientFilter extends LoadBalancerClientFilter implements BeanPostProcessor {
+
+    private final DiscoveryClient discoveryClient;
+
+    private final List&lt;IChooseRule&gt; chooseRules;
+
+    public CustomLoadBalancerClientFilter(LoadBalancerClient loadBalancer,
+                                          LoadBalancerProperties properties,
+                                          DiscoveryClient discoveryClient) {
+        super(loadBalancer, properties);
+        this.discoveryClient = discoveryClient;
+        this.chooseRules = new ArrayList&lt;&gt;();
+        chooseRules.add(new CustomChooseRule());
+    }
+
+    @Override
+    protected ServiceInstance choose(ServerWebExchange exchange) {
+        System.out.println(&quot;----------------CustomLoadBalancerClientFilter-------------&quot;);
+        if(!CollectionUtils.isEmpty(chooseRules)){
+            Iterator&lt;IChooseRule&gt; iChooseRuleIterator = chooseRules.iterator();
+            while (iChooseRuleIterator.hasNext()){
+                IChooseRule chooseRule = iChooseRuleIterator.next();
+                ServiceInstance choose = chooseRule.choose(exchange,discoveryClient);
+                if(choose != null){
+                    return choose;
+                } else {
+                    System.out.println(&quot;----------------choose == null-------------&quot;);
+                }
+            }
+        }
+        // 上文是自定义负载均衡规则，如果没找到可用的服务，使用默认的负载均衡规则
+        String host = ((URI) exchange.getAttribute(GATEWAY_REQUEST_URL_ATTR)).getHost();
+        return loadBalancer.choose(host);
+    }
+}
+</code></pre>
+<pre><code>/**
+ * @Description 自定义选择实例规则
+ * @Author hmy
+ * @Date 2024-01-02 11:03
+ * @Version
+ **/
+public interface IChooseRule {
+
+    /**
+     * 返回null那么使用gateway默认的负载均衡策略
+     * @param exchange
+     * @param discoveryClient
+     * @return
+     */
+    ServiceInstance choose(ServerWebExchange exchange, DiscoveryClient discoveryClient);
+
+}
+</code></pre>
+<pre><code>/**
+ * @Description  微服务负载均衡策略
+ * @Author hmy
+ * @Date 2024-01-02 11:10
+ * @Version
+ **/
+public class CustomChooseRule implements IChooseRule {
+    public static final LinkedHashSet&lt;String&gt; LOCAL_IPV4S = NetUtil.localIpv4s();
+
+    @Override
+    public ServiceInstance choose(ServerWebExchange exchange, DiscoveryClient discoveryClient) {
+        // 需要代理的服务名
+        Stream&lt;String&gt; proxyServices = Stream.of(ARouteConfig.PROXY_SERVICES.split(StrUtil.COMMA));
+
+        URI originalUrl = (URI) exchange.getAttributes().get(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR);
+        String instancesId = originalUrl.getHost();
+
+        if(proxyServices.anyMatch(instancesId::startsWith)){
+            // 获取所有实例
+            List&lt;ServiceInstance&gt; instances = discoveryClient.getInstances(instancesId.endsWith(ARouteConfig.LOCAL_SUFFIX) ? instancesId : instancesId + ARouteConfig.LOCAL_SUFFIX);
+            
+            // 挑选本地服务
+            NacosServiceInstance serviceInstance = (NacosServiceInstance) instances.stream()
+                .filter(instance -&gt; LOCAL_IPV4S.stream().filter(s -&gt; !NetUtil.LOCAL_IP.equals(s)).anyMatch(instance.getHost()::equals))
+                .findFirst().orElse(null);
+            return serviceInstance;
+           
+        }
+
+        return null;
+    }
+}
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/nei-wang-chuan-tou-fu-wu-qi-shou-cang/" class="post-title gt-a-link">
+                    内网穿透服务器收藏
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>
