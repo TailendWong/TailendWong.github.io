@@ -1,0 +1,191 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>实现SSD 源文件夹到 HDD 目标文件夹的单向同步 | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1780389802034">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1780389802034"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    实现SSD 源文件夹到 HDD 目标文件夹的单向同步
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2026-01-23 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h1 id="实现ssd-源文件夹到-hdd-目标文件夹的单向同步">实现SSD 源文件夹到 HDD 目标文件夹的单向同步</h1>
+<h2 id="安装软件">安装软件</h2>
+<p>sudo apt install lsyncd -y</p>
+<h2 id="创建配置文件-etclsyncdlsyncdconfluasource-为-ssd-源文件夹target-为-hdd-目标文件夹">创建配置文件 /etc/lsyncd/lsyncd.conf.lua，source 为 SSD 源文件夹，target 为 HDD 目标文件夹</h2>
+<pre><code>settings {
+    logfile = &quot;/var/log/lsyncd/lsyncd.log&quot;,    # 同步日志（排查问题用）
+    statusFile = &quot;/var/log/lsyncd/lsyncd.status&quot;,  # 状态文件
+    inotifyMode = &quot;CloseWrite&quot;,  # 文件关闭写入时触发同步（避免文件未写完就同步）
+    maxProcesses = 1           # 单进程同步，降低迷你主机资源占用
+}
+
+# 核心：SSD -&gt; HDD 单向实时同步（default.rsync 天然单向）
+sync {
+    default.rsync,               # 基于rsync的单向同步模式（核心，保证单向）
+    delay = 1,                   # 1秒缓冲，避免文件频繁变化重复同步
+    source = &quot;/mnt/ssd/source&quot;,  # 替换为你的SSD源文件夹（必改）
+    target = &quot;/mnt/hdd/target&quot;,  # 替换为你的HDD目标文件夹（必改）
+    delete = false,
+    rsync = {
+        archive = true,          # 保留文件属性（权限、时间戳等），等价于 -a
+        compress = false,        # 本地同步无需压缩，提升速度
+        verbose = false        # 关闭详细输出，降低日志量
+    }
+}
+
+# 第二个同步任务：新增的文件夹同步（按需修改source和target）
+#sync {
+#     ...
+#}
+</code></pre>
+<h2 id="创建日志与启动">创建日志与启动</h2>
+<p>sudo mkdir -p /var/log/lsyncd &amp;&amp; sudo systemctl start lsyncd &amp;&amp; sudo systemctl enable lsyncd &amp;&amp; sudo systemctl status lsyncd</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/xiu-gai-doris-de-ods-biao-lie-ming/" class="post-title gt-a-link">
+                    修改Doris的ods表列名
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,435 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>Flowable bmpn表达式JUEL | Honia&#39;s Blog</title>
+
+<link rel="shortcut icon" href="https://blog.you.work.gd/favicon.ico?v=1780389802034">
+
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.you.work.gd/styles/main.css">
+
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.staticfile.net/highlight.js/11.9.0/languages/dart.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.12.0/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Honia&#39;s Blog
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1780389802034"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Flowable bmpn表达式JUEL
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2026-06-02 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <hr>
+<h2 id="一-变量取值与存在判断varvariablesvars-前缀通用">一、变量取值与存在判断（var:/variables:/vars: 前缀通用）</h2>
+<h3 id="1get-getordefault推荐防空报错">1）get / getOrDefault（推荐，防空报错）</h3>
+<pre><code class="language-el">${var:get(&quot;userDeptIdList&quot;)}
+${var:getOrDefault(&quot;userDeptIdList&quot;, &quot;默认部门&quot;)}
+</code></pre>
+<ul>
+<li>作用：安全获取变量；不存在/<code>null</code> 不抛异常。</li>
+</ul>
+<h3 id="2exists-notexists判断是否存在且非空">2）exists / notExists（判断是否存在且非空）</h3>
+<pre><code class="language-el">${var:exists(&quot;userDeptIdList&quot;)}
+${var:notExists(&quot;userDeptIdList&quot;)}
+</code></pre>
+<ul>
+<li>作用：<code>exists</code> = 非 <code>null</code>；<code>notExists</code> = <code>null</code> 或不存在。</li>
+</ul>
+<h3 id="3isempty-isnotempty空判断字符串集合数组">3）isEmpty / isNotEmpty（空判断，字符串/集合/数组）</h3>
+<pre><code class="language-el">${var:isEmpty(&quot;userDeptIdList&quot;)}
+${var:isNotEmpty(&quot;userDeptIdList&quot;)}
+</code></pre>
+<ul>
+<li>字符串：<code>&quot;&quot;</code> 算空；集合：size=0 算空；<code>null</code> 算空。</li>
+</ul>
+<hr>
+<h2 id="二-集合数组类你最关心的-contains-家族">二、集合/数组类（你最关心的 contains 家族）</h2>
+<h3 id="1contains集合包含单个元素">1）contains（集合包含<strong>单个元素</strong>）</h3>
+<pre><code class="language-el">${var:contains(userDeptIdList, &quot;085ebdc83c7f4f11678e1850fa1ce594&quot;)}
+</code></pre>
+<ul>
+<li>等价 Java：<code>list.contains(element)</code></li>
+</ul>
+<h3 id="2containsany集合包含任意一个你之前用的">2）containsAny（集合包含<strong>任意一个</strong>，你之前用的）</h3>
+<pre><code class="language-el">${var:containsAny(userDeptIdList, &quot;部门A&quot;, &quot;部门B&quot;, &quot;部门C&quot;)}
+</code></pre>
+<ul>
+<li>只要有一个匹配就返回 <code>true</code></li>
+</ul>
+<h3 id="3containsall集合包含全部">3）containsAll（集合包含<strong>全部</strong>）</h3>
+<pre><code class="language-el">${var:containsAll(userDeptIdList, &quot;部门A&quot;, &quot;部门B&quot;)}
+</code></pre>
+<ul>
+<li>必须全部包含才返回 <code>true</code></li>
+</ul>
+<h3 id="4size-length集合数组大小">4）size / length（集合/数组大小）</h3>
+<pre><code class="language-el">${var:size(userDeptIdList) &gt; 0}
+${var:length(userDeptIdList) &gt; 0}
+</code></pre>
+<hr>
+<h2 id="三-字符串处理flwstringutils-或-var-均可">三、字符串处理（flwStringUtils 或 var: 均可）</h2>
+<h3 id="1contains字符串包含子串">1）contains（字符串包含子串）</h3>
+<pre><code class="language-el">${var:contains(applyReason, &quot;紧急&quot;)}
+</code></pre>
+<h3 id="2startswith-endswith">2）startsWith / endsWith</h3>
+<pre><code class="language-el">${var:startsWith(orderNo, &quot;ORD-&quot;)}
+${var:endsWith(orderNo, &quot;-2026&quot;)}
+</code></pre>
+<h3 id="3substring-substringfrom">3）substring / substringFrom</h3>
+<pre><code class="language-el">${flwStringUtils.substring(applyReason, 0, 5)}
+${flwStringUtils.substringFrom(applyReason, 2)}
+</code></pre>
+<h3 id="4split字符串转集合">4）split（字符串转集合）</h3>
+<pre><code class="language-el">${flwStringUtils.split(deptIds, &quot;,&quot;)}
+</code></pre>
+<h3 id="5tolowercase-touppercase">5）toLowerCase / toUpperCase</h3>
+<pre><code class="language-el">${var:toLowerCase(username) == &quot;admin&quot;}
+</code></pre>
+<hr>
+<h2 id="四-相等比较eqneltlegtge">四、相等/比较（eq/ne/lt/le/gt/ge）</h2>
+<pre><code class="language-el">${var:eq(amount, 1000)}    // ==
+${var:ne(amount, 1000)}    // !=
+${var:lt(amount, 1000)}    // &lt;
+${var:le(amount, 1000)}    // &lt;=
+${var:gt(amount, 1000)}    // &gt;
+${var:ge(amount, 1000)}    // &gt;=
+</code></pre>
+<hr>
+<h2 id="五-日期常用内置-date-前缀">五、日期常用（内置 date: 前缀）</h2>
+<pre><code class="language-el">${date:now()}                     // 当前日期时间
+${date:format(date:now(), &quot;yyyy-MM-dd&quot;)}
+${date:diffDays(startDate, endDate) &gt; 7}
+</code></pre>
+<hr>
+<h2 id="六-数值常用math-或直接写">六、数值常用（math: 或直接写）</h2>
+<pre><code class="language-el">${math:abs(amount)}
+${math:round(amount, 2)}
+${math:max(100,200)}
+${math:min(100,200)}
+</code></pre>
+<hr>
+<h2 id="七-逻辑组合常用在网关条件">七、逻辑组合（常用在网关条件）</h2>
+<pre><code class="language-el">// 且
+${var:containsAny(deptList, &quot;D001&quot;) &amp;&amp; var:gt(amount, 5000)}
+
+// 或
+${var:containsAny(deptList, &quot;D001&quot;) || var:gt(amount, 5000)}
+
+// 非
+${!var:containsAny(deptList, &quot;D001&quot;)}
+</code></pre>
+<hr>
+<h2 id="常用速查表直接复制">常用速查表（直接复制）</h2>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>作用</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>var:get(var)</code></td>
+<td>安全取值</td>
+<td><code>${var:get(&quot;deptList&quot;)}</code></td>
+</tr>
+<tr>
+<td><code>var:isEmpty(var)</code></td>
+<td>是否空</td>
+<td><code>${var:isEmpty(&quot;deptList&quot;)}</code></td>
+</tr>
+<tr>
+<td><code>var:contains(list, e)</code></td>
+<td>集合含元素</td>
+<td><code>${var:contains(deptList, &quot;D1&quot;)}</code></td>
+</tr>
+<tr>
+<td><code>var:containsAny(list, e1,e2)</code></td>
+<td>含任意一个</td>
+<td><code>${var:containsAny(deptList, &quot;D1&quot;,&quot;D2&quot;)}</code></td>
+</tr>
+<tr>
+<td><code>var:containsAll(list, e1,e2)</code></td>
+<td>含全部</td>
+<td><code>${var:containsAll(deptList, &quot;D1&quot;,&quot;D2&quot;)}</code></td>
+</tr>
+<tr>
+<td><code>var:eq(a,b)</code></td>
+<td>等于</td>
+<td><code>${var:eq(amount, 1000)}</code></td>
+</tr>
+<tr>
+<td><code>var:gt(a,b)</code></td>
+<td>大于</td>
+<td><code>${var:gt(amount, 1000)}</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1 id="扩展篇">扩展篇</h1>
+<hr>
+<h2 id="一-juel-是什么一句话">一、JUEL 是什么（一句话）</h2>
+<p><strong>JUEL = Java Unified Expression Language</strong>，是 <strong>Java EE UEL（统一表达式语言）</strong> 的一个<strong>轻量、高性能、可缓存的开源实现</strong>。</p>
+<ul>
+<li>标准：遵循 <strong>JSP 2.1 / JSR-245</strong>，兼容 Java EE 5/6。</li>
+<li>包：<code>javax.el</code>，由 <strong>de.odysseus.juel</strong> 提供实现。</li>
+<li>特点：<strong>体积小、速度快、支持方法调用、自带缓存、可扩展函数</strong>。</li>
+</ul>
+<hr>
+<h2 id="二-juel-和-flowable-的关系重点">二、JUEL 和 Flowable 的关系（重点）</h2>
+<p><strong>Flowable 默认表达式引擎就是 JUEL</strong>。<br>
+你在 BPMN 里写的：</p>
+<ul>
+<li>网关条件：<code>${var:containsAny(...)}</code></li>
+<li>负责人：<code>${assignee}</code></li>
+<li>跳过表达式：<code>${leaveDays &lt;= 1}</code></li>
+<li>任务监听器/执行监听器表达式</li>
+</ul>
+<p><strong>全都是 JUEL 表达式</strong>。</p>
+<p>Flowable 内置了一套 <strong>JUEL 扩展函数</strong>（就是你上一问看到的 <code>var:xxx</code>、<code>date:xxx</code>、<code>math:xxx</code>），底层是 JUEL 解析执行。</p>
+<hr>
+<h2 id="三-juel-基础语法你每天都在用">三、JUEL 基础语法（你每天都在用）</h2>
+<h3 id="1基本格式">1）基本格式</h3>
+<pre><code class="language-el">${表达式}
+</code></pre>
+<ul>
+<li>引擎会把 <code>${}</code> 里面的内容交给 <strong>JUEL 解析计算</strong>。</li>
+</ul>
+<h3 id="2变量访问">2）变量访问</h3>
+<pre><code class="language-el">${userDeptIdList}       // 直接取流程变量
+${order.amount}          // 取对象属性
+${list[0]}                // 取集合元素
+</code></pre>
+<h3 id="3运算">3）运算</h3>
+<pre><code class="language-el">${amount &gt; 1000}
+${a + b * 2}
+${empty userDeptIdList} // 判断 null/空字符串/空集合
+</code></pre>
+<h3 id="4方法调用juel-强于原生-el">4）方法调用（JUEL 强于原生 EL）</h3>
+<pre><code class="language-el">${str.length()}
+${list.contains(&quot;xxx&quot;)}
+${date.getTime()}
+</code></pre>
+<hr>
+<h2 id="四-flowable-对-juel-的扩展最常用">四、Flowable 对 JUEL 的扩展（最常用）</h2>
+<p>Flowable 在标准 JUEL 上包装了一套<strong>内置函数</strong>，用前缀区分：</p>
+<h3 id="1var-变量集合操作">1）var: （变量/集合操作）</h3>
+<pre><code class="language-el">${var:contains(list, e)}
+${var:containsAny(list, e1,e2)}
+${var:isEmpty(list)}
+${var:getOrDefault(&quot;key&quot;, def)}
+</code></pre>
+<h3 id="2date-日期">2）date: （日期）</h3>
+<pre><code class="language-el">${date:now()}
+${date:format(date, &quot;yyyy-MM-dd&quot;)}
+${date:diffDays(d1, d2)}
+</code></pre>
+<h3 id="3math-数值">3）math: （数值）</h3>
+<pre><code class="language-el">${math:abs(n)}
+${math:round(n,2)}
+</code></pre>
+<h3 id="4flwstringutils-字符串">4）flwStringUtils: （字符串）</h3>
+<pre><code class="language-el">${flwStringUtils.split(str, &quot;,&quot;)}
+${flwStringUtils.substring(str,0,5)}
+</code></pre>
+<hr>
+<h2 id="五-juel-vs-原生-el-vs-groovyjs选型">五、JUEL vs 原生 EL vs Groovy/JS（选型）</h2>
+<h3 id="1juel-vs-原生-el">1）JUEL vs 原生 EL</h3>
+<ul>
+<li>原生 EL：功能弱，<strong>不支持方法调用</strong>，性能一般。</li>
+<li>JUEL：<strong>支持方法调用、缓存、高性能、可扩展</strong>，Flowable 首选。</li>
+</ul>
+<h3 id="2juel-vs-groovyjavascript">2）JUEL vs Groovy/JavaScript</h3>
+<p>Flowable 支持三种脚本，场景不同：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>JUEL</th>
+<th>Groovy / JS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>适用</td>
+<td><strong>简单条件、变量访问</strong></td>
+<td>复杂逻辑、循环、调用 Bean</td>
+</tr>
+<tr>
+<td>性能</td>
+<td><strong>极高（毫秒级）</strong></td>
+<td>较低（脚本引擎开销）</td>
+</tr>
+<tr>
+<td>安全</td>
+<td>沙箱可控，<strong>无注入风险</strong></td>
+<td>风险高，可执行任意代码</td>
+</tr>
+<tr>
+<td>调试</td>
+<td>难</td>
+<td>较易</td>
+</tr>
+<tr>
+<td>推荐场景</td>
+<td>网关条件、任务分配、简单判断</td>
+<td>脚本任务、复杂计算、服务调用</td>
+</tr>
+</tbody>
+</table>
+<p>一句话：<strong>能用 JUEL 就用 JUEL，复杂逻辑再用 Groovy</strong>。</p>
+<hr>
+<h2 id="六-你之前的表达式用-juel-原生怎么写">六、你之前的表达式，用 JUEL 原生怎么写？</h2>
+<p>你原来的：</p>
+<pre><code class="language-el">${var:containsAny(userDeptIdList,&quot;085ebdc83c7f4f11678e1850fa1ce594&quot;)}
+</code></pre>
+<p>去掉 Flowable 扩展，<strong>纯 JUEL 原生写法</strong>（前提：<code>userDeptIdList</code> 是 List）：</p>
+<pre><code class="language-el">${userDeptIdList.contains(&quot;085ebdc83c7f4f11678e1850fa1ce594&quot;)}
+</code></pre>
+<p>Flowable 的 <code>var:containsAny</code> 本质就是对这种原生方法的<strong>封装和容错</strong>（比如判空）。</p>
+<hr>
+<h2 id="七-小结记住这-3-点">七、小结（记住这 3 点）</h2>
+<ol>
+<li><strong>JUEL 是 EL 的高性能实现，Flowable 默认表达式引擎</strong>。</li>
+<li><strong>${...} 全是 JUEL</strong>，Flowable 加了 <code>var:/date:/math:</code> 扩展。</li>
+<li><strong>简单条件用 JUEL，复杂逻辑用 Groovy</strong>。</li>
+</ol>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.you.work.gd/post/shi-xian-ssd-yuan-wen-jian-jia-dao-hdd-mu-biao-wen-jian-jia-de-dan-xiang-tong-bu/" class="post-title gt-a-link">
+                    实现SSD 源文件夹到 HDD 目标文件夹的单向同步
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">人如果没有梦想，和咸鱼有什么区别</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://blog.you.work.gd/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

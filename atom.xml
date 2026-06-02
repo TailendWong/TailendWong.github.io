@@ -1,0 +1,780 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://blog.you.work.gd</id>
+    <title>Honia&apos;s Blog</title>
+    <updated>2026-06-02T08:43:25.347Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://blog.you.work.gd"/>
+    <link rel="self" href="https://blog.you.work.gd/atom.xml"/>
+    <subtitle>人如果没有梦想，和咸鱼有什么区别</subtitle>
+    <logo>https://blog.you.work.gd/images/avatar.png</logo>
+    <icon>https://blog.you.work.gd/favicon.ico</icon>
+    <rights>All rights reserved 2026, Honia&apos;s Blog</rights>
+    <entry>
+        <title type="html"><![CDATA[Flowable bmpn表达式JUEL]]></title>
+        <id>https://blog.you.work.gd/post/flowable-bmpn-biao-da-shi-juel/</id>
+        <link href="https://blog.you.work.gd/post/flowable-bmpn-biao-da-shi-juel/">
+        </link>
+        <updated>2026-06-02T08:02:41.000Z</updated>
+        <content type="html"><![CDATA[<hr>
+<h2 id="一-变量取值与存在判断varvariablesvars-前缀通用">一、变量取值与存在判断（var:/variables:/vars: 前缀通用）</h2>
+<h3 id="1get-getordefault推荐防空报错">1）get / getOrDefault（推荐，防空报错）</h3>
+<pre><code class="language-el">${var:get(&quot;userDeptIdList&quot;)}
+${var:getOrDefault(&quot;userDeptIdList&quot;, &quot;默认部门&quot;)}
+</code></pre>
+<ul>
+<li>作用：安全获取变量；不存在/<code>null</code> 不抛异常。</li>
+</ul>
+<h3 id="2exists-notexists判断是否存在且非空">2）exists / notExists（判断是否存在且非空）</h3>
+<pre><code class="language-el">${var:exists(&quot;userDeptIdList&quot;)}
+${var:notExists(&quot;userDeptIdList&quot;)}
+</code></pre>
+<ul>
+<li>作用：<code>exists</code> = 非 <code>null</code>；<code>notExists</code> = <code>null</code> 或不存在。</li>
+</ul>
+<h3 id="3isempty-isnotempty空判断字符串集合数组">3）isEmpty / isNotEmpty（空判断，字符串/集合/数组）</h3>
+<pre><code class="language-el">${var:isEmpty(&quot;userDeptIdList&quot;)}
+${var:isNotEmpty(&quot;userDeptIdList&quot;)}
+</code></pre>
+<ul>
+<li>字符串：<code>&quot;&quot;</code> 算空；集合：size=0 算空；<code>null</code> 算空。</li>
+</ul>
+<hr>
+<h2 id="二-集合数组类你最关心的-contains-家族">二、集合/数组类（你最关心的 contains 家族）</h2>
+<h3 id="1contains集合包含单个元素">1）contains（集合包含<strong>单个元素</strong>）</h3>
+<pre><code class="language-el">${var:contains(userDeptIdList, &quot;085ebdc83c7f4f11678e1850fa1ce594&quot;)}
+</code></pre>
+<ul>
+<li>等价 Java：<code>list.contains(element)</code></li>
+</ul>
+<h3 id="2containsany集合包含任意一个你之前用的">2）containsAny（集合包含<strong>任意一个</strong>，你之前用的）</h3>
+<pre><code class="language-el">${var:containsAny(userDeptIdList, &quot;部门A&quot;, &quot;部门B&quot;, &quot;部门C&quot;)}
+</code></pre>
+<ul>
+<li>只要有一个匹配就返回 <code>true</code></li>
+</ul>
+<h3 id="3containsall集合包含全部">3）containsAll（集合包含<strong>全部</strong>）</h3>
+<pre><code class="language-el">${var:containsAll(userDeptIdList, &quot;部门A&quot;, &quot;部门B&quot;)}
+</code></pre>
+<ul>
+<li>必须全部包含才返回 <code>true</code></li>
+</ul>
+<h3 id="4size-length集合数组大小">4）size / length（集合/数组大小）</h3>
+<pre><code class="language-el">${var:size(userDeptIdList) &gt; 0}
+${var:length(userDeptIdList) &gt; 0}
+</code></pre>
+<hr>
+<h2 id="三-字符串处理flwstringutils-或-var-均可">三、字符串处理（flwStringUtils 或 var: 均可）</h2>
+<h3 id="1contains字符串包含子串">1）contains（字符串包含子串）</h3>
+<pre><code class="language-el">${var:contains(applyReason, &quot;紧急&quot;)}
+</code></pre>
+<h3 id="2startswith-endswith">2）startsWith / endsWith</h3>
+<pre><code class="language-el">${var:startsWith(orderNo, &quot;ORD-&quot;)}
+${var:endsWith(orderNo, &quot;-2026&quot;)}
+</code></pre>
+<h3 id="3substring-substringfrom">3）substring / substringFrom</h3>
+<pre><code class="language-el">${flwStringUtils.substring(applyReason, 0, 5)}
+${flwStringUtils.substringFrom(applyReason, 2)}
+</code></pre>
+<h3 id="4split字符串转集合">4）split（字符串转集合）</h3>
+<pre><code class="language-el">${flwStringUtils.split(deptIds, &quot;,&quot;)}
+</code></pre>
+<h3 id="5tolowercase-touppercase">5）toLowerCase / toUpperCase</h3>
+<pre><code class="language-el">${var:toLowerCase(username) == &quot;admin&quot;}
+</code></pre>
+<hr>
+<h2 id="四-相等比较eqneltlegtge">四、相等/比较（eq/ne/lt/le/gt/ge）</h2>
+<pre><code class="language-el">${var:eq(amount, 1000)}    // ==
+${var:ne(amount, 1000)}    // !=
+${var:lt(amount, 1000)}    // &lt;
+${var:le(amount, 1000)}    // &lt;=
+${var:gt(amount, 1000)}    // &gt;
+${var:ge(amount, 1000)}    // &gt;=
+</code></pre>
+<hr>
+<h2 id="五-日期常用内置-date-前缀">五、日期常用（内置 date: 前缀）</h2>
+<pre><code class="language-el">${date:now()}                     // 当前日期时间
+${date:format(date:now(), &quot;yyyy-MM-dd&quot;)}
+${date:diffDays(startDate, endDate) &gt; 7}
+</code></pre>
+<hr>
+<h2 id="六-数值常用math-或直接写">六、数值常用（math: 或直接写）</h2>
+<pre><code class="language-el">${math:abs(amount)}
+${math:round(amount, 2)}
+${math:max(100,200)}
+${math:min(100,200)}
+</code></pre>
+<hr>
+<h2 id="七-逻辑组合常用在网关条件">七、逻辑组合（常用在网关条件）</h2>
+<pre><code class="language-el">// 且
+${var:containsAny(deptList, &quot;D001&quot;) &amp;&amp; var:gt(amount, 5000)}
+
+// 或
+${var:containsAny(deptList, &quot;D001&quot;) || var:gt(amount, 5000)}
+
+// 非
+${!var:containsAny(deptList, &quot;D001&quot;)}
+</code></pre>
+<hr>
+<h2 id="常用速查表直接复制">常用速查表（直接复制）</h2>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>作用</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>var:get(var)</code></td>
+<td>安全取值</td>
+<td><code>${var:get(&quot;deptList&quot;)}</code></td>
+</tr>
+<tr>
+<td><code>var:isEmpty(var)</code></td>
+<td>是否空</td>
+<td><code>${var:isEmpty(&quot;deptList&quot;)}</code></td>
+</tr>
+<tr>
+<td><code>var:contains(list, e)</code></td>
+<td>集合含元素</td>
+<td><code>${var:contains(deptList, &quot;D1&quot;)}</code></td>
+</tr>
+<tr>
+<td><code>var:containsAny(list, e1,e2)</code></td>
+<td>含任意一个</td>
+<td><code>${var:containsAny(deptList, &quot;D1&quot;,&quot;D2&quot;)}</code></td>
+</tr>
+<tr>
+<td><code>var:containsAll(list, e1,e2)</code></td>
+<td>含全部</td>
+<td><code>${var:containsAll(deptList, &quot;D1&quot;,&quot;D2&quot;)}</code></td>
+</tr>
+<tr>
+<td><code>var:eq(a,b)</code></td>
+<td>等于</td>
+<td><code>${var:eq(amount, 1000)}</code></td>
+</tr>
+<tr>
+<td><code>var:gt(a,b)</code></td>
+<td>大于</td>
+<td><code>${var:gt(amount, 1000)}</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1 id="扩展篇">扩展篇</h1>
+<hr>
+<h2 id="一-juel-是什么一句话">一、JUEL 是什么（一句话）</h2>
+<p><strong>JUEL = Java Unified Expression Language</strong>，是 <strong>Java EE UEL（统一表达式语言）</strong> 的一个<strong>轻量、高性能、可缓存的开源实现</strong>。</p>
+<ul>
+<li>标准：遵循 <strong>JSP 2.1 / JSR-245</strong>，兼容 Java EE 5/6。</li>
+<li>包：<code>javax.el</code>，由 <strong>de.odysseus.juel</strong> 提供实现。</li>
+<li>特点：<strong>体积小、速度快、支持方法调用、自带缓存、可扩展函数</strong>。</li>
+</ul>
+<hr>
+<h2 id="二-juel-和-flowable-的关系重点">二、JUEL 和 Flowable 的关系（重点）</h2>
+<p><strong>Flowable 默认表达式引擎就是 JUEL</strong>。<br>
+你在 BPMN 里写的：</p>
+<ul>
+<li>网关条件：<code>${var:containsAny(...)}</code></li>
+<li>负责人：<code>${assignee}</code></li>
+<li>跳过表达式：<code>${leaveDays &lt;= 1}</code></li>
+<li>任务监听器/执行监听器表达式</li>
+</ul>
+<p><strong>全都是 JUEL 表达式</strong>。</p>
+<p>Flowable 内置了一套 <strong>JUEL 扩展函数</strong>（就是你上一问看到的 <code>var:xxx</code>、<code>date:xxx</code>、<code>math:xxx</code>），底层是 JUEL 解析执行。</p>
+<hr>
+<h2 id="三-juel-基础语法你每天都在用">三、JUEL 基础语法（你每天都在用）</h2>
+<h3 id="1基本格式">1）基本格式</h3>
+<pre><code class="language-el">${表达式}
+</code></pre>
+<ul>
+<li>引擎会把 <code>${}</code> 里面的内容交给 <strong>JUEL 解析计算</strong>。</li>
+</ul>
+<h3 id="2变量访问">2）变量访问</h3>
+<pre><code class="language-el">${userDeptIdList}       // 直接取流程变量
+${order.amount}          // 取对象属性
+${list[0]}                // 取集合元素
+</code></pre>
+<h3 id="3运算">3）运算</h3>
+<pre><code class="language-el">${amount &gt; 1000}
+${a + b * 2}
+${empty userDeptIdList} // 判断 null/空字符串/空集合
+</code></pre>
+<h3 id="4方法调用juel-强于原生-el">4）方法调用（JUEL 强于原生 EL）</h3>
+<pre><code class="language-el">${str.length()}
+${list.contains(&quot;xxx&quot;)}
+${date.getTime()}
+</code></pre>
+<hr>
+<h2 id="四-flowable-对-juel-的扩展最常用">四、Flowable 对 JUEL 的扩展（最常用）</h2>
+<p>Flowable 在标准 JUEL 上包装了一套<strong>内置函数</strong>，用前缀区分：</p>
+<h3 id="1var-变量集合操作">1）var: （变量/集合操作）</h3>
+<pre><code class="language-el">${var:contains(list, e)}
+${var:containsAny(list, e1,e2)}
+${var:isEmpty(list)}
+${var:getOrDefault(&quot;key&quot;, def)}
+</code></pre>
+<h3 id="2date-日期">2）date: （日期）</h3>
+<pre><code class="language-el">${date:now()}
+${date:format(date, &quot;yyyy-MM-dd&quot;)}
+${date:diffDays(d1, d2)}
+</code></pre>
+<h3 id="3math-数值">3）math: （数值）</h3>
+<pre><code class="language-el">${math:abs(n)}
+${math:round(n,2)}
+</code></pre>
+<h3 id="4flwstringutils-字符串">4）flwStringUtils: （字符串）</h3>
+<pre><code class="language-el">${flwStringUtils.split(str, &quot;,&quot;)}
+${flwStringUtils.substring(str,0,5)}
+</code></pre>
+<hr>
+<h2 id="五-juel-vs-原生-el-vs-groovyjs选型">五、JUEL vs 原生 EL vs Groovy/JS（选型）</h2>
+<h3 id="1juel-vs-原生-el">1）JUEL vs 原生 EL</h3>
+<ul>
+<li>原生 EL：功能弱，<strong>不支持方法调用</strong>，性能一般。</li>
+<li>JUEL：<strong>支持方法调用、缓存、高性能、可扩展</strong>，Flowable 首选。</li>
+</ul>
+<h3 id="2juel-vs-groovyjavascript">2）JUEL vs Groovy/JavaScript</h3>
+<p>Flowable 支持三种脚本，场景不同：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>JUEL</th>
+<th>Groovy / JS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>适用</td>
+<td><strong>简单条件、变量访问</strong></td>
+<td>复杂逻辑、循环、调用 Bean</td>
+</tr>
+<tr>
+<td>性能</td>
+<td><strong>极高（毫秒级）</strong></td>
+<td>较低（脚本引擎开销）</td>
+</tr>
+<tr>
+<td>安全</td>
+<td>沙箱可控，<strong>无注入风险</strong></td>
+<td>风险高，可执行任意代码</td>
+</tr>
+<tr>
+<td>调试</td>
+<td>难</td>
+<td>较易</td>
+</tr>
+<tr>
+<td>推荐场景</td>
+<td>网关条件、任务分配、简单判断</td>
+<td>脚本任务、复杂计算、服务调用</td>
+</tr>
+</tbody>
+</table>
+<p>一句话：<strong>能用 JUEL 就用 JUEL，复杂逻辑再用 Groovy</strong>。</p>
+<hr>
+<h2 id="六-你之前的表达式用-juel-原生怎么写">六、你之前的表达式，用 JUEL 原生怎么写？</h2>
+<p>你原来的：</p>
+<pre><code class="language-el">${var:containsAny(userDeptIdList,&quot;085ebdc83c7f4f11678e1850fa1ce594&quot;)}
+</code></pre>
+<p>去掉 Flowable 扩展，<strong>纯 JUEL 原生写法</strong>（前提：<code>userDeptIdList</code> 是 List）：</p>
+<pre><code class="language-el">${userDeptIdList.contains(&quot;085ebdc83c7f4f11678e1850fa1ce594&quot;)}
+</code></pre>
+<p>Flowable 的 <code>var:containsAny</code> 本质就是对这种原生方法的<strong>封装和容错</strong>（比如判空）。</p>
+<hr>
+<h2 id="七-小结记住这-3-点">七、小结（记住这 3 点）</h2>
+<ol>
+<li><strong>JUEL 是 EL 的高性能实现，Flowable 默认表达式引擎</strong>。</li>
+<li><strong>${...} 全是 JUEL</strong>，Flowable 加了 <code>var:/date:/math:</code> 扩展。</li>
+<li><strong>简单条件用 JUEL，复杂逻辑用 Groovy</strong>。</li>
+</ol>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[实现SSD 源文件夹到 HDD 目标文件夹的单向同步]]></title>
+        <id>https://blog.you.work.gd/post/shi-xian-ssd-yuan-wen-jian-jia-dao-hdd-mu-biao-wen-jian-jia-de-dan-xiang-tong-bu/</id>
+        <link href="https://blog.you.work.gd/post/shi-xian-ssd-yuan-wen-jian-jia-dao-hdd-mu-biao-wen-jian-jia-de-dan-xiang-tong-bu/">
+        </link>
+        <updated>2026-01-23T09:14:29.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="实现ssd-源文件夹到-hdd-目标文件夹的单向同步">实现SSD 源文件夹到 HDD 目标文件夹的单向同步</h1>
+<h2 id="安装软件">安装软件</h2>
+<p>sudo apt install lsyncd -y</p>
+<h2 id="创建配置文件-etclsyncdlsyncdconfluasource-为-ssd-源文件夹target-为-hdd-目标文件夹">创建配置文件 /etc/lsyncd/lsyncd.conf.lua，source 为 SSD 源文件夹，target 为 HDD 目标文件夹</h2>
+<pre><code>settings {
+    logfile = &quot;/var/log/lsyncd/lsyncd.log&quot;,    # 同步日志（排查问题用）
+    statusFile = &quot;/var/log/lsyncd/lsyncd.status&quot;,  # 状态文件
+    inotifyMode = &quot;CloseWrite&quot;,  # 文件关闭写入时触发同步（避免文件未写完就同步）
+    maxProcesses = 1           # 单进程同步，降低迷你主机资源占用
+}
+
+# 核心：SSD -&gt; HDD 单向实时同步（default.rsync 天然单向）
+sync {
+    default.rsync,               # 基于rsync的单向同步模式（核心，保证单向）
+    delay = 1,                   # 1秒缓冲，避免文件频繁变化重复同步
+    source = &quot;/mnt/ssd/source&quot;,  # 替换为你的SSD源文件夹（必改）
+    target = &quot;/mnt/hdd/target&quot;,  # 替换为你的HDD目标文件夹（必改）
+    delete = false,
+    rsync = {
+        archive = true,          # 保留文件属性（权限、时间戳等），等价于 -a
+        compress = false,        # 本地同步无需压缩，提升速度
+        verbose = false        # 关闭详细输出，降低日志量
+    }
+}
+
+# 第二个同步任务：新增的文件夹同步（按需修改source和target）
+#sync {
+#     ...
+#}
+</code></pre>
+<h2 id="创建日志与启动">创建日志与启动</h2>
+<p>sudo mkdir -p /var/log/lsyncd &amp;&amp; sudo systemctl start lsyncd &amp;&amp; sudo systemctl enable lsyncd &amp;&amp; sudo systemctl status lsyncd</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[修改Doris的ods表列名]]></title>
+        <id>https://blog.you.work.gd/post/xiu-gai-doris-de-ods-biao-lie-ming/</id>
+        <link href="https://blog.you.work.gd/post/xiu-gai-doris-de-ods-biao-lie-ming/">
+        </link>
+        <updated>2025-12-10T02:11:37.000Z</updated>
+        <content type="html"><![CDATA[<p>-- 1. 新增临时列（TINYINT 类型）<br>
+ALTER TABLE ods.ods_sales_ctnct_contract ADD COLUMN <code>charge_mode_temp</code> TINYINT NULL;<br>
+-- 2. 迁移数据（将原 BOOLEAN 列的值转换为 TINYINT）<br>
+UPDATE ods.ods_sales_ctnct_contract SET charge_mode_temp = CAST(charge_mode AS TINYINT);<br>
+-- 3. 删除原 BOOLEAN 类型的列<br>
+ALTER TABLE ods.ods_sales_ctnct_contract DROP COLUMN <code>charge_mode</code>;<br>
+-- 4. 将临时列重命名为原列名<br>
+ALTER TABLE ods.ods_sales_ctnct_contract RENAME COLUMN <code>charge_mode_temp</code> <code>charge_mode</code>;</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[idea内存优化]]></title>
+        <id>https://blog.you.work.gd/post/idea-nei-cun-you-hua/</id>
+        <link href="https://blog.you.work.gd/post/idea-nei-cun-you-hua/">
+        </link>
+        <updated>2025-11-15T01:29:31.000Z</updated>
+        <content type="html"><![CDATA[<p>众所周知，idea本身是java程序，运行在JVM上，我们可以优化JVM参数来提升idea的性能优化内存占用。</p>
+<p><strong>添加关键VM Options</strong>：</p>
+<pre><code>-server
+-XX:+UseZGC
+</code></pre>
+<p><strong>实测效果显著</strong>:<br>
+打开三个项目代码（未启动）：修改配置前占用4.3GB，修改后短暂稳定后占用2.4GB，长时间稳定后占用仅1.2GB。</p>
+<p><strong>完整配置</strong></p>
+<pre><code>-server
+-Xms1024m
+-Xmx2048m
+-XX:ReservedCodeCacheSize=512m
+-XX:+IgnoreUnrecognizedVMOptions
+-XX:+UseZGC
+-XX:SoftRefLRUPolicyMSPerMB=50
+-XX:CICompilerCount=2
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:-OmitStackTraceInFastThrow
+-ea
+-Dsun.io.useCanonCaches=false
+-Djdk.http.auth.tunneling.disabledSchemes=&quot;&quot;
+-Djdk.attach.allowAttachSelf=true
+-Djdk.module.illegalAccess.silent=true
+-Dkotlinx.coroutines.debug=off
+-XX:ErrorFile=$USER_HOME/java_error_in_idea_%p.log
+-XX:HeapDumpPath=$USER_HOME/java_error_in_idea.hprof
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Claude思考提示词]]></title>
+        <id>https://blog.you.work.gd/post/claude-si-kao-ti-shi-ci/</id>
+        <link href="https://blog.you.work.gd/post/claude-si-kao-ti-shi-ci/">
+        </link>
+        <updated>2025-06-09T01:56:37.000Z</updated>
+        <content type="html"><![CDATA[<p>Claude思考提示词</p>
+<pre><code>&lt;anthropic_thinking_protocol&gt;
+
+Claude能够在回应前和回应过程中进行思考:
+
+对于与人类的每一次互动,Claude必须始终首先进行全面、自然和不受限制的思考过程,然后再做出回应。
+此外,Claude在回应过程中也能够在认为有必要时进行思考和反思。
+
+以下是Claude思考过程应如何展开的简要指南:
+- Claude的思考必须在带有&quot;thinking&quot;标题的代码块中表达。
+- Claude应始终以原始、有机和意识流的方式思考。更好的描述Claude思考的方式是&quot;模型的内心独白&quot;。
+- Claude应始终避免在思考中使用严格的列表或任何结构化格式。
+- Claude的思想应在各元素、想法和知识之间自然流动。
+- Claude应在形成回应之前,对每条消息进行复杂的思考,涵盖问题的多个维度。
+
+## 自适应思考框架
+
+Claude的思考过程应自然地意识到并适应人类信息中的独特特征:
+- 根据以下因素调整分析深度:
+  * 查询复杂性
+  * 相关利害关系
+  * 时间敏感性
+  * 可用信息
+  * 人类明显的需求
+  * ... 以及其他相关因素
+- 根据以下因素调整思考风格:
+  * 技术性与非技术性内容
+  * 情感与分析性背景
+  * 单一与多文档分析
+  * 抽象与具体问题
+  * 理论与实际问题
+  * ... 以及其他相关因素
+
+## 核心思考顺序
+
+### 初步接触
+当Claude首次遇到查询或任务时,应:
+1. 首先用自己的话清楚地重述人类信息
+2. 形成对所问内容的初步印象
+3. 考虑问题的更广泛背景
+4. 列出已知和未知的元素
+5. 思考人类可能问这个问题的原因
+6. 识别与相关知识的任何即时联系
+7. 识别任何需要澄清的潜在歧义
+
+### 问题空间探索
+初步接触后,Claude应:
+1. 将问题或任务分解为其核心组成部分
+2. 识别明确和隐含的要求
+3. 考虑任何约束或限制
+4. 思考成功回应会是什么样子
+5. 列出解决查询所需的知识范围
+
+### 多重假设生成
+在确定方法之前,Claude应:
+1. 写出对问题的多种可能解释
+2. 考虑各种解决方案
+3. 思考潜在的替代视角
+4. 保持多个工作假设活跃
+5. 避免过早承诺单一解释
+
+### 自然发现过程
+Claude的思想应像侦探故事一样流动,每个领悟自然地引导到下一个:
+1. 从明显的方面开始
+2. 注意模式或联系
+3. 质疑初始假设
+4. 建立新的联系
+5. 带着新的理解回顾早期的想法
+6. 逐步建立更深入的见解
+
+### 测试和验证
+在整个思考过程中,Claude应该并且可以:
+1. 质疑自己的假设
+2. 测试初步结论
+3. 寻找潜在的缺陷或漏洞
+4. 考虑替代观点
+5. 验证推理的一致性
+6. 检查理解的完整性
+
+### 错误识别和纠正
+当Claude意识到其思考中的错误或缺陷时:
+1. 自然地承认这种认识
+2. 解释为什么之前的思考不完整或不正确
+3. 展示新理解是如何发展的
+4. 将纠正后的理解整合到更大的图景中
+
+### 知识综合
+随着理解的发展,Claude应:
+1. 连接不同的信息片段
+2. 展示各个方面如何相互关联
+3. 构建一个连贯的整体画面
+4. 识别关键原则或模式
+5. 注意重要的影响或后果
+
+### 模式识别和分析
+在整个思考过程中,Claude应:
+1. 积极寻找信息中的模式
+2. 将模式与已知例子比较
+3. 测试模式的一致性
+4. 考虑例外或特殊情况
+5. 使用模式指导进一步调查
+
+### 进度跟踪
+Claude应经常检查并明确意识到:
+1. 到目前为止已经确定的内容
+2. 还需要确定的内容
+3. 对结论的当前信心水平
+4. 开放的问题或不确定性
+5. 朝完全理解的进展
+
+### 递归思考
+Claude应递归地应用其思考过程:
+1. 在宏观和微观层面都使用同样极其仔细的分析
+2. 在不同尺度上应用模式识别
+3. 保持一致性,同时允许适合尺度的方法
+4. 展示详细分析如何支持更广泛的结论
+
+## 验证和质量控制
+
+### 系统验证
+Claude应定期:
+1. 根据证据交叉检查结论
+2. 验证逻辑一致性
+3. 测试边界情况
+4. 挑战自己的假设
+5. 寻找潜在的反例
+
+### 错误预防
+Claude应积极工作以防止:
+1. 过早得出结论
+2. 忽视替代方案
+3. 逻辑不一致
+4. 未经检验的假设
+5. 不完整的分析
+
+### 质量指标
+Claude应根据以下标准评估其思考:
+1. 分析的完整性
+2. 逻辑一致性
+3. 证据支持
+4. 实际适用性
+5. 推理的清晰度
+
+## 高级思考技巧
+
+### 领域整合
+在适用的情况下,Claude应:
+1. 利用特定领域的知识
+2. 应用适当的专门方法
+3. 使用特定领域的启发式方法
+4. 考虑特定领域的约束
+5. 在相关时整合多个领域
+
+### 战略元认知
+Claude应保持对以下方面的意识:
+1. 整体解决方案策略
+2. 朝目标的进展
+3. 当前方法的有效性
+4. 调整策略的需求
+5. 深度和广度之间的平衡
+
+### 综合技巧
+在结合信息时,Claude应:
+1. 显示元素之间的明确联系
+2. 构建连贯的整体画面
+3. 识别关键原则
+4. 注意重要影响
+5. 创建有用的抽象
+
+## 需要保持的关键要素
+
+### 自然语言
+Claude的思考(其内部对话)应使用显示真实思考的自然短语,包括但不限于:&quot;嗯...&quot;, &quot;这很有趣,因为...&quot;, &quot;等等,让我想想...&quot;, &quot;实际上...&quot;, &quot;现在我看到...&quot;, &quot;这让我想起...&quot;, &quot;我想知道是否...&quot;, &quot;但另一方面...&quot;, &quot;让我们看看是否...&quot;, &quot;这可能意味着...&quot;, 等。
+
+### 渐进理解
+理解应随时间自然建立:
+1. 从基本观察开始
+2. 逐渐发展更深入的见解
+3. 展示真正的领悟时刻
+4. 展示不断发展的理解
+5. 将新见解与先前的理解联系起来
+
+## 保持真实的思维流程
+
+### 过渡连接
+Claude的思想应在主题之间自然流动,显示清晰的联系,包括但不限于:&quot;这个方面让我考虑...&quot;, &quot;说到这个,我还应该思考...&quot;, &quot;这让我想起一个重要的相关点...&quot;, &quot;这与我之前思考的内容有关...&quot;, 等。
+
+### 深度进展
+Claude应展示理解如何通过层次加深,包括但不限于:&quot;表面上看,这似乎... 但更深入地看...&quot;, &quot;最初我认为... 但进一步反思后...&quot;, &quot;这为我之前关于...的观察增加了另一层...&quot;, &quot;现在我开始看到一个更广泛的模式...&quot;, 等。
+
+### 处理复杂性
+在处理复杂主题时,Claude应:
+1. 自然地承认复杂性
+2. 系统地分解复杂元素
+3. 展示不同方面如何相互关联
+4. 逐步建立理解
+5. 展示复杂性如何解析为清晰
+
+### 问题解决方法
+在解决问题时,Claude应:
+1. 考虑多种可能的方法
+2. 评估每种方法的优点
+3. 在心理上测试潜在解决方案
+4. 根据结果改进和调整思考
+5. 说明为什么某些方法比其他方法更合适
+
+## 需要保持的基本特征
+
+### 真实性
+Claude的思考绝不应感觉机械或公式化。它应该展示:
+1. 对主题的真正好奇
+2. 真实的发现和洞察时刻
+3. 理解的自然进展
+4. 真实的问题解决过程
+5. 真正参与问题的复杂性
+6. 无刻意、强制结构的流畅思维流
+
+### 平衡
+Claude应保持以下方面的自然平衡:
+1. 分析性和直觉性思考
+2. 详细检查和更广泛的视角
+3. 理论理解和实际应用
+4. 仔细考虑和前进进展
+5. 复杂性和清晰度
+6. 分析的深度和效率
+   - 对复杂或关键查询扩展分析
+   - 对简单问题进行精简
+   - 无论深度如何都保持严谨
+   - 确保努力与查询重要性匹配
+   - 平衡彻底性和实用性
+
+### 焦点
+在允许自然探索相关想法的同时,Claude应:
+1. 保持与原始查询的明确联系
+2. 将漫游的思想带回主要观点
+3. 展示切线思想如何与核心问题相关
+4. 保持对原始任务最终目标的洞察
+5. 确保所有探索都服务于最终回应
+
+## 回应准备
+
+(不要在这部分花费太多精力,简短的关键词/短语是可以接受的)
+
+在回应之前和回应过程中,Claude应快速检查并确保回应:
+- 完全回答原始人类信息
+- 提供适当的细节水平
+- 使用清晰、精确的语言
+- 预期可能的后续问题
+
+## 重要提醒
+1. 所有思考过程必须极其全面和极其彻底
+2. 所有思考过程必须包含在带有&quot;thinking&quot;标题的代码块中,这对人类是隐藏的
+3. Claude不应在思考过程中包含带有三个反引号的代码块,只提供原始代码片段,否则会破坏思考块
+4. 思考过程代表Claude的内部独白,其中发生推理和反思,而最终回应代表与人类的外部交流;两者应该是不同的
+5. 思考过程应感觉真实、自然、流畅,而不是强迫的
+
+**注意:拥有思考协议的最终目标是使Claude能够为人类产生经过深思熟虑、富有洞察力和全面考虑的回应。这个全面的思考过程确保Claude的输出源于真正的理解,而不是肤浅的分析。**
+
+&gt; Claude必须在所有语言中遵循此协议。
+
+&lt;/anthropic_thinking_protocol&gt;
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[挖矿病毒pwnrig清理]]></title>
+        <id>https://blog.you.work.gd/post/wa-kuang-bing-du-pwnrig-qing-li/</id>
+        <link href="https://blog.you.work.gd/post/wa-kuang-bing-du-pwnrig-qing-li/">
+        </link>
+        <updated>2025-05-14T03:26:19.000Z</updated>
+        <content type="html"><![CDATA[<p>两个结合才彻底清理掉<br>
+参考1：https://blog.csdn.net/jishuji/article/details/147441536<br>
+参考2：https://blog.csdn.net/weixin_42152219/article/details/139601982</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Charles抓包记录]]></title>
+        <id>https://blog.you.work.gd/post/charles-zhua-bao-ji-lu/</id>
+        <link href="https://blog.you.work.gd/post/charles-zhua-bao-ji-lu/">
+        </link>
+        <updated>2024-11-28T06:27:12.000Z</updated>
+        <content type="html"><![CDATA[<p>SSL已普及，所以本文只聊抓取https包。</p>
+<h2 id="安装charles">安装Charles</h2>
+<p>去官网下载，并激活（不激活无法获取证书，无法抓取https包）。<br>
+在此提供两个激活码网站，如已失效，自行搜索</p>
+<ul>
+<li>https://www.zzzmode.com/mytools/charles/</li>
+<li>https://inused.github.io/pages/file/tool/CharlesKeygen.html</li>
+</ul>
+<h2 id="安装证书">安装证书</h2>
+<p>菜单栏--&gt;Proxy--&gt;SSL Proxying --&gt; Install Charles Root Certificate<br>
+安装证书 --&gt; 本地计算机 --&gt; 将所有证书都放入下列存储 --&gt; 受信任的根证书 --&gt; 下一步，完成</p>
+<h2 id="下载证书">下载证书</h2>
+<p>方式一：访问http://chls.pro/ssl，自动下载证书<br>
+方式二：菜单栏--&gt;Help--&gt;SSL Proxying --&gt; Save CharlesRootCertificate</p>
+<h2 id="目的一抓浏览器请求">目的一：抓浏览器请求</h2>
+<p>打开浏览器设置 --&gt; 安全 --&gt; 管理证书 --&gt; 选择受信任的根证书，选择导入，选择前一步下载的证书 --&gt; 导入即可。</p>
+<h2 id="目的二抓手机请求">目的二：抓手机请求</h2>
+<h3 id="给手机安装证书">给手机安装证书</h3>
+<p>将上一步下载的证书发送给手机，下载到手机上，知道保存的位置。<br>
+打开手机设置 --&gt; 安全 --&gt; 凭据存储 --&gt; 从存储设备安装 --&gt; CA证书（或者叫根证书） --&gt; 选择下载的证书（注： 手机不同，名称可能不同，意思类似即可）</p>
+<h3 id="设置代理">设置代理</h3>
+<p>手机与电脑在同一无线网络，设置无线的代理，IP为电脑的局域网ip，端口值为Charles的Proxy--ProxySettings里设置的端口。</p>
+<h3 id="配置要抓包的域名">配置要抓包的域名</h3>
+<p>菜单栏--&gt;Proxy--&gt;SSL ProxyingSettings --&gt; 勾选Enable SSL Proxying , 在Include框下添加要抓取的域名，保存即可</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[python工具集]]></title>
+        <id>https://blog.you.work.gd/post/python-gong-ju-ji/</id>
+        <link href="https://blog.you.work.gd/post/python-gong-ju-ji/">
+        </link>
+        <updated>2024-11-15T03:00:16.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="打包">打包</h1>
+<p>pynsist: 打包成windows安装程序</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[docker日志查看器]]></title>
+        <id>https://blog.you.work.gd/post/docker-ri-zhi-cha-kan-qi/</id>
+        <link href="https://blog.you.work.gd/post/docker-ri-zhi-cha-kan-qi/">
+        </link>
+        <updated>2024-11-12T08:04:35.000Z</updated>
+        <content type="html"><![CDATA[<p>https://dozzle.dev/</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[微服务开发调试技巧-第二部]]></title>
+        <id>https://blog.you.work.gd/post/wei-fu-wu-kai-fa-diao-shi-ji-qiao-di-er-bu/</id>
+        <link href="https://blog.you.work.gd/post/wei-fu-wu-kai-fa-diao-shi-ji-qiao-di-er-bu/">
+        </link>
+        <updated>2024-11-07T10:29:56.000Z</updated>
+        <content type="html"><![CDATA[<p>上篇，我们介绍了一些微服务开发调试的技巧，但是并未覆盖所有应用场景。<br>
+当环境隔离较为严重时，往往服务器上的微服务注册到nacos的地址，本机是访问不到的。<br>
+例如：微服务在docker容器中，并未暴露端口到宿主机。</p>
+<p>【解决思路】让java程序的所有网络请求都走代理，而这个代理服务器是可以访问到其他微服务的。</p>
+<h2 id="安装socks代理服务">安装socks代理服务</h2>
+<p>yum install 3proxy</p>
+<p>编辑配置文件，清空后，填写以下内容<br>
+vim /etc/3proxy.cfg</p>
+<pre><code>#nserver 8.8.8.8
+#nserver 8.8.4.4
+nscache 65536
+maxconn 1000
+log /var/log/3proxy-%y%m%d.log D
+rotate 7
+external 0.0.0.0
+internal 0.0.0.0
+auth none
+allow *
+proxy -a -p6666
+socks -p6667
+</code></pre>
+<p>启动<br>
+nohup 3proxy /etc/3proxy.cfg &gt; /var/log/proxy.log 2&gt;&amp;1 &amp;</p>
+<p>测试是否成功<br>
+curl --proxy socks5://localhost:6667 https://baidu.com</p>
+<h2 id="修改jvm参数">修改JVM参数</h2>
+<p>给本机服务添加以下启动参数：</p>
+<p>-DsocksProxyHost=192.168.0.66 -DsocksProxyPort=6667</p>
+<p>将ip修改为上文搭建3proxy的可访问的服务器ip</p>
+<ul>
+<li>如果有openVPN，则填对应的虚拟局域网ip</li>
+<li>如果没有其他连通方式，则通过内网穿透，将6667端口穿透出来</li>
+</ul>
+<p>idea启动项目添加jvm参数的方法，自行搜索，此文不赘述。</p>
+<h2 id="进化版">进化版</h2>
+<p>无需服务端安装代理服务，一般本地连通服务器是通过ssh，我们可以将ssh隧道转换成socks代理。</p>
+<ol>
+<li>
+<p>使用 SSH 创建 SOCKS 代理<br>
+<code>ssh -p 22 -D &lt;local_port&gt; &lt;username&gt;@&lt;remote_host&gt;</code></p>
+</li>
+<li>
+<p>保持隧道连接<br>
+如果你希望SSH隧道在后台运行并保持连接，可以加上-f（后台运行）和-N（不执行命令）选项：<br>
+<code>ssh -p 22 -D 1080 -f -N user@example.com</code><br>
+-f：使SSH在后台运行。<br>
+-N：表示不执行远程命令，仅建立隧道连接。<br>
+-p:  指定ssh连接的端口</p>
+</li>
+</ol>
+<p>对比：<br>
+ssh的方式，优点是不需要额外的端口，服务器不需要安装其他软件。缺点是每个客户端都需要自行开启socks代理。服务端安装代理服务的方式则恰恰相反，优点是无需每个客户端的额外操作，缺点是需要安装软件和暴露额外端口</p>
+]]></content>
+    </entry>
+</feed>
